@@ -30,6 +30,10 @@ public class CorrespondentServiceInfo
         return userName;
     }
     
+    public String getHost() {
+    	return host;
+    }
+    
     public ServiceRMI getServiceRMI() {
         return serviceRMI;
     }
