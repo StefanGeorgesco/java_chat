@@ -33,6 +33,6 @@ public class InvitationController extends Controller {
 		}.start();
 		if (T)
 			System.out.println("Invitation lancée pour " + correspondent.getUserName() + "...");
-		InvitationController.this.app.getMainController().requestCorrespondentConnection(correspondent);
+		InvitationController.this.app.getMainController().requestCorrespondentPairing(correspondent);
 	}
 }

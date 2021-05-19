@@ -11,8 +11,8 @@ public class Alimenter {
 	public static void main(String[] args) {
 		pairedCorrespondents = Collections.synchronizedMap(new HashMap<String, Correspondent>());
 		String[] userNames = new String[] { "Mark", "Alfred", "Mary", "Emma" };
-		String[] userIds = new String[] { "07EE366420AF4EEC9833F2B1843D2920", "9055B0018E6A4BB9A79FC92CBEBD3E66",
-				"0BEB9C851E5A47AA95588C66EE7CADDD", "DB30CBFCD79449D1BA1D8CB9220FEC96" };
+		String[] userIds = new String[] { "C57EF90C28304A919C730B366CECA02C", "39C29A6420804F15A27111EAE9ED3EAE",
+				"C6D118E8F480488997FA8963D4E73876", "9A1A2D1FF1514E1BBC4CD668D1098F27" };
 		for (int i = 0; i < 4; i++) {
 			pairedCorrespondents.put(userIds[i], new Correspondent(userIds[i], userNames[i], false));
 		}

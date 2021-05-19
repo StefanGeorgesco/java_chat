@@ -37,12 +37,12 @@ public class MainController extends UnicastRemoteObject implements ServiceRMI {
 		return app;
 	}
 	
-	public void requestCorrespondentConnection(Correspondent correspondent) {
+	public void requestCorrespondentPairing(Correspondent correspondent) {
 		CorrespondentServiceLocator correspondentServiceLocator = this.app.getCorrespondentServiceLocator();
 		String userId = correspondent.getUserId();
 		ServiceRMI correspondentServiceRMI = correspondentServiceLocator.lookup(userId).getServiceRMI();
 		try {
-			correspondentServiceRMI.requestConnection(this);
+			correspondentServiceRMI.requestPairing(this);
 		} catch (RemoteException e) {
 			if (T)
 				e.printStackTrace();
@@ -59,7 +59,7 @@ public class MainController extends UnicastRemoteObject implements ServiceRMI {
 		return app.getProfileInfo();
 	}
 	
-	public void requestConnection(ServiceRMI service) throws RemoteException {
+	public void requestPairing(ServiceRMI service) throws RemoteException {
 		if (T)
 			System.out.println("Connection required from " + service.getProfileInfo().getUserName());
 	}
