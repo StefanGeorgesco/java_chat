@@ -1,10 +1,7 @@
 package fr.sgo.controller;
 
-import javax.swing.JOptionPane;
-
 import fr.sgo.app.App;
 import fr.sgo.entity.Correspondent;
-import fr.sgo.view.MainView;
 
 /**
  * Class DiscussionController
@@ -17,14 +14,13 @@ import fr.sgo.view.MainView;
 public class DiscussionController extends Controller {
 	private Correspondent correspondent;
 
-	public DiscussionController(App app, String actionName, MainView mainView, Correspondent correspondent) {
-		super(app, actionName, mainView);
+	public DiscussionController(App app, String actionName, Correspondent correspondent) {
+		super(app, actionName);
 		this.correspondent = correspondent;
 	}
 
 	public void run() {
 		System.out.println("Discussion avec " + correspondent.getUserName() + "...");
-		JOptionPane.showMessageDialog(mainView, "Discussion avec " + correspondent.getUserName() + "...");
 	}
 
 }

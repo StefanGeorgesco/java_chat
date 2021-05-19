@@ -72,7 +72,7 @@ public class MainView extends JFrame implements Observer {
 		pairedCorrespondentsPanel.removeAll();
 		for (Correspondent correspondent : correspondentManager.getPairedCorrespondents()) {
 			pairedCorrespondentsPanel.add(new CorrespondentPanel(app, correspondent, 
-					new DiscussionController(app, "Discuter", MainView.this, correspondent)));
+					new DiscussionController(app, "Discuter", correspondent)));
 		}
 		for (Component component : unpairedCorrespondentsPanel.getComponents()) {
 			((CorrespondentPanel) component).getCorrespondent().deleteObserver((CorrespondentPanel) component);
@@ -80,7 +80,7 @@ public class MainView extends JFrame implements Observer {
 		unpairedCorrespondentsPanel.removeAll();
 		for (Correspondent correspondent : correspondentManager.getUnpairedCorrespondents()) {
 			unpairedCorrespondentsPanel.add(new CorrespondentPanel(app,correspondent, 
-					new InvitationController(app, "Inviter", MainView.this, correspondent)));
+					new InvitationController(app, "Inviter", correspondent)));
 		}
 		pack();
 		repaint();
@@ -100,7 +100,7 @@ public class MainView extends JFrame implements Observer {
 																								// unpaired
 			// and resolved
 			unpairedCorrespondentsPanel.add(new CorrespondentPanel(app, correspondent, 
-					new InvitationController(app, "Inviter", MainView.this, correspondent)));
+					new InvitationController(app, "Inviter", correspondent)));
 			pack();
 			repaint();
 		} else { // correspondent was unpaired and is removed

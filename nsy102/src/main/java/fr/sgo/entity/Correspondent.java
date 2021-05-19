@@ -80,7 +80,7 @@ public class Correspondent extends Observable implements Serializable {
 		return userName + " (" + (isOnline() ? "online" : "offline") + ")";
 	}
 
-	private class PairingInfo implements Serializable {
+	public class PairingInfo implements Serializable {
 		/**
 		 * 
 		 */
@@ -98,17 +98,14 @@ public class Correspondent extends Observable implements Serializable {
 			return pairingStatus;
 		}
 
-		@SuppressWarnings("unused")
 		public String getOutId() {
 			return outId;
 		}
 
-		@SuppressWarnings("unused")
 		public String getInId() {
 			return inId;
 		}
 
-		@SuppressWarnings("unused")
 		public void setPairingStatus(int status) {
 			synchronized (this) {
 				this.pairingStatus = status;
@@ -117,7 +114,6 @@ public class Correspondent extends Observable implements Serializable {
 			Correspondent.this.notifyObservers();
 		}
 
-		@SuppressWarnings("unused")
 		public synchronized void setInId(String id) {
 				this.inId = id;
 		}
