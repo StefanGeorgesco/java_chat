@@ -34,7 +34,7 @@ public class RequestPairingController extends Controller {
 		ServiceRMI correspondentServiceRMI = correspondentServiceLocator.lookup(userId).getServiceRMI();
 		
 		switch (pairingStatus) {
-			case Correspondent.PAIRING_GRANTED:
+			case Correspondent.PAIRED:
 				new InformationMessage(app, "Invitation déjà acceptée par " + userName + "...");
 				break;
 			case Correspondent.PAIRING_REFUSED:

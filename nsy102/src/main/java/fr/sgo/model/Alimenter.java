@@ -15,7 +15,7 @@ public class Alimenter {
 				"9698B3B3584C4F6DB4F7D02DEEF9B481", "5C11DC83485C4C34BB65219B7192989C" };
 		for (int i = 0; i < 4; i++) {
 			Correspondent correspondent = new Correspondent(userIds[i], userNames[i], false);
-			correspondent.getPairingInfo().setPairingStatus(Correspondent.PAIRING_GRANTED);
+			correspondent.getPairingInfo().setPairingStatus(Correspondent.PAIRED);
 			pairedCorrespondents.add(correspondent);
 		}
 		Storage.save(pairedCorrespondents, objectName);

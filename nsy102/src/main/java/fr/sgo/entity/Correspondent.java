@@ -23,7 +23,7 @@ public class Correspondent extends Observable implements Serializable {
 	public static final int PAIRING_REQUEST_SENT = 1;
 	public static final int PAIRING_REQUEST_RECEIVED = 2;
 	public static final int PAIRING_REFUSED = 3;
-	public static final int PAIRING_GRANTED = 4;
+	public static final int PAIRED = 4;
 	private String userId;
 	private String userName;
 	private boolean online;
@@ -73,7 +73,7 @@ public class Correspondent extends Observable implements Serializable {
 	}
 
 	public boolean isPaired() {
-		return this.pairingInfo.getPairingStatus() == PAIRING_GRANTED;
+		return this.pairingInfo.getPairingStatus() == PAIRED;
 	}
 
 	@Override

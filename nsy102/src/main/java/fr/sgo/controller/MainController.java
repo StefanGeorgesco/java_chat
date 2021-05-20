@@ -6,6 +6,7 @@ import java.rmi.server.UnicastRemoteObject;
 import fr.sgo.service.ProfileInfo;
 import fr.sgo.service.ServiceRMI;
 import fr.sgo.app.App;
+import fr.sgo.entity.Correspondent;
 
 /**
  * Class MainController
@@ -46,12 +47,34 @@ public class MainController extends UnicastRemoteObject implements ServiceRMI {
 	}
 	
 	public void requestPairing(ServiceRMI service, String inId) throws RemoteException {
+		String userId = service.getProfileInfo().getUserId();
+		String userName = service.getProfileInfo().getUserName();
 		if (T)
-			System.out.println("Connection required from " + service.getProfileInfo().getUserName()
+			System.out.println("Connection required from " + userName
 					+ " with id " + inId);
+		Correspondent correspondent = app.getCorrespondentManager().getCorrespondent(userId);
+		if (correspondent == null) {
+			correspondent = new Correspondent(userId, userName, true);
+			app.getCorrespondentManager().add(correspondent);
+		}
+		new PairingRequestController(app, "", correspondent, inId).execute();
 	}
 	
 	public void acceptPairingRequest(ServiceRMI service, String inId, String outId) throws RemoteException {
+//		String userId = service.getProfileInfo().getUserId();
+		String userName = service.getProfileInfo().getUserName();
+		if (T)
+			System.out.println("Connection accepted from " + userName
+					+ " with id " + outId);
+
+		// TO DO
+	}
+	
+	public void refusePairing(ServiceRMI service, String inId)  throws RemoteException {
+//		String userId = service.getProfileInfo().getUserId();
+		String userName = service.getProfileInfo().getUserName();
+		if (T)
+			System.out.println("Connection refused from " + userName);
 		// TO DO
 	}
 

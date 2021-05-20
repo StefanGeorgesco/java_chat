@@ -18,5 +18,7 @@ public interface ServiceRMI extends Remote {
     public void requestPairing(ServiceRMI service, String inId)  throws RemoteException;
     
     public void acceptPairingRequest(ServiceRMI service, String inId, String outId) throws RemoteException;
+    
+    public void refusePairing(ServiceRMI service, String inId)  throws RemoteException;
 
 }

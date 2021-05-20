@@ -95,6 +95,10 @@ public class CorrespondentManager extends Observable implements Observer {
 	public Correspondent getCorrespondent(String userId) {
 		return correspondents.get(userId);
 	}
+	
+	public void add(Correspondent correspondent) {
+		correspondents.put(correspondent.getUserId(), correspondent);
+	}
 
 	public void update(Observable observable, Object arg) {
 		final CorrespondentServiceLocator correspondentServiceLocator = (CorrespondentServiceLocator) observable;
