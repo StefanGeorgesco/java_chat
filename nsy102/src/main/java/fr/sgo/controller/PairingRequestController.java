@@ -45,7 +45,7 @@ public class PairingRequestController extends Controller {
 			case Correspondent.PAIRING_REFUSED:
 			case Correspondent.PAIRING_REQUEST_RECEIVED:
 			case Correspondent.UNPAIRED:
-				int response = JOptionPane.showConfirmDialog(new JPanel(), userName + " souhaite vous inviter. OK ?");
+				int response = JOptionPane.showConfirmDialog(app.getMainView(), userName + " souhaite vous inviter. OK ?");
 				if (response == 0)
 					accept = true;
 				break;
