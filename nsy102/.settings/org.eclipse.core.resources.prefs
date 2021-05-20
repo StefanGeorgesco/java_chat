@@ -1,5 +1,6 @@
 eclipse.preferences.version=1
 encoding//src/main/java/fr/sgo/controller/DiscussionController.java=UTF-8
-encoding//src/main/java/fr/sgo/controller/InvitationController.java=UTF-8
 encoding//src/main/java/fr/sgo/controller/MainController.java=UTF-8
+encoding//src/main/java/fr/sgo/controller/PairingRequestController.java=UTF-8
+encoding//src/main/java/fr/sgo/controller/RequestPairingController.java=UTF-8
 encoding/<project>=UTF-8

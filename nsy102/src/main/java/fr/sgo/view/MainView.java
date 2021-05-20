@@ -13,7 +13,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import fr.sgo.controller.DiscussionController;
-import fr.sgo.controller.InvitationController;
+import fr.sgo.controller.RequestPairingController;
 import fr.sgo.app.App;
 import fr.sgo.entity.Correspondent;
 import fr.sgo.model.CorrespondentManager;
@@ -80,7 +80,7 @@ public class MainView extends JFrame implements Observer {
 		unpairedCorrespondentsPanel.removeAll();
 		for (Correspondent correspondent : correspondentManager.getUnpairedCorrespondents()) {
 			unpairedCorrespondentsPanel.add(new CorrespondentPanel(app,correspondent, 
-					new InvitationController(app, "Inviter", correspondent)));
+					new RequestPairingController(app, "Inviter", correspondent)));
 		}
 		pack();
 		repaint();
@@ -100,7 +100,7 @@ public class MainView extends JFrame implements Observer {
 																								// unpaired
 			// and resolved
 			unpairedCorrespondentsPanel.add(new CorrespondentPanel(app, correspondent, 
-					new InvitationController(app, "Inviter", correspondent)));
+					new RequestPairingController(app, "Inviter", correspondent)));
 			pack();
 			repaint();
 		} else { // correspondent was unpaired and is removed

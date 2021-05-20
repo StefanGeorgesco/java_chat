@@ -16,5 +16,7 @@ public interface ServiceRMI extends Remote {
     public ProfileInfo getProfileInfo() throws RemoteException;
     
     public void requestPairing(ServiceRMI service, String inId)  throws RemoteException;
+    
+    public void acceptPairingRequest(ServiceRMI service, String inId, String outId) throws RemoteException;
 
 }

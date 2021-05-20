@@ -20,9 +20,10 @@ public class Correspondent extends Observable implements Serializable {
 	 */
 	private static final long serialVersionUID = -5648639457898214832L;
 	public static final int UNPAIRED = 0;
-	public static final int PAIRING_REQUIRED = 1;
-	public static final int PAIRING_REFUSED = 2;
-	public static final int PAIRING_GRANTED = 3;
+	public static final int PAIRING_REQUEST_SENT = 1;
+	public static final int PAIRING_REQUEST_RECEIVED = 2;
+	public static final int PAIRING_REFUSED = 3;
+	public static final int PAIRING_GRANTED = 4;
 	private String userId;
 	private String userName;
 	private boolean online;

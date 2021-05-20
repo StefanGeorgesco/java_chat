@@ -50,5 +50,9 @@ public class MainController extends UnicastRemoteObject implements ServiceRMI {
 			System.out.println("Connection required from " + service.getProfileInfo().getUserName()
 					+ " with id " + inId);
 	}
+	
+	public void acceptPairingRequest(ServiceRMI service, String inId, String outId) throws RemoteException {
+		// TO DO
+	}
 
 }

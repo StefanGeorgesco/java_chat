@@ -11,8 +11,8 @@ public class Alimenter {
 	public static void main(String[] args) {
 		pairedCorrespondents = new ArrayList<Correspondent>();
 		String[] userNames = new String[] { "Mark", "Alfred", "Mary", "Emma" };
-		String[] userIds = new String[] { "C57EF90C28304A919C730B366CECA02C", "39C29A6420804F15A27111EAE9ED3EAE",
-				"C6D118E8F480488997FA8963D4E73876", "9A1A2D1FF1514E1BBC4CD668D1098F27" };
+		String[] userIds = new String[] { "A802C2E1A905411C8046F06339E6DEBC", "33F05A9CDE5B4C25AD9383A118635651",
+				"9698B3B3584C4F6DB4F7D02DEEF9B481", "5C11DC83485C4C34BB65219B7192989C" };
 		for (int i = 0; i < 4; i++) {
 			Correspondent correspondent = new Correspondent(userIds[i], userNames[i], false);
 			correspondent.getPairingInfo().setPairingStatus(Correspondent.PAIRING_GRANTED);
