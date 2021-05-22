@@ -5,6 +5,7 @@ import java.rmi.server.UnicastRemoteObject;
 
 import fr.sgo.service.ProfileInfo;
 import fr.sgo.service.ServiceRMI;
+import fr.sgo.view.InformationMessage;
 import fr.sgo.app.App;
 import fr.sgo.entity.Correspondent;
 
@@ -57,25 +58,78 @@ public class MainController extends UnicastRemoteObject implements ServiceRMI {
 			correspondent = new Correspondent(userId, userName, true);
 			app.getCorrespondentManager().add(correspondent);
 		}
-		new PairingRequestController(app, "", correspondent, inId).execute();
+		Correspondent.PairingInfo pairingInfo = correspondent.getPairingInfo();
+		int pairingStatus = pairingInfo.getPairingStatus();		
+		pairingInfo.setInId(inId);
+
+		switch (pairingStatus) {
+		case Correspondent.UNPAIRED:
+			pairingInfo.setPairingStatus(Correspondent.PAIRING_REQUEST_RECEIVED);
+			new PairingRequestController(app, "", correspondent).execute();
+			break;
+		case Correspondent.PAIRING_REQUEST_RECEIVED:
+			break;
+		case Correspondent.PAIRING_REQUEST_SENT:
+		case Correspondent.PAIRED:
+			try {
+				service.acceptPairingRequest(app.getMainController(), inId, pairingInfo.getOutId());
+				pairingInfo.setPairingStatus(Correspondent.PAIRED);
+			} catch (RemoteException e) {
+				e.printStackTrace();
+			}
+			break;
+		default:
+		}
 	}
 	
 	public void acceptPairingRequest(ServiceRMI service, String inId, String outId) throws RemoteException {
-//		String userId = service.getProfileInfo().getUserId();
+		String userId = service.getProfileInfo().getUserId();
 		String userName = service.getProfileInfo().getUserName();
-		if (T)
-			System.out.println("Connection accepted from " + userName
-					+ " with id " + outId);
-
-		// TO DO
+		Correspondent correspondent = app.getCorrespondentManager().getCorrespondent(userId);
+		if (correspondent != null) {
+			Correspondent.PairingInfo pairingInfo = correspondent.getPairingInfo();
+			int pairingStatus = pairingInfo.getPairingStatus();	
+			
+			switch (pairingStatus) {
+			case Correspondent.PAIRING_REQUEST_SENT:
+				if (inId.equals(pairingInfo.getOutId())) {
+					if (T)
+						System.out.println("Connection accepted from " + userName
+								+ " with id " + outId);
+					new InformationMessage(app, userName +
+							" a accepté votre invitation. Il (elle) fait maintenant partie de vos contacts.");
+					pairingInfo.setInId(outId);
+					pairingInfo.setPairingStatus(Correspondent.PAIRED);
+					app.getCorrespondentManager().reportChange(correspondent);
+				}
+				break;
+			default:
+			}
+		}
 	}
 	
 	public void refusePairing(ServiceRMI service, String inId)  throws RemoteException {
-//		String userId = service.getProfileInfo().getUserId();
+		String userId = service.getProfileInfo().getUserId();
 		String userName = service.getProfileInfo().getUserName();
-		if (T)
-			System.out.println("Connection refused from " + userName);
-		// TO DO
+		Correspondent correspondent = app.getCorrespondentManager().getCorrespondent(userId);
+		if (correspondent != null) {
+			Correspondent.PairingInfo pairingInfo = correspondent.getPairingInfo();
+			int pairingStatus = pairingInfo.getPairingStatus();	
+			
+			switch (pairingStatus) {
+			case Correspondent.PAIRING_REQUEST_SENT:
+				if (inId.equals(pairingInfo.getOutId())) {
+					if (T)
+						System.out.println("Connection refused from " + userName);
+					new InformationMessage(app, userName +
+							" a refusé votre invitation.");
+					pairingInfo.setPairingStatus(Correspondent.UNPAIRED);
+					app.getCorrespondentManager().reportChange(correspondent);
+				}
+				break;
+			default:
+			}
+		}
 	}
 
 }

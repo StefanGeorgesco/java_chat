@@ -22,8 +22,7 @@ public class Correspondent extends Observable implements Serializable {
 	public static final int UNPAIRED = 0;
 	public static final int PAIRING_REQUEST_SENT = 1;
 	public static final int PAIRING_REQUEST_RECEIVED = 2;
-	public static final int PAIRING_REFUSED = 3;
-	public static final int PAIRED = 4;
+	public static final int PAIRED = 3;
 	private String userId;
 	private String userName;
 	private boolean online;
@@ -116,7 +115,9 @@ public class Correspondent extends Observable implements Serializable {
 		}
 
 		public synchronized void setInId(String id) {
+			synchronized (this) {
 				this.inId = id;
+			}
 		}
 	}
 }

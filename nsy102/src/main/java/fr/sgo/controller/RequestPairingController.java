@@ -32,35 +32,41 @@ public class RequestPairingController extends Controller {
 		int pairingStatus = pairingInfo.getPairingStatus();
 		CorrespondentServiceLocator correspondentServiceLocator = this.app.getCorrespondentServiceLocator();
 		ServiceRMI correspondentServiceRMI = correspondentServiceLocator.lookup(userId).getServiceRMI();
-		
+
 		switch (pairingStatus) {
-			case Correspondent.PAIRED:
-				new InformationMessage(app, "Invitation déjà acceptée par " + userName + "...");
-				break;
-			case Correspondent.PAIRING_REFUSED:
-				new InformationMessage(app, "Invitation déjà refusée par " + userName + "...");
-				break;
-			case Correspondent.PAIRING_REQUEST_SENT:
-				new InformationMessage(app, "Invitation déjà lancée pour " + userName + "...");
-				break;
-			case Correspondent.PAIRING_REQUEST_RECEIVED:
-				// TO DO
-				break;
-			case Correspondent.UNPAIRED:
-				try {
-					correspondentServiceRMI.requestPairing(this.app.getMainController(),
-							this.correspondent.getPairingInfo().getOutId());
-					new InformationMessage(app, "Invitation lancée pour " + userName + "...");
-					pairingInfo.setPairingStatus(Correspondent.PAIRING_REQUEST_SENT);
-					if (T)
-						System.out.println("Invitation lancée pour " + correspondent.getUserName() + "...");
-				} catch (RemoteException e) {
-					if (T)
-						e.printStackTrace();
-					new InformationMessage(app, "Une erreur s'est produite...");
-				}
-				break;
-			default:
+		case Correspondent.PAIRED:
+			new InformationMessage(app, "Invitation déjà acceptée par " + userName + "...");
+			break;
+		case Correspondent.PAIRING_REQUEST_SENT:
+			new InformationMessage(app, "Invitation déjà lancée pour " + userName + "...");
+			break;
+		case Correspondent.PAIRING_REQUEST_RECEIVED:
+			try {
+				correspondentServiceRMI.acceptPairingRequest(this.app.getMainController(), pairingInfo.getInId(),
+						pairingInfo.getOutId());
+				new InformationMessage(app, "Invitation acceptée par " + userName + "...");
+				pairingInfo.setPairingStatus(Correspondent.PAIRED);
+			} catch (RemoteException e1) {
+				if (T)
+					e1.printStackTrace();
+				new InformationMessage(app, "Une erreur s'est produite...");
+			}
+			break;
+		case Correspondent.UNPAIRED:
+			try {
+				correspondentServiceRMI.requestPairing(this.app.getMainController(),
+						pairingInfo.getOutId());
+				new InformationMessage(app, "Invitation lancée pour " + userName + "...");
+				pairingInfo.setPairingStatus(Correspondent.PAIRING_REQUEST_SENT);
+				if (T)
+					System.out.println("Invitation lancée pour " + userName + "...");
+			} catch (RemoteException e2) {
+				if (T)
+					e2.printStackTrace();
+				new InformationMessage(app, "Une erreur s'est produite...");
+			}
+			break;
+		default:
 		}
 	}
 }

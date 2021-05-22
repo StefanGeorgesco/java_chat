@@ -4,12 +4,13 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.GridLayout;
 import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import fr.sgo.controller.DiscussionController;
@@ -38,19 +39,23 @@ public class MainView extends JFrame implements Observer {
 	private JPanel unpairedCorrespondentsPanel;
 
 	private MainView(App app) {
-		super("Ma messagerie - " + app.getProfileInfo().getUserName());
+		super(app.getProfileInfo().getUserName());
 		this.app = app;
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		Container contentPane = getContentPane();
-		contentPane.setLayout(new GridLayout(1, 1));
+		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
 		contentPane.setSize(new Dimension(400, 300));
+		JLabel pairedCorrespondentsPanelTitle = new JLabel("       Mes contacts       ");
 		pairedCorrespondentsPanel = new JPanel();
-		pairedCorrespondentsPanel.setLayout(new GridLayout(0, 1));
+		pairedCorrespondentsPanel.setLayout(new BoxLayout(pairedCorrespondentsPanel, BoxLayout.Y_AXIS));
 		pairedCorrespondentsPanel.setBorder(BorderFactory.createLineBorder(Color.black));
+		JLabel unpairedCorrespondentsPanelTitle = new JLabel("Autres correspondants     ");
 		unpairedCorrespondentsPanel = new JPanel();
-		unpairedCorrespondentsPanel.setLayout(new GridLayout(0, 1));
+		unpairedCorrespondentsPanel.setLayout(new BoxLayout(unpairedCorrespondentsPanel, BoxLayout.Y_AXIS));
 		unpairedCorrespondentsPanel.setBorder(BorderFactory.createLineBorder(Color.black));
+		contentPane.add(pairedCorrespondentsPanelTitle, null);
 		contentPane.add(pairedCorrespondentsPanel, null);
+		contentPane.add(unpairedCorrespondentsPanelTitle, null);
 		contentPane.add(unpairedCorrespondentsPanel, null);
 		setVisible(true);
 		buildView();
@@ -87,34 +92,35 @@ public class MainView extends JFrame implements Observer {
 	}
 
 	private synchronized void refreshView(Correspondent correspondent) {
-		CorrespondentManager correspondentManager = app.getCorrespondentManager();
-		if (correspondentManager.getPairedCorrespondents().contains(correspondent)) { // correspondent is paired
-			for (Component component : pairedCorrespondentsPanel.getComponents()) {
-				CorrespondentPanel panel = (CorrespondentPanel) component;
-				if (panel.getCorrespondent().equals(correspondent)) {
-					panel.refresh();
-					break;
-				}
-			}
-		} else if (correspondentManager.getUnpairedCorrespondents().contains(correspondent)) { // correspondent is
-																								// unpaired
-			// and resolved
-			unpairedCorrespondentsPanel.add(new CorrespondentPanel(app, correspondent, 
-					new RequestPairingController(app, "Inviter", correspondent)));
-			pack();
-			repaint();
-		} else { // correspondent was unpaired and is removed
-			for (Component component : unpairedCorrespondentsPanel.getComponents()) {
-				CorrespondentPanel panel = (CorrespondentPanel) component;
-				if (panel.getCorrespondent().equals(correspondent)) {
-					panel.getCorrespondent().deleteObserver(panel);
-					unpairedCorrespondentsPanel.remove(component);
-					pack();
-					repaint();
-					break;
-				}
-			}
-		}
+		buildView();
+//		CorrespondentManager correspondentManager = app.getCorrespondentManager();
+//		if (correspondentManager.getPairedCorrespondents().contains(correspondent)) { // correspondent is paired
+//			for (Component component : pairedCorrespondentsPanel.getComponents()) {
+//				CorrespondentPanel panel = (CorrespondentPanel) component;
+//				if (panel.getCorrespondent().equals(correspondent)) {
+//					panel.refresh();
+//					break;
+//				}
+//			}
+//		} else if (correspondentManager.getUnpairedCorrespondents().contains(correspondent)) { // correspondent is
+//																								// unpaired
+//			// and resolved
+//			unpairedCorrespondentsPanel.add(new CorrespondentPanel(app, correspondent, 
+//					new RequestPairingController(app, "Inviter", correspondent)));
+//			pack();
+//			repaint();
+//		} else { // correspondent was unpaired and is removed
+//			for (Component component : unpairedCorrespondentsPanel.getComponents()) {
+//				CorrespondentPanel panel = (CorrespondentPanel) component;
+//				if (panel.getCorrespondent().equals(correspondent)) {
+//					panel.getCorrespondent().deleteObserver(panel);
+//					unpairedCorrespondentsPanel.remove(component);
+//					pack();
+//					repaint();
+//					break;
+//				}
+//			}
+//		}
 	}
 
 	public void update(Observable observable, Object arg) {

@@ -26,13 +26,14 @@ import fr.sgo.service.Storage;
 public class CorrespondentManager extends Observable implements Observer {
 	private static CorrespondentManager instance = null;
 	private Map<String, Correspondent> correspondents;
-	private static final String objectName = "pairedcorrespondents";
+	private static String objectName;
 	private App app;
 
 	@SuppressWarnings("unchecked")
 	private CorrespondentManager(App app) {
 		this.app = app;
 		this.correspondents = Collections.synchronizedMap(new HashMap<String, Correspondent>());
+		objectName = app.getProfileInfo().getUserId();
 		Collection<Correspondent> pairedCorrespondents = (Collection<Correspondent>) Storage.restore(objectName);
 		if (pairedCorrespondents != null) {
 			for (Correspondent c : pairedCorrespondents) {
@@ -95,9 +96,17 @@ public class CorrespondentManager extends Observable implements Observer {
 	public Correspondent getCorrespondent(String userId) {
 		return correspondents.get(userId);
 	}
-	
+
 	public void add(Correspondent correspondent) {
 		correspondents.put(correspondent.getUserId(), correspondent);
+		reportChange(correspondent);
+	}
+	
+	public void reportChange(Correspondent correspondent) {
+		if (correspondent.isPaired())
+			Storage.save(getPairedCorrespondents(), objectName);
+		setChanged();
+		notifyObservers(correspondent);
 	}
 
 	public void update(Observable observable, Object arg) {
