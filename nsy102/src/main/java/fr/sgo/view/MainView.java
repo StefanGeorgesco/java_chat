@@ -76,7 +76,7 @@ public class MainView extends JFrame implements Observer {
 		}
 		pairedCorrespondentsPanel.removeAll();
 		for (Correspondent correspondent : correspondentManager.getPairedCorrespondents()) {
-			pairedCorrespondentsPanel.add(new CorrespondentPanel(app, correspondent, 
+			pairedCorrespondentsPanel.add(new CorrespondentPanel(app, correspondent,
 					new DiscussionController(app, "Discuter", correspondent)));
 		}
 		for (Component component : unpairedCorrespondentsPanel.getComponents()) {
@@ -84,7 +84,7 @@ public class MainView extends JFrame implements Observer {
 		}
 		unpairedCorrespondentsPanel.removeAll();
 		for (Correspondent correspondent : correspondentManager.getUnpairedCorrespondents()) {
-			unpairedCorrespondentsPanel.add(new CorrespondentPanel(app,correspondent, 
+			unpairedCorrespondentsPanel.add(new CorrespondentPanel(app, correspondent,
 					new RequestPairingController(app, "Inviter", correspondent)));
 		}
 		pack();
@@ -93,34 +93,58 @@ public class MainView extends JFrame implements Observer {
 
 	private synchronized void refreshView(Correspondent correspondent) {
 		buildView();
-//		CorrespondentManager correspondentManager = app.getCorrespondentManager();
-//		if (correspondentManager.getPairedCorrespondents().contains(correspondent)) { // correspondent is paired
-//			for (Component component : pairedCorrespondentsPanel.getComponents()) {
-//				CorrespondentPanel panel = (CorrespondentPanel) component;
-//				if (panel.getCorrespondent().equals(correspondent)) {
-//					panel.refresh();
-//					break;
-//				}
-//			}
-//		} else if (correspondentManager.getUnpairedCorrespondents().contains(correspondent)) { // correspondent is
-//																								// unpaired
-//			// and resolved
-//			unpairedCorrespondentsPanel.add(new CorrespondentPanel(app, correspondent, 
-//					new RequestPairingController(app, "Inviter", correspondent)));
-//			pack();
-//			repaint();
-//		} else { // correspondent was unpaired and is removed
-//			for (Component component : unpairedCorrespondentsPanel.getComponents()) {
-//				CorrespondentPanel panel = (CorrespondentPanel) component;
-//				if (panel.getCorrespondent().equals(correspondent)) {
-//					panel.getCorrespondent().deleteObserver(panel);
-//					unpairedCorrespondentsPanel.remove(component);
-//					pack();
-//					repaint();
-//					break;
-//				}
-//			}
-//		}
+		CorrespondentManager correspondentManager = app.getCorrespondentManager();
+		boolean correspondentExists = correspondentManager.getCorrespondents().contains(correspondent);
+		boolean correspondentIsPaired = correspondent.isPaired();
+		boolean viewContentsChange = false;
+		boolean correspondentFound = false;
+		for (Component component : pairedCorrespondentsPanel.getComponents()) {
+			CorrespondentPanel panel = (CorrespondentPanel) component;
+			if (panel.getCorrespondent().equals(correspondent)) {
+				if (correspondentFound) {
+					pairedCorrespondentsPanel.remove(component);
+					viewContentsChange = true;
+				} else {
+					correspondentFound = true;
+					if (correspondentExists && correspondentIsPaired) {
+						panel.refresh();
+					} else {
+						pairedCorrespondentsPanel.remove(component);
+						viewContentsChange = true;
+					}
+				}
+			}
+		}
+		if (!correspondentFound & correspondentExists && correspondentIsPaired) {
+			pairedCorrespondentsPanel.add(new CorrespondentPanel(app, correspondent,
+					new DiscussionController(app, "Discuter", correspondent)));
+		}
+		correspondentFound = false;
+		for (Component component : unpairedCorrespondentsPanel.getComponents()) {
+			CorrespondentPanel panel = (CorrespondentPanel) component;
+			if (panel.getCorrespondent().equals(correspondent)) {
+				if (correspondentFound) {
+					unpairedCorrespondentsPanel.remove(component);
+					viewContentsChange = true;
+				} else {
+					correspondentFound = true;
+					if (correspondentExists && !correspondentIsPaired) {
+						panel.refresh();
+					} else {
+						unpairedCorrespondentsPanel.remove(component);
+						viewContentsChange = true;
+					}
+				}
+			}
+		}
+		if (!correspondentFound & correspondentExists && !correspondentIsPaired) {
+			unpairedCorrespondentsPanel.add(new CorrespondentPanel(app, correspondent, 
+					new RequestPairingController(app, "Inviter", correspondent)));
+		}
+		if (viewContentsChange) {
+			pack();
+			repaint();
+		}
 	}
 
 	public void update(Observable observable, Object arg) {
