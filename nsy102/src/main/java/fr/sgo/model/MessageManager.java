@@ -46,7 +46,7 @@ public class MessageManager extends Observable {
 			this.messages.put(userId, userMessages);
 		}
 		userMessages.add(message);
-		hasChanged();
+		setChanged();
 		notifyObservers(userId);
 	}
 	

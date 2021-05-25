@@ -80,8 +80,8 @@ public class App {
 				}
 			});
 		correspondentServiceLocator.addObserver(correspondentManager);
+		messagingService.open();
 		correspondentServiceLocator.open();
-//		messagingService.open();
 		serviceAgent.publishServices(3000);
 		if (T)
 			System.out.println("application démarrée, en attente...");

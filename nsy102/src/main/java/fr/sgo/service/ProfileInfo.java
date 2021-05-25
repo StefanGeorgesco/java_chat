@@ -22,13 +22,12 @@ public class ProfileInfo implements Serializable
     private String userName;
     private String host;
     private int RMIPort;
+    private int JMSPort;
     private static ProfileInfo instance;
     private static final String objectName = "profileinfo";
 
     private ProfileInfo() {
         set = false;
-        host = "localhost";
-        RMIPort = 1099;
     }
 
     public static ProfileInfo getInstance() {
@@ -45,6 +44,9 @@ public class ProfileInfo implements Serializable
             }
             instance.set(name);
         }
+        instance.setHost("localhost");
+        instance.setRMIPort(1099);
+        instance.setJMSPort(1199);
         return instance;
     }
 
@@ -81,4 +83,29 @@ public class ProfileInfo implements Serializable
     public int getRMIPort() {
         return RMIPort;
     }
+    
+    public int getJMSPort() {
+    	return JMSPort;
+    }
+
+    public void setUserId(String userId) {
+         this.userId = userId;
+    }
+
+    public void setUserName(String userName) {
+    	this.userName = userName;
+    }
+
+    public void setHost(String host) {
+    	this.host = host;
+    }
+
+    public void setRMIPort(int RMIPort) {
+    	this.RMIPort = RMIPort;
+    }
+    
+    public void setJMSPort(int JMSPort) {
+    	this.JMSPort = JMSPort;
+    }
+
 }

@@ -131,5 +131,14 @@ public class MainController extends UnicastRemoteObject implements ServiceRMI {
 			}
 		}
 	}
+	
+	public String getDestinationName(ServiceRMI service, String outId) throws RemoteException {
+		String userId = service.getProfileInfo().getUserId();
+		Correspondent correspondent = app.getCorrespondentManager().getCorrespondent(userId);
+		String destinationName = "refused";
+		if (outId.equals(correspondent.getPairingInfo().getInId()))
+			destinationName = app.getMessagingService().getDestinationName(correspondent);
+		return destinationName;
+	}
 
 }

@@ -126,7 +126,7 @@ public class CorrespondentManager extends Observable implements Observer {
 							if (correspondent != null) { // present
 								if (correspondent.isPaired()) { // paired
 									correspondent.setOnline(false); // set offline
-									messagingService.unsetMessageListener(correspondent);
+									messagingService.unsetInMessagingHandler(correspondent);
 								} else { // unpaired
 									correspondents.remove(correspondent.getUserId()); // remove
 								}
@@ -136,7 +136,7 @@ public class CorrespondentManager extends Observable implements Observer {
 								correspondent.setUserName(correspondentServiceInfo.getUserName()); // update name
 								correspondent.setOnline(true); // set online
 								if (correspondent.isPaired()) // paired
-									messagingService.setMessageListener(correspondent);
+									messagingService.setInMessagingHandler(correspondent);
 							} else { // absent
 								// new online unpaired correspondent
 								correspondent = new Correspondent(userId, correspondentServiceInfo.getUserName(), true);
