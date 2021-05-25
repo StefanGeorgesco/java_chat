@@ -12,6 +12,7 @@ import fr.sgo.app.App;
 import fr.sgo.entity.Correspondent;
 import fr.sgo.service.CorrespondentServiceInfo;
 import fr.sgo.service.CorrespondentServiceLocator;
+import fr.sgo.service.MessagingService;
 import fr.sgo.service.Storage;
 
 /**
@@ -112,6 +113,7 @@ public class CorrespondentManager extends Observable implements Observer {
 	public void update(Observable observable, Object arg) {
 		final CorrespondentServiceLocator correspondentServiceLocator = (CorrespondentServiceLocator) observable;
 		final CorrespondentServiceInfo correspondentServiceInfo = (CorrespondentServiceInfo) arg;
+		final MessagingService messagingService = CorrespondentManager.this.app.getMessagingService();
 		new Thread() {
 			@Override
 			public void run() {
@@ -124,6 +126,7 @@ public class CorrespondentManager extends Observable implements Observer {
 							if (correspondent != null) { // present
 								if (correspondent.isPaired()) { // paired
 									correspondent.setOnline(false); // set offline
+									messagingService.unsetMessageListener(correspondent);
 								} else { // unpaired
 									correspondents.remove(correspondent.getUserId()); // remove
 								}
@@ -132,6 +135,8 @@ public class CorrespondentManager extends Observable implements Observer {
 							if (correspondent != null) { // present
 								correspondent.setUserName(correspondentServiceInfo.getUserName()); // update name
 								correspondent.setOnline(true); // set online
+								if (correspondent.isPaired()) // paired
+									messagingService.setMessageListener(correspondent);
 							} else { // absent
 								// new online unpaired correspondent
 								correspondent = new Correspondent(userId, correspondentServiceInfo.getUserName(), true);

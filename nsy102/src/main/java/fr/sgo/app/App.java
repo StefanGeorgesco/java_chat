@@ -6,7 +6,9 @@ import java.util.Observer;
 
 import fr.sgo.controller.MainController;
 import fr.sgo.model.CorrespondentManager;
+import fr.sgo.model.MessageManager;
 import fr.sgo.service.CorrespondentServiceLocator;
+import fr.sgo.service.MessagingService;
 import fr.sgo.service.ProfileInfo;
 import fr.sgo.service.ServiceAgent;
 import fr.sgo.view.MainView;
@@ -28,6 +30,8 @@ public class App {
 	private MainController mainController;
 	private CorrespondentManager correspondentManager;
 	private ServiceAgent serviceAgent;
+	private MessageManager messageManager;
+	private MessagingService messagingService;
 	private MainView mainView;
 
 	private App() {
@@ -42,6 +46,18 @@ public class App {
 		}
 		correspondentManager = CorrespondentManager.getInstance(this);
 		serviceAgent = ServiceAgent.getInstance(this);
+		messageManager = MessageManager.getInstance(this);
+		// TESTS :
+		messageManager.addObserver(new Observer() {
+			@Override
+			public void update(Observable observable, Object arg) {
+				String userId = (String) arg;
+				System.out.println("messages reçus de " +
+						correspondentManager.getCorrespondent(userId) + " : " +
+						messageManager.getMessages(userId));
+			}
+		});
+		messagingService = MessagingService.getInstance(this);
 		mainView = MainView.getInstance(this);
 	}
 
@@ -65,6 +81,7 @@ public class App {
 			});
 		correspondentServiceLocator.addObserver(correspondentManager);
 		correspondentServiceLocator.open();
+//		messagingService.open();
 		serviceAgent.publishServices(3000);
 		if (T)
 			System.out.println("application démarrée, en attente...");
@@ -84,6 +101,14 @@ public class App {
 
 	public CorrespondentManager getCorrespondentManager() {
 		return correspondentManager;
+	}
+	
+	public MessageManager getMessageManager() {
+		return messageManager;
+	}
+	
+	public MessagingService getMessagingService() {
+		return messagingService;
 	}
 
 	public MainView getMainView() {

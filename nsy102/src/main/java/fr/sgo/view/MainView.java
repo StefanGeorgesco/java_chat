@@ -13,7 +13,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import fr.sgo.controller.DiscussionController;
+import fr.sgo.controller.ChatController;
 import fr.sgo.controller.RequestPairingController;
 import fr.sgo.app.App;
 import fr.sgo.entity.Correspondent;
@@ -77,7 +77,7 @@ public class MainView extends JFrame implements Observer {
 		pairedCorrespondentsPanel.removeAll();
 		for (Correspondent correspondent : correspondentManager.getPairedCorrespondents()) {
 			pairedCorrespondentsPanel.add(new CorrespondentPanel(app, correspondent,
-					new DiscussionController(app, "Discuter", correspondent)));
+					new ChatController(app, "Discuter", correspondent)));
 		}
 		for (Component component : unpairedCorrespondentsPanel.getComponents()) {
 			((CorrespondentPanel) component).getCorrespondent().deleteObserver((CorrespondentPanel) component);
@@ -117,7 +117,7 @@ public class MainView extends JFrame implements Observer {
 		}
 		if (!correspondentFound & correspondentExists && correspondentIsPaired) {
 			pairedCorrespondentsPanel.add(new CorrespondentPanel(app, correspondent,
-					new DiscussionController(app, "Discuter", correspondent)));
+					new ChatController(app, "Discuter", correspondent)));
 		}
 		correspondentFound = false;
 		for (Component component : unpairedCorrespondentsPanel.getComponents()) {
