@@ -45,8 +45,8 @@ public class ProfileInfo implements Serializable
             instance.set(name);
         }
         instance.setHost("localhost");
-        instance.setRMIPort(1099);
-        instance.setJMSPort(1199);
+        instance.setRMIPort(1199);
+        instance.setJMSPort(1099);
         return instance;
     }
 
