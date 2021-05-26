@@ -52,7 +52,7 @@ public class App {
 			@Override
 			public void update(Observable observable, Object arg) {
 				String userId = (String) arg;
-				System.out.println("messages reçus de " +
+				System.out.println("messages échangés avec " +
 						correspondentManager.getCorrespondent(userId) + " : " +
 						messageManager.getMessages(userId));
 			}

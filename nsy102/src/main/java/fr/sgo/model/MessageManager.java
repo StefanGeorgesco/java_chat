@@ -3,10 +3,10 @@ package fr.sgo.model;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Set;
+import java.util.TreeSet;
 
 import fr.sgo.app.App;
 import fr.sgo.entity.Correspondent;
@@ -33,19 +33,14 @@ public class MessageManager extends Observable {
 	public Collection<Message> getMessages(String userId) {
 		Set<Message> userMessages = this.messages.get(userId);
 		if (userMessages == null) {
-			userMessages = Collections.synchronizedSet(new HashSet<Message>());
+			userMessages = Collections.synchronizedSet(new TreeSet<Message>());
 			this.messages.put(userId, userMessages);
 		}
 		return userMessages;
 	}
 	
 	public void addMessage(String userId, Message message) {
-		Set<Message> userMessages = this.messages.get(userId);
-		if (userMessages == null) {
-			userMessages = Collections.synchronizedSet(new HashSet<Message>());
-			this.messages.put(userId, userMessages);
-		}
-		userMessages.add(message);
+		getMessages(userId).add(message);
 		setChanged();
 		notifyObservers(userId);
 	}
