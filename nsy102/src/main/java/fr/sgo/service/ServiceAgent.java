@@ -23,7 +23,6 @@ import fr.sgo.app.App;
  */
 @SuppressWarnings("deprecation")
 public class ServiceAgent {
-	private final static boolean T = true; //
 	private static ServiceAgent instance = null;
 	private App app;
 	public static final String SERVICE_TYPE = "_monserviceRMI._tcp.local.";
@@ -79,7 +78,7 @@ public class ServiceAgent {
 					System.exit(1);
 				}
 			}
-			if (T)
+			if (app.T)
 				System.out.println("registre RMI créé ou lié");
 			try {
 				registry.rebind(serviceName, app.getMainController());
@@ -87,7 +86,7 @@ public class ServiceAgent {
 				re3.printStackTrace();
 				System.exit(1);
 			}
-			if (T)
+			if (app.T)
 				System.out.println("service enregistré dans le registre RMI");
 			Map<String, String> props = new HashMap<String, String>();
 			props.put("userId", app.getProfileInfo().getUserId());
@@ -99,7 +98,7 @@ public class ServiceAgent {
 			} catch (IOException ioe) {
 				ioe.printStackTrace();
 			}
-			if (T)
+			if (app.T)
 				System.out.println("service mDNS publié");
 			Runtime.getRuntime().addShutdownHook(new Thread() {
 				@Override

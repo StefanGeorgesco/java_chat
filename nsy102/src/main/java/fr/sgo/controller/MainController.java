@@ -19,7 +19,6 @@ import fr.sgo.entity.Correspondent;
  */
 public class MainController extends UnicastRemoteObject implements ServiceRMI {
 	private static final long serialVersionUID = 8194586220342790039L;
-	private final static boolean T = true; //
 	private static MainController instance = null;
 	private App app;
 
@@ -38,8 +37,6 @@ public class MainController extends UnicastRemoteObject implements ServiceRMI {
 	}
 	
 	public boolean isActive() throws RemoteException {
-		if (T)
-			System.out.println("service actif");
 		return true;
 	}
 	
@@ -50,7 +47,7 @@ public class MainController extends UnicastRemoteObject implements ServiceRMI {
 	public void requestPairing(ServiceRMI service, String inId) throws RemoteException {
 		String userId = service.getProfileInfo().getUserId();
 		String userName = service.getProfileInfo().getUserName();
-		if (T)
+		if (app.T)
 			System.out.println("Connection required from " + userName
 					+ " with id " + inId);
 		Correspondent correspondent = app.getCorrespondentManager().getCorrespondent(userId);
@@ -93,7 +90,7 @@ public class MainController extends UnicastRemoteObject implements ServiceRMI {
 			switch (pairingStatus) {
 			case Correspondent.PAIRING_REQUEST_SENT:
 				if (inId.equals(pairingInfo.getOutId())) {
-					if (T)
+					if (app.T)
 						System.out.println("Connection accepted from " + userName
 								+ " with id " + outId);
 					new InformationMessage(app, userName +
@@ -119,7 +116,7 @@ public class MainController extends UnicastRemoteObject implements ServiceRMI {
 			switch (pairingStatus) {
 			case Correspondent.PAIRING_REQUEST_SENT:
 				if (inId.equals(pairingInfo.getOutId())) {
-					if (T)
+					if (app.T)
 						System.out.println("Connection refused from " + userName);
 					new InformationMessage(app, userName +
 							" a refusé votre invitation.");

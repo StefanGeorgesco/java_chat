@@ -28,7 +28,6 @@ import fr.sgo.model.MessageManager;
 import fr.sgo.view.InformationMessage;
 
 public class MessagingService {
-	private final static boolean T = true; //
 	private static MessagingService instance = null;
 	private Context context;
 	private TopicConnectionFactory factory;
@@ -90,7 +89,7 @@ public class MessagingService {
 			Topic topic = (Topic) context.lookup(topicName);
 			sender = session.createPublisher(topic);
 			connection.start();
-			if (T)
+			if (app.T)
 				System.out.println("service jms local installé");
 		} catch (NamingException ne) {
 			ne.printStackTrace();
@@ -106,13 +105,8 @@ public class MessagingService {
 		try {
 			jmsMessage.setStringProperty("InId", correspondent.getPairingInfo().getOutId());
 			sender.send(jmsMessage);
-			if (T)
-				System.out.println("message " + message.getContents() + " envoyé à " + correspondent.getUserName());
 		} catch (JMSException e) {
 			e.printStackTrace();
-			if (T)
-				System.out.println("Le message " + message.getContents() + " n'a pas pu être envoyé à "
-						+ correspondent.getUserName());
 		}
 	}
 
@@ -142,8 +136,6 @@ public class MessagingService {
 					TopicSession session = connection.createTopicSession(false, TopicSession.AUTO_ACKNOWLEDGE);
 					topicName = service.getDestinationName(app.getMainController(),
 							correspondent.getPairingInfo().getOutId());
-					if (T)
-						System.out.println("nom de la file pour " + correspondent.getUserName() + " : " + topicName);
 					Topic topic = (Topic) context.lookup(topicName);
 					receiver = session.createConsumer(topic, "InId = '" + correspondent.getPairingInfo().getInId() + "'", true);
 					receiver.setMessageListener(
@@ -246,7 +238,7 @@ public class MessagingService {
 		public void onMessage(javax.jms.Message jmsmessage) {
 			InMessage applicationMessage = translateMessage(jmsmessage);
 			applicationMessage.setCorrespondent(correspondent);
-			if (T)
+			if (app.T)
 				System.out.println(
 						"message reçu de " + correspondent.getUserName() + " : " + applicationMessage.getContents());
 			messageManager.addMessage(correspondent.getUserId(), applicationMessage);

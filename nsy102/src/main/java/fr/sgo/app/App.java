@@ -1,9 +1,6 @@
 package fr.sgo.app;
 
 import java.rmi.RemoteException;
-import java.util.Observable;
-import java.util.Observer;
-
 import fr.sgo.controller.MainController;
 import fr.sgo.model.CorrespondentManager;
 import fr.sgo.model.MessageManager;
@@ -11,6 +8,7 @@ import fr.sgo.service.CorrespondentServiceLocator;
 import fr.sgo.service.MessagingService;
 import fr.sgo.service.ProfileInfo;
 import fr.sgo.service.ServiceAgent;
+import fr.sgo.view.ChatViewContainer;
 import fr.sgo.view.MainView;
 
 /**
@@ -23,7 +21,7 @@ import fr.sgo.view.MainView;
  */
 @SuppressWarnings("deprecation")
 public class App {
-	private final static boolean T = true; //
+	public final boolean T = true; //
 	private static App instance = null;
 	private ProfileInfo profileInfo;
 	private CorrespondentServiceLocator correspondentServiceLocator;
@@ -33,6 +31,7 @@ public class App {
 	private MessageManager messageManager;
 	private MessagingService messagingService;
 	private MainView mainView;
+	private ChatViewContainer chatViewContainer;
 
 	private App() {
 		profileInfo = ProfileInfo.getInstance();
@@ -40,25 +39,15 @@ public class App {
 		try {
 			mainController = MainController.getInstance(this);
 		} catch (RemoteException e) {
-			if (T)
-				e.printStackTrace();
+			e.printStackTrace();
 			System.exit(1);
 		}
 		correspondentManager = CorrespondentManager.getInstance(this);
 		serviceAgent = ServiceAgent.getInstance(this);
 		messageManager = MessageManager.getInstance(this);
-		// TESTS :
-		messageManager.addObserver(new Observer() {
-			@Override
-			public void update(Observable observable, Object arg) {
-				String userId = (String) arg;
-				System.out.println("messages échangés avec " +
-						correspondentManager.getCorrespondent(userId) + " : " +
-						messageManager.getMessages(userId));
-			}
-		});
 		messagingService = MessagingService.getInstance(this);
 		mainView = MainView.getInstance(this);
+		chatViewContainer = ChatViewContainer.getInstance(this);
 	}
 
 	public static App getInstance() {
@@ -71,17 +60,10 @@ public class App {
 	public void start() {
 		if (T)
 			System.out.println("profil : " + profileInfo.getUserName());
-		if (T)
-			System.out.println("correspondants : " + correspondentManager.getCorrespondents());
-		if (T)
-			correspondentManager.addObserver(new Observer() {
-				public void update(Observable observable, Object arg) {
-					System.out.println("correspondants : " + correspondentManager.getCorrespondents());
-				}
-			});
 		correspondentServiceLocator.addObserver(correspondentManager);
 		messagingService.open();
 		correspondentServiceLocator.open();
+		chatViewContainer.open();
 		serviceAgent.publishServices(3000);
 		if (T)
 			System.out.println("application démarrée, en attente...");
@@ -102,17 +84,21 @@ public class App {
 	public CorrespondentManager getCorrespondentManager() {
 		return correspondentManager;
 	}
-	
+
 	public MessageManager getMessageManager() {
 		return messageManager;
 	}
-	
+
 	public MessagingService getMessagingService() {
 		return messagingService;
 	}
 
 	public MainView getMainView() {
 		return mainView;
+	}
+
+	public ChatViewContainer getChatViewContainer() {
+		return chatViewContainer;
 	}
 
 	public static void main(String[] args) throws RemoteException {

@@ -17,7 +17,6 @@ import fr.sgo.view.InformationMessage;
  * @version 1.0
  */
 public class RequestPairingController extends Controller {
-	private final static boolean T = true;
 	private Correspondent correspondent;
 
 	public RequestPairingController(App app, String actionName, Correspondent correspondent) {
@@ -47,7 +46,7 @@ public class RequestPairingController extends Controller {
 				new InformationMessage(app, "Invitation acceptée par " + userName + "...");
 				pairingInfo.setPairingStatus(Correspondent.PAIRED);
 			} catch (RemoteException e1) {
-				if (T)
+				if (app.T)
 					e1.printStackTrace();
 				new InformationMessage(app, "Une erreur s'est produite...");
 			}
@@ -58,10 +57,10 @@ public class RequestPairingController extends Controller {
 						pairingInfo.getOutId());
 				new InformationMessage(app, "Invitation lancée pour " + userName + "...");
 				pairingInfo.setPairingStatus(Correspondent.PAIRING_REQUEST_SENT);
-				if (T)
+				if (app.T)
 					System.out.println("Invitation lancée pour " + userName + "...");
 			} catch (RemoteException e2) {
-				if (T)
+				if (app.T)
 					e2.printStackTrace();
 				new InformationMessage(app, "Une erreur s'est produite...");
 			}

@@ -2,7 +2,6 @@ package fr.sgo.controller;
 
 import fr.sgo.app.App;
 import fr.sgo.entity.Correspondent;
-import fr.sgo.entity.OutMessage;
 
 /**
  * Class ChatController
@@ -14,7 +13,6 @@ import fr.sgo.entity.OutMessage;
  */
 public class ChatController extends Controller {
 	private Correspondent correspondent;
-	private static int messageNumber = 0; // TESTS
 
 	public ChatController(App app, String actionName, Correspondent correspondent) {
 		super(app, actionName);
@@ -22,9 +20,11 @@ public class ChatController extends Controller {
 	}
 
 	public void run() {
-		System.out.println("Discussion avec " + correspondent.getUserName() + "...");
-		// TEST
-		app.getMessageManager().sendMessage(correspondent, new OutMessage("message " + messageNumber++));
+		try {
+			app.getChatViewContainer().getChatView(correspondent);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 }
