@@ -137,6 +137,8 @@ public class MessagingService {
 					topicName = service.getDestinationName(app.getMainController(),
 							correspondent.getPairingInfo().getOutId());
 					Topic topic = (Topic) context.lookup(topicName);
+//					receiver = session.createDurableSubscriber(topic, correspondent.getPairingInfo().getInId(),
+//							"InId = '" + correspondent.getPairingInfo().getInId() + "'", true);
 					receiver = session.createConsumer(topic, "InId = '" + correspondent.getPairingInfo().getInId() + "'", true);
 					receiver.setMessageListener(
 							new InMessageHandler(correspondent, MessagingService.this.app.getMessageManager()));

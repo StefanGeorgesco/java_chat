@@ -15,9 +15,11 @@ import java.util.Observer;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 
 import fr.sgo.app.App;
 import fr.sgo.entity.Correspondent;
@@ -35,6 +37,7 @@ public class ChatView extends JFrame implements ActionListener, Observer {
 	private Correspondent correspondent;
 	private JTextArea messagesHistory;
 	private JTextField messageField;
+	private JScrollPane jScrollPane;
 
 	public ChatView(App app, Correspondent correspondent) {
 		this.app = app;
@@ -43,7 +46,7 @@ public class ChatView extends JFrame implements ActionListener, Observer {
 		JPanel panelNorth = new JPanel();
 		messagesHistory = new JTextArea(15, 40);
 		messagesHistory.setEditable(false);
-		JScrollPane jScrollPane = new JScrollPane();
+		jScrollPane = new JScrollPane();
 		jScrollPane.getViewport().add(messagesHistory, null);
 		panelNorth.add(jScrollPane, BorderLayout.CENTER);
 		JPanel panelSouth = new JPanel(new FlowLayout());
@@ -81,20 +84,25 @@ public class ChatView extends JFrame implements ActionListener, Observer {
 			contents += "\n";
 		}
 		messagesHistory.setText(contents);
+		JScrollBar vertical = jScrollPane.getVerticalScrollBar();
+		vertical.setValue(vertical.getMaximum() );
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		new Thread() {
-			@Override
-			public void run() {
-				String text = messageField.getText();
-				if (text.length() > 0) {
-					app.getMessageManager().sendMessage(correspondent, new OutMessage(text));
-					messageField.setText("");
-				}
-			}
-		}.start();
+		new Thread(new Runnable() {
+		      public void run() {
+		        SwingUtilities.invokeLater(new Runnable() {
+		          public void run() {
+						String text = messageField.getText();
+						if (text.length() > 0) {
+							app.getMessageManager().sendMessage(correspondent, new OutMessage(text));
+							messageField.setText("");
+		          }
+		        }
+		      });
+		      }
+		  }).start();
 	}
 
 	@Override
@@ -106,6 +114,7 @@ public class ChatView extends JFrame implements ActionListener, Observer {
 				public void run() {
 					refreshMessagesHistoryView();
 					setVisible(true);
+					toFront();
 				}
 			}.start();
 		}
