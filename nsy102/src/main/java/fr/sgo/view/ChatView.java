@@ -46,8 +46,11 @@ public class ChatView extends JFrame implements ActionListener, Observer {
 		JPanel panelNorth = new JPanel();
 		messagesHistory = new JTextArea(15, 40);
 		messagesHistory.setEditable(false);
+		messagesHistory.setLineWrap(true);
+		messagesHistory.setWrapStyleWord(true);
 		jScrollPane = new JScrollPane();
-		jScrollPane.getViewport().add(messagesHistory, null);
+		jScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		jScrollPane.setViewportView(messagesHistory);
 		panelNorth.add(jScrollPane, BorderLayout.CENTER);
 		JPanel panelSouth = new JPanel(new FlowLayout());
 		messageField = new JTextField(30);
