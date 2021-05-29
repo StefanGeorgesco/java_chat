@@ -133,13 +133,14 @@ public class MessagingService {
 					context = new InitialContext(props);
 					TopicConnectionFactory factory = (TopicConnectionFactory) context.lookup(factoryName);
 					connection = factory.createTopicConnection();
+					connection.setClientID(app.getProfileInfo().getUserId()); //
 					TopicSession session = connection.createTopicSession(false, TopicSession.AUTO_ACKNOWLEDGE);
 					topicName = service.getDestinationName(app.getMainController(),
 							correspondent.getPairingInfo().getOutId());
 					Topic topic = (Topic) context.lookup(topicName);
-//					receiver = session.createDurableSubscriber(topic, correspondent.getPairingInfo().getInId(),
-//							"InId = '" + correspondent.getPairingInfo().getInId() + "'", true);
-					receiver = session.createConsumer(topic, "InId = '" + correspondent.getPairingInfo().getInId() + "'", true);
+					receiver = session.createDurableSubscriber(topic, correspondent.getPairingInfo().getInId(),
+							"InId = '" + correspondent.getPairingInfo().getInId() + "'", true);
+//					receiver = session.createConsumer(topic, "InId = '" + correspondent.getPairingInfo().getInId() + "'", true);
 					receiver.setMessageListener(
 							new InMessageHandler(correspondent, MessagingService.this.app.getMessageManager()));
 					connection.start();

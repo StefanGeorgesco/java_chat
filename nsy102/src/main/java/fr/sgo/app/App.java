@@ -35,6 +35,7 @@ public class App {
 
 	private App() {
 		profileInfo = ProfileInfo.getInstance();
+		assert !profileInfo.getUserId().equals("Toto"); // DEBUG
 		correspondentServiceLocator = CorrespondentServiceLocator.getInstance();
 		try {
 			mainController = MainController.getInstance(this);

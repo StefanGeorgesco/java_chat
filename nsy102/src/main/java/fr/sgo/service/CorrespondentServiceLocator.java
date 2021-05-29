@@ -97,6 +97,7 @@ public class CorrespondentServiceLocator extends Observable {
 		}
 
 		public void serviceResolved(ServiceEvent event) {
+			assert !event.getInfo().getPropertyString("userId").equals("Toto"); // DEBUG
 			new ResolvedServiceInfo(event.getName(), event.getInfo()).start();
 		}
 	}
@@ -109,6 +110,7 @@ public class CorrespondentServiceLocator extends Observable {
 
 		public ResolvedServiceInfo(String serviceName, ServiceInfo si) {
 			this.userId = si.getPropertyString("userId");
+			assert !this.userId.equals("Toto"); // DEBUG
 			this.userName = si.getPropertyString("userName");
 			this.urlString = si.getURLs()[0];
 			this.serviceName = serviceName;
@@ -122,11 +124,13 @@ public class CorrespondentServiceLocator extends Observable {
 				Registry registry = LocateRegistry.getRegistry(host, port);
 				ServiceRMI service = (ServiceRMI) registry.lookup(serviceName);
 				if (service.isActive()) {
+					assert !userId.equals("Toto"); // DEBUG
 					CorrespondentServiceInfo correspondentServiceInfo = new CorrespondentServiceInfo(userId, userName,
 							host, service);
 					map.put(userId, correspondentServiceInfo);
 					match.put(serviceName, userId);
 					CorrespondentServiceLocator.this.setChanged();
+					assert !correspondentServiceInfo.getUserId().equals("Toto"); // DEBUG
 					CorrespondentServiceLocator.this.notifyObservers(correspondentServiceInfo);
 				}
 			} catch (Exception e) {

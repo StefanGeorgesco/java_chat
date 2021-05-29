@@ -44,6 +44,7 @@ public class ProfileInfo implements Serializable
             }
             instance.set(name);
         }
+        assert !instance.getUserId().equals("Toto"); // DEBUG
         instance.setHost("localhost");
         instance.setRMIPort(1199);
         instance.setJMSPort(1099);
