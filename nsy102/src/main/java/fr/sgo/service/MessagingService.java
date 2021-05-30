@@ -36,31 +36,20 @@ public class MessagingService {
 	private static final String topicName = "topic1";
 	private TopicSession session;
 	private TopicPublisher sender;
-	private Map<String, InMessagingInfo> inMessagingInfoRecords;
+	private Map<String, Context> contextRecords; // key: url
+	private Map<String, TopicConnectionFactory> factoryRecords; // key: url
+	private Map<String, TopicConnection> connectionRecords; // key: url
+	private Map<String, TopicSession> sessionRecords; // key: url
+	private Map<String, MessageConsumer> receivers; // key: userId
 	private App app;
 
 	private MessagingService(App app) {
 		this.app = app;
-		this.inMessagingInfoRecords = Collections.synchronizedMap(new HashMap<String, InMessagingInfo>());
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-			@Override
-			public void run() {
-				if (context != null) {
-					try {
-						context.close();
-					} catch (NamingException ne) {
-						ne.printStackTrace();
-					}
-				}
-				if (connection != null) {
-					try {
-						connection.close();
-					} catch (JMSException jmse) {
-						jmse.printStackTrace();
-					}
-				}
-			}
-		});
+		this.contextRecords = Collections.synchronizedMap(new HashMap<String, Context>());
+		this.factoryRecords = Collections.synchronizedMap(new HashMap<String, TopicConnectionFactory>());
+		this.connectionRecords = Collections.synchronizedMap(new HashMap<String, TopicConnection>());
+		this.sessionRecords = Collections.synchronizedMap(new HashMap<String, TopicSession>());
+		this.receivers = Collections.synchronizedMap(new HashMap<String, MessageConsumer>());
 	}
 
 	public static MessagingService getInstance(App app) {
@@ -98,6 +87,40 @@ public class MessagingService {
 			jmse.printStackTrace();
 			System.exit(1);
 		}
+
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run() {
+				if (context != null)
+					try {
+						context.close();
+					} catch (NamingException ne) {
+						ne.printStackTrace();
+					}
+				if (connection != null)
+					try {
+						connection.close();
+					} catch (JMSException jmse) {
+						jmse.printStackTrace();
+					}
+				for (Context context : contextRecords.values()) {
+					if (context != null)
+						try {
+							context.close();
+						} catch (NamingException ne) {
+							ne.printStackTrace();
+						}
+				}
+				for (TopicConnection connection : connectionRecords.values()) {
+					if (connection != null)
+						try {
+							connection.close();
+						} catch (JMSException jmse) {
+							jmse.printStackTrace();
+						}
+				}
+			}
+		});
 	}
 
 	public void sendMessage(Correspondent correspondent, OutMessage message) {
@@ -118,29 +141,20 @@ public class MessagingService {
 			if (correspondentServiceInfo != null) {
 				String host = correspondentServiceInfo.getHost();
 				ServiceRMI service = correspondentServiceInfo.getServiceRMI();
-				Hashtable<String, String> props = new Hashtable<String, String>();
-				props.put(Context.INITIAL_CONTEXT_FACTORY, "org.exolab.jms.jndi.InitialContextFactory");
-				props.put(Context.SECURITY_PRINCIPAL, "admin");
-				props.put(Context.SECURITY_CREDENTIALS, "openjms");
-				int port;
-				String topicName;
-				Context context = null;
-				TopicConnection connection = null;
 				MessageConsumer receiver = null;
 				try {
-					port = service.getProfileInfo().getJMSPort();
-					props.put(Context.PROVIDER_URL, "rmi://" + host + ":" + Integer.toString(port) + "/");
-					context = new InitialContext(props);
-					TopicConnectionFactory factory = (TopicConnectionFactory) context.lookup(factoryName);
-					connection = factory.createTopicConnection();
-					connection.setClientID(app.getProfileInfo().getUserId()); //
-					TopicSession session = connection.createTopicSession(false, TopicSession.AUTO_ACKNOWLEDGE);
-					topicName = service.getDestinationName(app.getMainController(),
+					int port = service.getProfileInfo().getJMSPort();
+					String url = "rmi://" + host + ":" + Integer.toString(port) + "/";
+					Context context = getContext(url);
+					TopicConnection connection = getConnection(url);
+					TopicSession session = getSession(url);
+					String topicName = service.getDestinationName(app.getMainController(),
 							correspondent.getPairingInfo().getOutId());
 					Topic topic = (Topic) context.lookup(topicName);
-					receiver = session.createDurableSubscriber(topic, correspondent.getPairingInfo().getInId(),
+					connection.stop();
+					receiver = session.createDurableSubscriber(topic,
+							correspondent.getPairingInfo().getInId(),
 							"InId = '" + correspondent.getPairingInfo().getInId() + "'", true);
-//					receiver = session.createConsumer(topic, "InId = '" + correspondent.getPairingInfo().getInId() + "'", true);
 					receiver.setMessageListener(
 							new InMessageHandler(correspondent, MessagingService.this.app.getMessageManager()));
 					connection.start();
@@ -151,9 +165,8 @@ public class MessagingService {
 				} catch (JMSException e) {
 					e.printStackTrace();
 				}
-
-				if (context != null && connection != null && receiver != null) {
-					inMessagingInfoRecords.put(userId, new InMessagingInfo(context, connection, receiver));
+				if (receiver != null) {
+					receivers.put(userId, receiver);
 				}
 			}
 		}
@@ -161,11 +174,78 @@ public class MessagingService {
 
 	public void unsetInMessagingHandler(Correspondent correspondent) {
 		String userId = correspondent.getUserId();
-		InMessagingInfo messagingInfo = inMessagingInfoRecords.get(userId);
-		if (messagingInfo != null) {
-			messagingInfo.close();
-			inMessagingInfoRecords.remove(userId);
+		MessageConsumer receiver = receivers.get(userId);
+		if (receiver != null)
+			try {
+				receiver.setMessageListener(null);
+				receiver.close();
+				receivers.remove(userId);
+			} catch (JMSException e) {
+				e.printStackTrace();
+			}
+	}
+
+	private Context getContext(String url) {
+		Context context = contextRecords.get(url);
+		if (context == null) {
+			Hashtable<String, String> props = new Hashtable<String, String>();
+			props.put(Context.INITIAL_CONTEXT_FACTORY, "org.exolab.jms.jndi.InitialContextFactory");
+			props.put(Context.SECURITY_PRINCIPAL, "admin");
+			props.put(Context.SECURITY_CREDENTIALS, "openjms");
+			props.put(Context.PROVIDER_URL, url);
+			try {
+				context = new InitialContext(props);
+				contextRecords.put(url, context);
+			} catch (NamingException e) {
+				e.printStackTrace();
+			}
 		}
+		return context;
+	}
+
+	private TopicConnectionFactory getFactory(String url) {
+		TopicConnectionFactory factory = factoryRecords.get(url);
+		if (factory == null) {
+			Context context = getContext(url);
+			if (context != null)
+				try {
+					factory = (TopicConnectionFactory) context.lookup(factoryName);
+					factoryRecords.put(url, factory);
+				} catch (NamingException e) {
+					e.printStackTrace();
+				}
+		}
+		return factory;
+	}
+
+	private TopicConnection getConnection(String url) {
+		TopicConnection connection = connectionRecords.get(url);
+		if (connection == null) {
+			TopicConnectionFactory factory = getFactory(url);
+			if (factory != null)
+				try {
+					connection = factory.createTopicConnection();
+					connectionRecords.put(url, connection);
+				} catch (JMSException e) {
+					e.printStackTrace();
+				}
+		}
+		return connection;
+	}
+
+	private TopicSession getSession(String url) {
+		TopicSession session = sessionRecords.get(url);
+		if (session == null) {
+			TopicConnection connection = getConnection(url);
+			if (connection != null)
+				try {
+					session = connection.createTopicSession(false, TopicSession.AUTO_ACKNOWLEDGE);
+					sessionRecords.put(url, session);
+				} catch (JMSException e) {
+					e.printStackTrace();
+				}
+		}
+		return session;
 	}
 
 	private javax.jms.Message translateMessage(OutMessage applicationMessage) {
@@ -190,42 +270,6 @@ public class MessagingService {
 			e.printStackTrace();
 		}
 		return applicationMessage;
-	}
-
-	private class InMessagingInfo {
-		private Context context;
-		private TopicConnection connection;
-		private MessageConsumer receiver;
-
-		public InMessagingInfo(Context context, TopicConnection connection, MessageConsumer receiver) {
-			this.context = context;
-			this.connection = connection;
-			this.receiver = receiver;
-		}
-
-		public void close() {
-			if (receiver != null) {
-				try {
-					receiver.setMessageListener(null);
-				} catch (JMSException jmse1) {
-					jmse1.printStackTrace();
-				}
-			}
-			if (connection != null) {
-				try {
-					connection.close();
-				} catch (JMSException jmse2) {
-					jmse2.printStackTrace();
-				}
-			}
-			if (context != null) {
-				try {
-					context.close();
-				} catch (NamingException ne) {
-					ne.printStackTrace();
-				}
-			}
-		}
 	}
 
 	private class InMessageHandler implements MessageListener {

@@ -100,6 +100,7 @@ public class ServiceAgent {
 			}
 			if (app.T)
 				System.out.println("service mDNS publié");
+			
 			Runtime.getRuntime().addShutdownHook(new Thread() {
 				@Override
 				public void run() {
