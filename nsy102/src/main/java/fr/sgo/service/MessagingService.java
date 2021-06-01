@@ -26,7 +26,6 @@ import fr.sgo.entity.Correspondent;
 import fr.sgo.entity.CorrespondentChat;
 import fr.sgo.entity.InMessage;
 import fr.sgo.entity.OutMessage;
-import fr.sgo.entity.RemoteGroupChat;
 import fr.sgo.view.InformationMessage;
 
 public class MessagingService {
@@ -287,10 +286,10 @@ public class MessagingService {
 		@Override
 		public void onMessage(javax.jms.Message jmsmessage) {
 			InMessage applicationMessage = translateMessage(jmsmessage);
-			Correspondent correspondent = null;
+//			Correspondent correspondent = applicationMessage.getAuthor();
 			if (app.T)
 				System.out.println(
-						"message reçu de " + correspondent.getUserName() + " : " + applicationMessage.getContents());
+						"message reçu de " /*+ correspondent.getUserName() + " : " */+ applicationMessage.getContents());
 			chat.addMessage(applicationMessage);
 		}
 

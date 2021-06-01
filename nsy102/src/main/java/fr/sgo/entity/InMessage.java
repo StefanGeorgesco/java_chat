@@ -5,6 +5,7 @@ public class InMessage extends Message {
 
 	public InMessage(String contents, long timeWritten, Correspondent author) {
 		super(contents, timeWritten);
+		this.author = author;
 	}
 	
 	public Correspondent getAuthor() {
