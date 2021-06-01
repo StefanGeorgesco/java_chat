@@ -22,7 +22,9 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
 import fr.sgo.app.App;
-import fr.sgo.entity.Correspondent;
+import fr.sgo.entity.Chat;
+import fr.sgo.entity.CorrespondentChat;
+import fr.sgo.entity.GroupChat;
 import fr.sgo.entity.InMessage;
 import fr.sgo.entity.Message;
 import fr.sgo.entity.OutMessage;
@@ -33,16 +35,19 @@ public class ChatView extends JFrame implements ActionListener, Observer {
 	 * 
 	 */
 	private static final long serialVersionUID = -4272327756479515057L;
-	private App app;
-	private Correspondent correspondent;
+	private Chat chat;
 	private JTextArea messagesHistory;
 	private JTextField messageField;
 	private JScrollPane jScrollPane;
+	private App app;
 
-	public ChatView(App app, Correspondent correspondent) {
+	public ChatView(App app, Chat chat) {
 		this.app = app;
-		this.correspondent = correspondent;
-		this.setTitle("Discussion avec " + correspondent.getUserName());
+		this.chat = chat;
+		if (chat instanceof GroupChat)
+			this.setTitle("Groupe de discussion " + ((GroupChat) chat).getName());
+		else
+			this.setTitle("Discussion avec " + ((CorrespondentChat) chat).getCorrespondent().getUserName());
 		JPanel panelNorth = new JPanel();
 		messagesHistory = new JTextArea(15, 40);
 		messagesHistory.setEditable(false);
@@ -71,15 +76,15 @@ public class ChatView extends JFrame implements ActionListener, Observer {
 		container.add(panelSouth, BorderLayout.SOUTH);
 		pack();
 		setVisible(false);
-		app.getMessageManager().addObserver(this);
+		this.chat.addObserver(this);
 	}
 
 	public void refreshMessagesHistoryView() {
 		DateFormat shortDateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
 		String contents = "";
-		for (Message m : app.getMessageManager().getMessages(correspondent.getUserId())) {
+		for (Message m : chat.getMessages()) {
 			if (m instanceof InMessage)
-				contents += correspondent.getUserName();
+				contents += ((InMessage) m).getAuthor().getUserName();
 			else
 				contents += "moi";
 			contents += " (" + shortDateFormat.format(new Date(m.getTimeWritten())) + ") : ";
@@ -88,39 +93,37 @@ public class ChatView extends JFrame implements ActionListener, Observer {
 		}
 		messagesHistory.setText(contents);
 		JScrollBar vertical = jScrollPane.getVerticalScrollBar();
-		vertical.setValue(vertical.getMaximum() );
+		vertical.setValue(vertical.getMaximum());
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		new Thread(new Runnable() {
-		      public void run() {
-		        SwingUtilities.invokeLater(new Runnable() {
-		          public void run() {
+			public void run() {
+				SwingUtilities.invokeLater(new Runnable() {
+					public void run() {
 						String text = messageField.getText();
 						if (text.length() > 0) {
-							app.getMessageManager().sendMessage(correspondent, new OutMessage(text));
+							chat.sendMessage(new OutMessage(text, app.getProfileInfo().getUserId()));
 							messageField.setText("");
-		          }
-		        }
-		      });
-		      }
-		  }).start();
+						}
+					}
+				});
+			}
+		}).start();
 	}
 
 	@Override
 	public void update(Observable o, Object arg) {
-		String userId = (String) arg;
-		if (userId.equals(correspondent.getUserId())) {
-			new Thread() {
-				@Override
-				public void run() {
-					refreshMessagesHistoryView();
-					setVisible(true);
-					toFront();
-				}
-			}.start();
-		}
+		new Thread() {
+			@Override
+			public void run() {
+				refreshMessagesHistoryView();
+				setVisible(true);
+				toFront();
+			}
+		}.start();
+
 	}
 
 }

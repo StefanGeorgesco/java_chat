@@ -1,7 +1,7 @@
 package fr.sgo.controller;
 
 import fr.sgo.app.App;
-import fr.sgo.entity.Correspondent;
+import fr.sgo.entity.Chat;
 
 /**
  * Class ChatController
@@ -12,16 +12,16 @@ import fr.sgo.entity.Correspondent;
  * @version 1.0
  */
 public class ChatController extends Controller {
-	private Correspondent correspondent;
+	private Chat chat;
 
-	public ChatController(App app, String actionName, Correspondent correspondent) {
+	public ChatController(App app, String actionName, Chat chat) {
 		super(app, actionName);
-		this.correspondent = correspondent;
+		this.chat = chat;
 	}
 
 	public void run() {
 		try {
-			app.getChatViewContainer().getChatView(correspondent);
+			app.getChatViewContainer().getChatView(chat);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

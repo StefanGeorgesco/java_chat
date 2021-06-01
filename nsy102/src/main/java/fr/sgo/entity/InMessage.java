@@ -1,18 +1,14 @@
 package fr.sgo.entity;
 
 public class InMessage extends Message {
-	private Correspondent correspondent;
+	private Correspondent author;
 
-	public InMessage(String contents, long timeWritten) {
+	public InMessage(String contents, long timeWritten, Correspondent author) {
 		super(contents, timeWritten);
 	}
 	
-	public Correspondent getCorrespondent() {
-		return correspondent;
-	}
-	
-	public void setCorrespondent(Correspondent correspondent) {
-		this.correspondent = correspondent;
+	public Correspondent getAuthor() {
+		return author;
 	}
 	
 }

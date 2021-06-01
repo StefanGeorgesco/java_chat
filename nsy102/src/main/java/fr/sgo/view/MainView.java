@@ -62,7 +62,7 @@ public class MainView extends JFrame implements Observer {
 		// this.correspondentManager.notifyObservers();
 	}
 
-	public static MainView getInstance(	App app) {
+	public static MainView getInstance(App app) {
 		if (instance == null)
 			instance = new MainView(app);
 		return instance;
@@ -75,8 +75,8 @@ public class MainView extends JFrame implements Observer {
 		}
 		pairedCorrespondentsPanel.removeAll();
 		for (Correspondent correspondent : correspondentManager.getPairedCorrespondents()) {
-			pairedCorrespondentsPanel.add(
-					new CorrespondentPanel(app, correspondent, new ChatController(app, "Discuter", correspondent)));
+			pairedCorrespondentsPanel.add(new CorrespondentPanel(app, correspondent,
+					new ChatController(app, "Discuter", app.getChatManager().getCorrespondentChat(correspondent))));
 		}
 		for (Component component : unpairedCorrespondentsPanel.getComponents()) {
 			((CorrespondentPanel) component).getCorrespondent().deleteObserver((CorrespondentPanel) component);
@@ -115,8 +115,8 @@ public class MainView extends JFrame implements Observer {
 			}
 		}
 		if (!correspondentFound & correspondentExists && correspondentIsPaired) {
-			pairedCorrespondentsPanel.add(
-					new CorrespondentPanel(app, correspondent, new ChatController(app, "Discuter", correspondent)));
+			pairedCorrespondentsPanel.add(new CorrespondentPanel(app, correspondent,
+					new ChatController(app, "Discuter", app.getChatManager().getCorrespondentChat(correspondent))));
 		}
 		correspondentFound = false;
 		for (Component component : unpairedCorrespondentsPanel.getComponents()) {

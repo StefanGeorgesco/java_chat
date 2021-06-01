@@ -1,30 +1,32 @@
 package fr.sgo.service;
 
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-
 import java.rmi.RemoteException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
+
+import javax.jms.JMSException;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageListener;
+import javax.jms.Topic;
 import javax.jms.TopicConnection;
 import javax.jms.TopicConnectionFactory;
 import javax.jms.TopicPublisher;
-import javax.jms.Topic;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
 import javax.jms.TopicSession;
-import javax.jms.JMSException;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
 import org.exolab.jms.message.MapMessageImpl;
 
 import fr.sgo.app.App;
+import fr.sgo.entity.Chat;
 import fr.sgo.entity.Correspondent;
+import fr.sgo.entity.CorrespondentChat;
 import fr.sgo.entity.InMessage;
 import fr.sgo.entity.OutMessage;
-import fr.sgo.model.MessageManager;
+import fr.sgo.entity.RemoteGroupChat;
 import fr.sgo.view.InformationMessage;
 
 public class MessagingService {
@@ -123,10 +125,10 @@ public class MessagingService {
 		});
 	}
 
-	public void sendMessage(Correspondent correspondent, OutMessage message) {
+	public void sendMessage(String id, OutMessage message) {
 		javax.jms.Message jmsMessage = translateMessage(message);
 		try {
-			jmsMessage.setStringProperty("InId", correspondent.getPairingInfo().getOutId());
+			jmsMessage.setStringProperty("InId", id);
 			sender.send(jmsMessage);
 		} catch (JMSException e) {
 			e.printStackTrace();
@@ -151,12 +153,11 @@ public class MessagingService {
 					String topicName = service.getDestinationName(app.getMainController(),
 							correspondent.getPairingInfo().getOutId());
 					Topic topic = (Topic) context.lookup(topicName);
+					CorrespondentChat chat = app.getChatManager().getCorrespondentChat(correspondent);
+					String chatId = chat.getId();
 					connection.stop();
-					receiver = session.createDurableSubscriber(topic,
-							correspondent.getPairingInfo().getInId(),
-							"InId = '" + correspondent.getPairingInfo().getInId() + "'", true);
-					receiver.setMessageListener(
-							new InMessageHandler(correspondent, MessagingService.this.app.getMessageManager()));
+					receiver = session.createDurableSubscriber(topic, chatId, "InId = '" + chatId + "'", true);
+					receiver.setMessageListener(new InMessageHandler(chat));
 					connection.start();
 				} catch (RemoteException e) {
 					e.printStackTrace();
@@ -254,6 +255,7 @@ public class MessagingService {
 			jmsMessage = new MapMessageImpl();
 			jmsMessage.setStringProperty("contents", applicationMessage.getContents());
 			jmsMessage.setLongProperty("timeWritten", applicationMessage.getTimeWritten());
+			jmsMessage.setStringProperty("userId", applicationMessage.getUserId());
 		} catch (JMSException e) {
 			e.printStackTrace();
 			new InformationMessage(app, "Le message jms " + applicationMessage.getContents() + " n'a pas pu être créé");
@@ -264,8 +266,11 @@ public class MessagingService {
 	private InMessage translateMessage(javax.jms.Message jmsMessage) {
 		InMessage applicationMessage = null;
 		try {
-			applicationMessage = new InMessage(jmsMessage.getStringProperty("contents"),
-					jmsMessage.getLongProperty("timeWritten"));
+			applicationMessage = new InMessage(
+					jmsMessage.getStringProperty("contents"),
+					jmsMessage.getLongProperty("timeWritten"),
+					app.getCorrespondentManager().getCorrespondent(jmsMessage.getStringProperty("userId"))
+				);
 		} catch (JMSException e) {
 			e.printStackTrace();
 		}
@@ -273,22 +278,20 @@ public class MessagingService {
 	}
 
 	private class InMessageHandler implements MessageListener {
-		Correspondent correspondent;
-		MessageManager messageManager;
+		Chat chat;
 
-		public InMessageHandler(Correspondent correspondent, MessageManager messageManager) {
-			this.correspondent = correspondent;
-			this.messageManager = messageManager;
+		public InMessageHandler(Chat chat) {
+			this.chat = chat;
 		}
 
 		@Override
 		public void onMessage(javax.jms.Message jmsmessage) {
 			InMessage applicationMessage = translateMessage(jmsmessage);
-			applicationMessage.setCorrespondent(correspondent);
+			Correspondent correspondent = null;
 			if (app.T)
 				System.out.println(
 						"message reçu de " + correspondent.getUserName() + " : " + applicationMessage.getContents());
-			messageManager.addMessage(correspondent.getUserId(), applicationMessage);
+			chat.addMessage(applicationMessage);
 		}
 
 	}

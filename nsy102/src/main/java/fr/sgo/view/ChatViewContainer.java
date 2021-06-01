@@ -5,16 +5,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 import fr.sgo.app.App;
-import fr.sgo.entity.Correspondent;
+import fr.sgo.entity.Chat;
 
 public class ChatViewContainer {
 	private static ChatViewContainer instance = null;
-	private Map<String,ChatView> chatViews;
+	private Map<Chat, ChatView> chatViews;
 	private App app;
 
 	private ChatViewContainer(App app) {
 		this.app = app;
-		this.chatViews = Collections.synchronizedMap(new HashMap<String,ChatView>());
+		this.chatViews = Collections.synchronizedMap(new HashMap<Chat, ChatView>());
 	}
 
 	public static ChatViewContainer getInstance(App app) {
@@ -22,24 +22,18 @@ public class ChatViewContainer {
 			instance = new ChatViewContainer(app);
 		return instance;
 	}
-	
+
 	public void open() {
-		for (Correspondent correspondent: app.getCorrespondentManager().getPairedCorrespondents()) {
-			String userId = correspondent.getUserId();
-			if (chatViews.get(userId) == null)
-				chatViews.put(userId, new ChatView(app, correspondent));
+		for (Chat chat : app.getChatManager().getChats()) {
+			chatViews.put(chat, new ChatView(app, chat));
 		}
 	}
-	
-	public ChatView getChatView(Correspondent correspondent) throws Exception {
-		if (!correspondent.isPaired()) {
-			throw new Exception("correspondent is not paired, cannot get ChatView");
-		}
-		String userId = correspondent.getUserId();
-		ChatView chatView = chatViews.get(userId);
+
+	public ChatView getChatView(Chat chat) throws Exception {
+		ChatView chatView = chatViews.get(chat);
 		if (chatView == null) {
-			chatView = new ChatView(app, correspondent);
-			chatViews.put(userId, chatView);
+			chatView = new ChatView(app, chat);
+			chatViews.put(chat, chatView);
 		}
 		chatView.setVisible(true);
 		return chatView;

@@ -3,7 +3,7 @@ package fr.sgo.app;
 import java.rmi.RemoteException;
 import fr.sgo.controller.MainController;
 import fr.sgo.model.CorrespondentManager;
-import fr.sgo.model.MessageManager;
+import fr.sgo.model.ChatManager;
 import fr.sgo.service.CorrespondentServiceLocator;
 import fr.sgo.service.MessagingService;
 import fr.sgo.service.ProfileInfo;
@@ -28,7 +28,7 @@ public class App {
 	private MainController mainController;
 	private CorrespondentManager correspondentManager;
 	private ServiceAgent serviceAgent;
-	private MessageManager messageManager;
+	private ChatManager chatManager;
 	private MessagingService messagingService;
 	private MainView mainView;
 	private ChatViewContainer chatViewContainer;
@@ -45,7 +45,7 @@ public class App {
 		}
 		correspondentManager = CorrespondentManager.getInstance(this);
 		serviceAgent = ServiceAgent.getInstance(this);
-		messageManager = MessageManager.getInstance(this);
+		chatManager = ChatManager.getInstance(this);
 		messagingService = MessagingService.getInstance(this);
 		mainView = MainView.getInstance(this);
 		chatViewContainer = ChatViewContainer.getInstance(this);
@@ -86,8 +86,8 @@ public class App {
 		return correspondentManager;
 	}
 
-	public MessageManager getMessageManager() {
-		return messageManager;
+	public ChatManager getChatManager() {
+		return chatManager;
 	}
 
 	public MessagingService getMessagingService() {
