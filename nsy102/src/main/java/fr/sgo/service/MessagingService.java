@@ -155,7 +155,8 @@ public class MessagingService {
 					CorrespondentChat chat = app.getChatManager().getCorrespondentChat(correspondent);
 					String chatId = chat.getId();
 					connection.stop();
-					receiver = session.createDurableSubscriber(topic, chatId, "InId = '" + chatId + "'", true);
+					receiver = session.createDurableSubscriber(topic, chatId,
+							"InId = '" + correspondent.getPairingInfo().getInId() + "'", true);
 					receiver.setMessageListener(new InMessageHandler(chat));
 					connection.start();
 				} catch (RemoteException e) {
@@ -265,11 +266,9 @@ public class MessagingService {
 	private InMessage translateMessage(javax.jms.Message jmsMessage) {
 		InMessage applicationMessage = null;
 		try {
-			applicationMessage = new InMessage(
-					jmsMessage.getStringProperty("contents"),
+			applicationMessage = new InMessage(jmsMessage.getStringProperty("contents"),
 					jmsMessage.getLongProperty("timeWritten"),
-					app.getCorrespondentManager().getCorrespondent(jmsMessage.getStringProperty("userId"))
-				);
+					app.getCorrespondentManager().getCorrespondent(jmsMessage.getStringProperty("userId")));
 		} catch (JMSException e) {
 			e.printStackTrace();
 		}
@@ -288,8 +287,8 @@ public class MessagingService {
 			InMessage applicationMessage = translateMessage(jmsmessage);
 //			Correspondent correspondent = applicationMessage.getAuthor();
 			if (app.T)
-				System.out.println(
-						"message reçu de " /*+ correspondent.getUserName() + " : " */+ applicationMessage.getContents());
+				System.out.println("message reçu de "
+						/* + correspondent.getUserName() + " : " */ + applicationMessage.getContents());
 			chat.addMessage(applicationMessage);
 		}
 
