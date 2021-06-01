@@ -20,7 +20,7 @@ public class CorrespondentChat extends Chat {
 
 	@Override
 	public String getId() {
-		return correspondent.getPairingInfo().getInId();
+		return correspondent.getPairingInfo().getOutId();
 	}
 
 }
