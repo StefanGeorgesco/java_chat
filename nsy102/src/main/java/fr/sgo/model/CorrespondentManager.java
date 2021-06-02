@@ -104,8 +104,11 @@ public class CorrespondentManager extends Observable implements Observer {
 	}
 	
 	public void reportChange(Correspondent correspondent) {
-		if (correspondent.isPaired())
+		if (correspondent.isPaired()) {
+			final MessagingService messagingService = CorrespondentManager.this.app.getMessagingService();
+			messagingService.setInMessagingHandler(correspondent);
 			Storage.save(getPairedCorrespondents(), objectName);
+		}
 		setChanged();
 		notifyObservers(correspondent);
 	}

@@ -78,6 +78,10 @@ public class ChatView extends JFrame implements ActionListener, Observer {
 		setVisible(false);
 		this.chat.addObserver(this);
 	}
+	
+	public Chat getChat() {
+		return chat;
+	}
 
 	public void refreshMessagesHistoryView() {
 		DateFormat shortDateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);

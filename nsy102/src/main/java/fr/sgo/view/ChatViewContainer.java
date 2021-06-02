@@ -3,11 +3,14 @@ package fr.sgo.view;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 
 import fr.sgo.app.App;
 import fr.sgo.entity.Chat;
 
-public class ChatViewContainer {
+@SuppressWarnings("deprecation")
+public class ChatViewContainer implements Observer {
 	private static ChatViewContainer instance = null;
 	private Map<Chat, ChatView> chatViews;
 	private App app;
@@ -25,8 +28,18 @@ public class ChatViewContainer {
 
 	public void open() {
 		for (Chat chat : app.getChatManager().getChats()) {
-			chatViews.put(chat, new ChatView(app, chat));
+			addChatView(chat);
 		}
+		app.getChatManager().addObserver(this);
+	}
+
+	public void addChatView(ChatView chatView) {
+		chatViews.put(chatView.getChat(), chatView);
+	}
+
+	public void addChatView(Chat chat) {
+		if (chatViews.get(chat) == null)
+			chatViews.put(chat, new ChatView(app, chat));
 	}
 
 	public ChatView getChatView(Chat chat) throws Exception {
@@ -37,6 +50,17 @@ public class ChatViewContainer {
 		}
 		chatView.setVisible(true);
 		return chatView;
+	}
+
+	@Override
+	public void update(Observable o, Object arg) {
+		new Thread() {
+			@Override
+			public void run() {
+				Chat chat = (Chat) arg;
+				addChatView(chat);
+			}
+		}.start();
 	}
 
 }
