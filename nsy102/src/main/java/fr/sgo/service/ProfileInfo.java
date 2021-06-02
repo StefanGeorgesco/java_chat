@@ -30,7 +30,7 @@ public class ProfileInfo implements Serializable
         set = false;
     }
 
-    public static ProfileInfo getInstance() {
+    public static synchronized ProfileInfo getInstance() {
         if (instance == null)
             instance = (ProfileInfo) Storage.restore(objectName);
         if (instance == null)

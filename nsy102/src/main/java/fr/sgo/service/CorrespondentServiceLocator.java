@@ -53,7 +53,7 @@ public class CorrespondentServiceLocator extends Observable {
 		});
 	}
 
-	public static CorrespondentServiceLocator getInstance() {
+	public static synchronized CorrespondentServiceLocator getInstance() {
 		if (instance == null)
 			instance = new CorrespondentServiceLocator();
 		return instance;

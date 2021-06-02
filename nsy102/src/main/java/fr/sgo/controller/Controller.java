@@ -1,7 +1,5 @@
 package fr.sgo.controller;
 
-import fr.sgo.app.App;
-
 /**
  * Abstract class Controller.
  * 
@@ -11,16 +9,10 @@ import fr.sgo.app.App;
  * @version 1.0
  */
 public abstract class Controller implements Runnable {
-	protected App app;
 	protected String actionName;
 
-	public Controller(App app, String actionName) {
-		this.app = app;
+	public Controller(String actionName) {
 		this.actionName = actionName;
-	}
-
-	public App getApp() {
-		return app;
 	}
 
 	public String getActionName() {

@@ -6,31 +6,29 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 
-import fr.sgo.app.App;
 import fr.sgo.entity.Chat;
+import fr.sgo.model.ChatManager;
 
 @SuppressWarnings("deprecation")
 public class ChatViewContainer implements Observer {
 	private static ChatViewContainer instance = null;
 	private Map<Chat, ChatView> chatViews;
-	private App app;
 
-	private ChatViewContainer(App app) {
-		this.app = app;
+	private ChatViewContainer() {
 		this.chatViews = Collections.synchronizedMap(new HashMap<Chat, ChatView>());
 	}
 
-	public static ChatViewContainer getInstance(App app) {
+	public static synchronized ChatViewContainer getInstance() {
 		if (instance == null)
-			instance = new ChatViewContainer(app);
+			instance = new ChatViewContainer();
 		return instance;
 	}
 
-	public void open() {
-		for (Chat chat : app.getChatManager().getChats()) {
+	public void start() {
+		for (Chat chat : ChatManager.getInstance().getChats()) {
 			addChatView(chat);
 		}
-		app.getChatManager().addObserver(this);
+		ChatManager.getInstance().addObserver(this);
 	}
 
 	public void addChatView(ChatView chatView) {
@@ -39,13 +37,13 @@ public class ChatViewContainer implements Observer {
 
 	public void addChatView(Chat chat) {
 		if (chatViews.get(chat) == null)
-			chatViews.put(chat, new ChatView(app, chat));
+			chatViews.put(chat, new ChatView(chat));
 	}
 
 	public ChatView getChatView(Chat chat) throws Exception {
 		ChatView chatView = chatViews.get(chat);
 		if (chatView == null) {
-			chatView = new ChatView(app, chat);
+			chatView = new ChatView(chat);
 			chatViews.put(chat, chatView);
 		}
 		chatView.setVisible(true);

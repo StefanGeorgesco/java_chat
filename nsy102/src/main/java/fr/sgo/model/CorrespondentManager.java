@@ -8,11 +8,11 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 
-import fr.sgo.app.App;
 import fr.sgo.entity.Correspondent;
 import fr.sgo.service.CorrespondentServiceInfo;
 import fr.sgo.service.CorrespondentServiceLocator;
 import fr.sgo.service.MessagingService;
+import fr.sgo.service.ProfileInfo;
 import fr.sgo.service.Storage;
 
 /**
@@ -28,13 +28,11 @@ public class CorrespondentManager extends Observable implements Observer {
 	private static CorrespondentManager instance = null;
 	private Map<String, Correspondent> correspondents;
 	private static String objectName;
-	private App app;
 
 	@SuppressWarnings("unchecked")
-	private CorrespondentManager(App app) {
-		this.app = app;
+	private CorrespondentManager() {
 		this.correspondents = Collections.synchronizedMap(new HashMap<String, Correspondent>());
-		objectName = app.getProfileInfo().getUserId();
+		objectName = ProfileInfo.getInstance().getUserId();
 		Collection<Correspondent> pairedCorrespondents = (Collection<Correspondent>) Storage.restore(objectName);
 		if (pairedCorrespondents != null) {
 			for (Correspondent c : pairedCorrespondents) {
@@ -44,9 +42,9 @@ public class CorrespondentManager extends Observable implements Observer {
 		}
 	}
 
-	public static CorrespondentManager getInstance(App app) {
+	public static synchronized CorrespondentManager getInstance() {
 		if (instance == null)
-			instance = new CorrespondentManager(app);
+			instance = new CorrespondentManager();
 		return instance;
 	}
 
@@ -105,7 +103,7 @@ public class CorrespondentManager extends Observable implements Observer {
 	
 	public void reportChange(Correspondent correspondent) {
 		if (correspondent.isPaired()) {
-			final MessagingService messagingService = CorrespondentManager.this.app.getMessagingService();
+			final MessagingService messagingService = MessagingService.getInstance();
 			messagingService.setInMessagingHandler(correspondent);
 			Storage.save(getPairedCorrespondents(), objectName);
 		}
@@ -114,16 +112,16 @@ public class CorrespondentManager extends Observable implements Observer {
 	}
 
 	public void update(Observable observable, Object arg) {
-		final CorrespondentServiceLocator correspondentServiceLocator = (CorrespondentServiceLocator) observable;
-		final CorrespondentServiceInfo correspondentServiceInfo = (CorrespondentServiceInfo) arg;
-		final MessagingService messagingService = CorrespondentManager.this.app.getMessagingService();
 		new Thread() {
 			@Override
 			public void run() {
+				CorrespondentServiceLocator correspondentServiceLocator = (CorrespondentServiceLocator) observable;
+				CorrespondentServiceInfo correspondentServiceInfo = (CorrespondentServiceInfo) arg;
+				MessagingService messagingService = MessagingService.getInstance();
 				if (correspondentServiceInfo != null) { // got info
 					String userId = correspondentServiceInfo.getUserId();
 					assert !userId.equals("Toto"); // DEBUG
-					String myUserId = CorrespondentManager.this.app.getProfileInfo().getUserId();
+					String myUserId = ProfileInfo.getInstance().getUserId();
 					if (!userId.equals(myUserId)) { // not me
 						Correspondent correspondent = correspondents.get(userId); // get correspondent if present
 						if (correspondentServiceLocator.lookup(userId) == null) { // service removed

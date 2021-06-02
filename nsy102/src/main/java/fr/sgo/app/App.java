@@ -1,9 +1,9 @@
 package fr.sgo.app;
 
 import java.rmi.RemoteException;
+
 import fr.sgo.controller.MainController;
 import fr.sgo.model.CorrespondentManager;
-import fr.sgo.model.ChatManager;
 import fr.sgo.service.CorrespondentServiceLocator;
 import fr.sgo.service.MessagingService;
 import fr.sgo.service.ProfileInfo;
@@ -21,37 +21,28 @@ import fr.sgo.view.MainView;
  */
 @SuppressWarnings("deprecation")
 public class App {
-	public final boolean T = true; //
+	public static final boolean T = true; //
 	private static App instance = null;
 	private ProfileInfo profileInfo;
 	private CorrespondentServiceLocator correspondentServiceLocator;
-	private MainController mainController;
 	private CorrespondentManager correspondentManager;
 	private ServiceAgent serviceAgent;
-	private ChatManager chatManager;
 	private MessagingService messagingService;
-	private MainView mainView;
 	private ChatViewContainer chatViewContainer;
 
 	private App() {
 		profileInfo = ProfileInfo.getInstance();
 		assert !profileInfo.getUserId().equals("Toto"); // DEBUG
 		correspondentServiceLocator = CorrespondentServiceLocator.getInstance();
-		try {
-			mainController = MainController.getInstance(this);
-		} catch (RemoteException e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-		correspondentManager = CorrespondentManager.getInstance(this);
-		serviceAgent = ServiceAgent.getInstance(this);
-		chatManager = ChatManager.getInstance(this);
-		messagingService = MessagingService.getInstance(this);
-		mainView = MainView.getInstance(this);
-		chatViewContainer = ChatViewContainer.getInstance(this);
+		MainController.getInstance();
+		correspondentManager = CorrespondentManager.getInstance();
+		serviceAgent = ServiceAgent.getInstance();
+		messagingService = MessagingService.getInstance();
+		MainView.getInstance();
+		chatViewContainer = ChatViewContainer.getInstance();
 	}
 
-	public static App getInstance() {
+	public static synchronized App getInstance() {
 		if (instance == null) {
 			instance = new App();
 		}
@@ -64,42 +55,10 @@ public class App {
 		correspondentServiceLocator.addObserver(correspondentManager);
 		messagingService.open();
 		correspondentServiceLocator.open();
-		chatViewContainer.open();
+		chatViewContainer.start();
 		serviceAgent.publishServices(3000);
 		if (T)
 			System.out.println("application démarrée, en attente...");
-	}
-
-	public MainController getMainController() {
-		return mainController;
-	}
-
-	public ProfileInfo getProfileInfo() {
-		return profileInfo;
-	}
-
-	public CorrespondentServiceLocator getCorrespondentServiceLocator() {
-		return correspondentServiceLocator;
-	}
-
-	public CorrespondentManager getCorrespondentManager() {
-		return correspondentManager;
-	}
-
-	public ChatManager getChatManager() {
-		return chatManager;
-	}
-
-	public MessagingService getMessagingService() {
-		return messagingService;
-	}
-
-	public MainView getMainView() {
-		return mainView;
-	}
-
-	public ChatViewContainer getChatViewContainer() {
-		return chatViewContainer;
 	}
 
 	public static void main(String[] args) throws RemoteException {

@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.Observable;
 import java.util.Set;
 
-import fr.sgo.app.App;
 import fr.sgo.entity.Chat;
 import fr.sgo.entity.Correspondent;
 import fr.sgo.entity.CorrespondentChat;
@@ -15,16 +14,14 @@ import fr.sgo.entity.CorrespondentChat;
 public class ChatManager extends Observable {
 	private static ChatManager instance = null;
 	private Set<Chat> chats;
-	private App app;
 
-	private ChatManager(App app) {
+	private ChatManager() {
 		this.chats = Collections.synchronizedSet(new HashSet<Chat>());
-		this.app = app;
 	}
 
-	public static ChatManager getInstance(App app) {
+	public static synchronized ChatManager getInstance() {
 		if (instance == null)
-			instance = new ChatManager(app);
+			instance = new ChatManager();
 		return instance;
 	}
 
@@ -43,7 +40,7 @@ public class ChatManager extends Observable {
 				}
 			}
 			if (correspondentChat == null) {
-				correspondentChat = new CorrespondentChat(app, correspondent);
+				correspondentChat = new CorrespondentChat(correspondent);
 				addChat(correspondentChat);
 			}
 		}

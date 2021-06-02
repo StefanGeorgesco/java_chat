@@ -13,7 +13,6 @@ import javax.swing.JPanel;
 
 import fr.sgo.controller.Controller;
 import fr.sgo.entity.Correspondent;
-import fr.sgo.app.App;
 
 /**
  * Abstract class CorrespondentPanel
@@ -29,17 +28,15 @@ public class CorrespondentPanel extends JPanel implements Observer {
 	 * 
 	 */
 	private static final long serialVersionUID = -2046950170711645517L;
-	private App app;
 	private Correspondent correspondent;
 	private JPanel namePanel;
 	private JLabel nameField;
 	private JPanel onlinePanel;
 	private JButton actionButton1;
 
-	public CorrespondentPanel(App app, Correspondent correspondent, Controller controller) {
+	public CorrespondentPanel(Correspondent correspondent, Controller controller) {
 		super();
 		this.correspondent = correspondent;
-		this.app = app;
 		setSize(new Dimension(100, 20));
 		namePanel = new JPanel();
 		namePanel.setSize(new Dimension(54, 14));
@@ -79,7 +76,7 @@ public class CorrespondentPanel extends JPanel implements Observer {
 		else
 			onlinePanel.setBackground(Color.GRAY);
 		try {
-			this.app.getMainView().repaint();
+			repaint();
 		} catch (Exception e) {
 		}
 	}

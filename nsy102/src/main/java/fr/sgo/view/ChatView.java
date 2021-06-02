@@ -21,13 +21,13 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
-import fr.sgo.app.App;
 import fr.sgo.entity.Chat;
 import fr.sgo.entity.CorrespondentChat;
 import fr.sgo.entity.GroupChat;
 import fr.sgo.entity.InMessage;
 import fr.sgo.entity.Message;
 import fr.sgo.entity.OutMessage;
+import fr.sgo.service.ProfileInfo;
 
 @SuppressWarnings("deprecation")
 public class ChatView extends JFrame implements ActionListener, Observer {
@@ -39,10 +39,8 @@ public class ChatView extends JFrame implements ActionListener, Observer {
 	private JTextArea messagesHistory;
 	private JTextField messageField;
 	private JScrollPane jScrollPane;
-	private App app;
 
-	public ChatView(App app, Chat chat) {
-		this.app = app;
+	public ChatView(Chat chat) {
 		this.chat = chat;
 		if (chat instanceof GroupChat)
 			this.setTitle("Groupe de discussion " + ((GroupChat) chat).getName());
@@ -108,7 +106,7 @@ public class ChatView extends JFrame implements ActionListener, Observer {
 					public void run() {
 						String text = messageField.getText();
 						if (text.length() > 0) {
-							chat.sendMessage(new OutMessage(text, app.getProfileInfo().getUserId()));
+							chat.sendMessage(new OutMessage(text, ProfileInfo.getInstance().getUserId()));
 							messageField.setText("");
 						}
 					}

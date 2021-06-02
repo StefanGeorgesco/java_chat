@@ -7,7 +7,7 @@ import java.util.Observable;
 import java.util.Set;
 import java.util.TreeSet;
 
-import fr.sgo.app.App;
+import fr.sgo.service.MessagingService;
 
 @SuppressWarnings("deprecation")
 public abstract class Chat extends Observable implements Serializable {
@@ -16,10 +16,8 @@ public abstract class Chat extends Observable implements Serializable {
 	 */
 	private static final long serialVersionUID = 5801761275943085099L;
 	protected Set<Message> messages;
-	protected App app;
 
-	public Chat(App app) {
-		this.app = app;
+	public Chat() {
 		this.messages = Collections.synchronizedSet(new TreeSet<Message>());
 	}
 
@@ -36,7 +34,7 @@ public abstract class Chat extends Observable implements Serializable {
 	public abstract String getId();
 
 	public void sendMessage(OutMessage message) {
-		app.getMessagingService().sendMessage(this.getId(), message);
+		MessagingService.getInstance().sendMessage(this.getId(), message);
 		addMessage(message);
 	}
 

@@ -1,7 +1,5 @@
 package fr.sgo.entity;
 
-import fr.sgo.app.App;
-
 public class CorrespondentChat extends Chat {
 	/**
 	 * 
@@ -9,8 +7,8 @@ public class CorrespondentChat extends Chat {
 	private static final long serialVersionUID = 5022978275100350854L;
 	private Correspondent correspondent;
 
-	public CorrespondentChat(App app, Correspondent correspondent) {
-		super(app);
+	public CorrespondentChat(Correspondent correspondent) {
+		super();
 		this.correspondent = correspondent;
 	}
 	

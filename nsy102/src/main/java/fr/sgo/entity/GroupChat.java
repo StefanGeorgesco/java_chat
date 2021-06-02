@@ -1,7 +1,5 @@
 package fr.sgo.entity;
 
-import fr.sgo.app.App;
-
 public abstract class GroupChat extends Chat {
 
 	/**
@@ -10,8 +8,8 @@ public abstract class GroupChat extends Chat {
 	private static final long serialVersionUID = 279792385811091040L;
 	String name;
 
-	public GroupChat(App app, String name) {
-		super(app);
+	public GroupChat(String name) {
+		super();
 		this.name = name;
 	}
 	

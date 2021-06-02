@@ -3,10 +3,11 @@ package fr.sgo.controller;
 import java.rmi.RemoteException;
 
 import javax.swing.JOptionPane;
-import fr.sgo.app.App;
 import fr.sgo.entity.Correspondent;
+import fr.sgo.model.CorrespondentManager;
 import fr.sgo.service.CorrespondentServiceLocator;
 import fr.sgo.service.ServiceRMI;
+import fr.sgo.view.MainView;
 
 /**
  * Class PairingRequestController
@@ -19,8 +20,8 @@ import fr.sgo.service.ServiceRMI;
 public class PairingRequestController extends Controller {
 	private Correspondent correspondent;
 
-	public PairingRequestController(App app, String actionName, Correspondent correspondent) {
-		super(app, actionName);
+	public PairingRequestController(String actionName, Correspondent correspondent) {
+		super(actionName);
 		this.correspondent = correspondent;
 	}
 
@@ -30,7 +31,7 @@ public class PairingRequestController extends Controller {
 		Correspondent.PairingInfo pairingInfo = correspondent.getPairingInfo();
 		String inId = pairingInfo.getInId();
 		int pairingStatus = pairingInfo.getPairingStatus();
-		CorrespondentServiceLocator correspondentServiceLocator = this.app.getCorrespondentServiceLocator();
+		CorrespondentServiceLocator correspondentServiceLocator = CorrespondentServiceLocator.getInstance();
 		ServiceRMI correspondentServiceRMI = correspondentServiceLocator.lookup(userId).getServiceRMI();
 
 		boolean accept = false;
@@ -41,7 +42,7 @@ public class PairingRequestController extends Controller {
 			break;
 		case Correspondent.PAIRING_REQUEST_RECEIVED:
 		case Correspondent.UNPAIRED:
-			int response = JOptionPane.showConfirmDialog(app.getMainView(),
+			int response = JOptionPane.showConfirmDialog(MainView.getInstance(),
 					userName + " souhaite vous inviter. Acceptez-vous ?");
 			if (response == 0)
 				accept = true;
@@ -50,15 +51,15 @@ public class PairingRequestController extends Controller {
 		}
 		if (accept) {
 			try {
-				correspondentServiceRMI.acceptPairingRequest(app.getMainController(), inId, pairingInfo.getOutId());
+				correspondentServiceRMI.acceptPairingRequest(MainController.getInstance(), inId, pairingInfo.getOutId());
 				pairingInfo.setPairingStatus(Correspondent.PAIRED);
-				app.getCorrespondentManager().reportChange(correspondent);
+				CorrespondentManager.getInstance().reportChange(correspondent);
 			} catch (RemoteException e1) {
 				e1.printStackTrace();
 			}
 		} else {
 			try {
-				correspondentServiceRMI.refusePairing(app.getMainController(), inId);
+				correspondentServiceRMI.refusePairing(MainController.getInstance(), inId);
 				pairingInfo.setPairingStatus(Correspondent.UNPAIRED);
 			} catch (RemoteException e2) {
 				e2.printStackTrace();

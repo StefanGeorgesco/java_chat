@@ -12,6 +12,7 @@ import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceInfo;
 
 import fr.sgo.app.App;
+import fr.sgo.controller.MainController;
 
 /**
  * Class ServiceAgent
@@ -24,14 +25,12 @@ import fr.sgo.app.App;
 @SuppressWarnings("deprecation")
 public class ServiceAgent {
 	private static ServiceAgent instance = null;
-	private App app;
 	public static final String SERVICE_TYPE = "_monserviceRMI._tcp.local.";
 	private static final String serviceName = IDGenerator.newId();
 	private static Registry registry;
 	private static JmDNS jmdns = null;
 
-	private ServiceAgent(App app) {
-		this.app = app;
+	private ServiceAgent() {
 		java.util.Properties p = System.getProperties();
 		p.put("java.security.policy", "policy.all");
 		System.setProperties(p);
@@ -43,9 +42,9 @@ public class ServiceAgent {
 		}
 	}
 
-	public static ServiceAgent getInstance(App app) {
+	public static synchronized ServiceAgent getInstance() {
 		if (instance == null)
-			instance = new ServiceAgent(app);
+			instance = new ServiceAgent();
 		return instance;
 	}
 
@@ -69,36 +68,36 @@ public class ServiceAgent {
 				ie.printStackTrace();
 			}
 			try {
-				registry = LocateRegistry.createRegistry(app.getProfileInfo().getRMIPort());
+				registry = LocateRegistry.createRegistry(ProfileInfo.getInstance().getRMIPort());
 			} catch (RemoteException re1) {
 				try {
-					registry = LocateRegistry.getRegistry(app.getProfileInfo().getRMIPort());
+					registry = LocateRegistry.getRegistry(ProfileInfo.getInstance().getRMIPort());
 				} catch (RemoteException re2) {
 					re2.printStackTrace();
 					System.exit(1);
 				}
 			}
-			if (app.T)
+			if (App.T)
 				System.out.println("registre RMI créé ou lié");
 			try {
-				registry.rebind(serviceName, app.getMainController());
+				registry.rebind(serviceName, MainController.getInstance());
 			} catch (RemoteException re3) {
 				re3.printStackTrace();
 				System.exit(1);
 			}
-			if (app.T)
+			if (App.T)
 				System.out.println("service enregistré dans le registre RMI");
 			Map<String, String> props = new HashMap<String, String>();
-			props.put("userId", app.getProfileInfo().getUserId());
-			props.put("userName", app.getProfileInfo().getUserName());
+			props.put("userId", ProfileInfo.getInstance().getUserId());
+			props.put("userName", ProfileInfo.getInstance().getUserName());
 			try {
 				ServiceInfo serviceInfo = ServiceInfo.create(SERVICE_TYPE, serviceName,
-						app.getProfileInfo().getRMIPort(), 0, 0, props);
+						ProfileInfo.getInstance().getRMIPort(), 0, 0, props);
 				jmdns.registerService(serviceInfo);
 			} catch (IOException ioe) {
 				ioe.printStackTrace();
 			}
-			if (app.T)
+			if (App.T)
 				System.out.println("service mDNS publié");
 			
 			Runtime.getRuntime().addShutdownHook(new Thread() {

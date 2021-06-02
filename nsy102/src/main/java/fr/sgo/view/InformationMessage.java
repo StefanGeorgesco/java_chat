@@ -8,14 +8,13 @@ public class InformationMessage extends Thread {
 	App app;
 	String message;
 	
-	public InformationMessage(App app, String message) {
-		this.app = app;
+	public InformationMessage(String message) {
 		this.message = message;
 		start();
 	}
 	
 	@Override
 	public void run() {
-		JOptionPane.showMessageDialog(app.getMainView(), message);
+		JOptionPane.showMessageDialog(MainView.getInstance(), message);
 	}
 }

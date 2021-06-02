@@ -1,7 +1,5 @@
 package fr.sgo.entity;
 
-import fr.sgo.app.App;
-
 public class RemoteGroupChat extends GroupChat {
 	/**
 	 * 
@@ -11,8 +9,8 @@ public class RemoteGroupChat extends GroupChat {
 	private String id;
 	
 
-	public RemoteGroupChat(App app, Correspondent correspondent, String id, String name) {
-		super(app, name);
+	public RemoteGroupChat(Correspondent correspondent, String id, String name) {
+		super(name);
 		this.correspondent = correspondent;
 		this.id = id;
 	}

@@ -21,11 +21,14 @@ import javax.naming.NamingException;
 import org.exolab.jms.message.MapMessageImpl;
 
 import fr.sgo.app.App;
+import fr.sgo.controller.MainController;
 import fr.sgo.entity.Chat;
 import fr.sgo.entity.Correspondent;
 import fr.sgo.entity.CorrespondentChat;
 import fr.sgo.entity.InMessage;
 import fr.sgo.entity.OutMessage;
+import fr.sgo.model.ChatManager;
+import fr.sgo.model.CorrespondentManager;
 import fr.sgo.view.InformationMessage;
 
 public class MessagingService {
@@ -42,10 +45,8 @@ public class MessagingService {
 	private Map<String, TopicConnection> connectionRecords; // key: url
 	private Map<String, TopicSession> sessionRecords; // key: url
 	private Map<String, MessageConsumer> receivers; // key: userId
-	private App app;
 
-	private MessagingService(App app) {
-		this.app = app;
+	private MessagingService() {
 		this.contextRecords = Collections.synchronizedMap(new HashMap<String, Context>());
 		this.factoryRecords = Collections.synchronizedMap(new HashMap<String, TopicConnectionFactory>());
 		this.connectionRecords = Collections.synchronizedMap(new HashMap<String, TopicConnection>());
@@ -53,9 +54,9 @@ public class MessagingService {
 		this.receivers = Collections.synchronizedMap(new HashMap<String, MessageConsumer>());
 	}
 
-	public static MessagingService getInstance(App app) {
+	public static synchronized MessagingService getInstance() {
 		if (instance == null)
-			instance = new MessagingService(app);
+			instance = new MessagingService();
 		return instance;
 	}
 
@@ -64,7 +65,7 @@ public class MessagingService {
 	}
 
 	public void open() {
-		ProfileInfo profileInfo = app.getProfileInfo();
+		ProfileInfo profileInfo = ProfileInfo.getInstance();
 		try {
 			Hashtable<String, String> props = new Hashtable<String, String>();
 			props.put(Context.PROVIDER_URL,
@@ -79,7 +80,7 @@ public class MessagingService {
 			Topic topic = (Topic) context.lookup(topicName);
 			sender = session.createPublisher(topic);
 			connection.start();
-			if (app.T)
+			if (App.T)
 				System.out.println("service jms local installé");
 		} catch (NamingException ne) {
 			ne.printStackTrace();
@@ -137,8 +138,7 @@ public class MessagingService {
 	public void setInMessagingHandler(Correspondent correspondent) {
 		if (correspondent.isPaired()) {
 			String userId = correspondent.getUserId();
-			CorrespondentServiceInfo correspondentServiceInfo = MessagingService.this.app
-					.getCorrespondentServiceLocator().lookup(userId);
+			CorrespondentServiceInfo correspondentServiceInfo = CorrespondentServiceLocator.getInstance().lookup(userId);
 			if (correspondentServiceInfo != null) {
 				String host = correspondentServiceInfo.getHost();
 				ServiceRMI service = correspondentServiceInfo.getServiceRMI();
@@ -149,10 +149,10 @@ public class MessagingService {
 					Context context = getContext(url);
 					TopicConnection connection = getConnection(url);
 					TopicSession session = getSession(url);
-					String topicName = service.getDestinationName(app.getMainController(),
+					String topicName = service.getDestinationName(MainController.getInstance(),
 							correspondent.getPairingInfo().getOutId());
 					Topic topic = (Topic) context.lookup(topicName);
-					CorrespondentChat chat = app.getChatManager().getCorrespondentChat(correspondent);
+					CorrespondentChat chat = ChatManager.getInstance().getCorrespondentChat(correspondent);
 					String chatId = chat.getId();
 					connection.stop();
 					receiver = session.createDurableSubscriber(topic, chatId,
@@ -258,7 +258,7 @@ public class MessagingService {
 			jmsMessage.setString("userId", applicationMessage.getUserId());
 		} catch (JMSException e) {
 			e.printStackTrace();
-			new InformationMessage(app, "Le message jms " + applicationMessage.getContents() + " n'a pas pu être créé");
+			new InformationMessage("Le message jms " + applicationMessage.getContents() + " n'a pas pu être créé");
 		}
 		return jmsMessage;
 	}
@@ -268,7 +268,7 @@ public class MessagingService {
 		try {
 			applicationMessage = new InMessage(((MapMessageImpl) jmsMessage).getString("contents"),
 					((MapMessageImpl) jmsMessage).getLong("timeWritten"),
-					app.getCorrespondentManager().getCorrespondent(((MapMessageImpl) jmsMessage).getString("userId")));
+					CorrespondentManager.getInstance().getCorrespondent(((MapMessageImpl) jmsMessage).getString("userId")));
 		} catch (JMSException e) {
 			e.printStackTrace();
 		}
@@ -286,7 +286,7 @@ public class MessagingService {
 		public void onMessage(javax.jms.Message jmsmessage) {
 			InMessage applicationMessage = translateMessage(jmsmessage);
 			Correspondent correspondent = applicationMessage.getAuthor();
-			if (app.T)
+			if (App.T)
 				System.out.println("message reçu de "
 						+ correspondent.getUserName() + " : " + applicationMessage.getContents());
 			chat.addMessage(applicationMessage);
