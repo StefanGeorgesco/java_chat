@@ -250,12 +250,12 @@ public class MessagingService {
 	}
 
 	private javax.jms.Message translateMessage(OutMessage applicationMessage) {
-		javax.jms.Message jmsMessage = null;
+		MapMessageImpl jmsMessage = null;
 		try {
 			jmsMessage = new MapMessageImpl();
-			jmsMessage.setStringProperty("contents", applicationMessage.getContents());
-			jmsMessage.setLongProperty("timeWritten", applicationMessage.getTimeWritten());
-			jmsMessage.setStringProperty("userId", applicationMessage.getUserId());
+			jmsMessage.setString("contents", applicationMessage.getContents());
+			jmsMessage.setLong("timeWritten", applicationMessage.getTimeWritten());
+			jmsMessage.setString("userId", applicationMessage.getUserId());
 		} catch (JMSException e) {
 			e.printStackTrace();
 			new InformationMessage(app, "Le message jms " + applicationMessage.getContents() + " n'a pas pu être créé");
@@ -266,9 +266,9 @@ public class MessagingService {
 	private InMessage translateMessage(javax.jms.Message jmsMessage) {
 		InMessage applicationMessage = null;
 		try {
-			applicationMessage = new InMessage(jmsMessage.getStringProperty("contents"),
-					jmsMessage.getLongProperty("timeWritten"),
-					app.getCorrespondentManager().getCorrespondent(jmsMessage.getStringProperty("userId")));
+			applicationMessage = new InMessage(((MapMessageImpl) jmsMessage).getString("contents"),
+					((MapMessageImpl) jmsMessage).getLong("timeWritten"),
+					app.getCorrespondentManager().getCorrespondent(((MapMessageImpl) jmsMessage).getString("userId")));
 		} catch (JMSException e) {
 			e.printStackTrace();
 		}
@@ -285,10 +285,10 @@ public class MessagingService {
 		@Override
 		public void onMessage(javax.jms.Message jmsmessage) {
 			InMessage applicationMessage = translateMessage(jmsmessage);
-//			Correspondent correspondent = applicationMessage.getAuthor();
+			Correspondent correspondent = applicationMessage.getAuthor();
 			if (app.T)
 				System.out.println("message reçu de "
-						/* + correspondent.getUserName() + " : " */ + applicationMessage.getContents());
+						+ correspondent.getUserName() + " : " + applicationMessage.getContents());
 			chat.addMessage(applicationMessage);
 		}
 
