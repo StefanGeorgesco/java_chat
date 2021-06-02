@@ -21,7 +21,7 @@ import javax.naming.NamingException;
 import org.exolab.jms.message.MapMessageImpl;
 
 import fr.sgo.app.App;
-import fr.sgo.controller.MainController;
+import fr.sgo.controller.RMIController;
 import fr.sgo.entity.Chat;
 import fr.sgo.entity.Correspondent;
 import fr.sgo.entity.CorrespondentChat;
@@ -141,7 +141,7 @@ public class MessagingService {
 			CorrespondentServiceInfo correspondentServiceInfo = CorrespondentServiceLocator.getInstance().lookup(userId);
 			if (correspondentServiceInfo != null) {
 				String host = correspondentServiceInfo.getHost();
-				ServiceRMI service = correspondentServiceInfo.getServiceRMI();
+				RMIService service = correspondentServiceInfo.getServiceRMI();
 				MessageConsumer receiver = null;
 				try {
 					int port = service.getProfileInfo().getJMSPort();
@@ -149,7 +149,7 @@ public class MessagingService {
 					Context context = getContext(url);
 					TopicConnection connection = getConnection(url);
 					TopicSession session = getSession(url);
-					String topicName = service.getDestinationName(MainController.getInstance(),
+					String topicName = service.getDestinationName(RMIController.getInstance(),
 							correspondent.getPairingInfo().getOutId());
 					Topic topic = (Topic) context.lookup(topicName);
 					CorrespondentChat chat = ChatManager.getInstance().getCorrespondentChat(correspondent);

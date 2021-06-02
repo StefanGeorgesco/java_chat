@@ -2,7 +2,7 @@ package fr.sgo.app;
 
 import java.rmi.RemoteException;
 
-import fr.sgo.controller.MainController;
+import fr.sgo.controller.RMIController;
 import fr.sgo.model.CorrespondentManager;
 import fr.sgo.service.CorrespondentServiceLocator;
 import fr.sgo.service.MessagingService;
@@ -34,7 +34,7 @@ public class App {
 		profileInfo = ProfileInfo.getInstance();
 		assert !profileInfo.getUserId().equals("Toto"); // DEBUG
 		correspondentServiceLocator = CorrespondentServiceLocator.getInstance();
-		MainController.getInstance();
+		RMIController.getInstance();
 		correspondentManager = CorrespondentManager.getInstance();
 		serviceAgent = ServiceAgent.getInstance();
 		messagingService = MessagingService.getInstance();

@@ -122,7 +122,7 @@ public class CorrespondentServiceLocator extends Observable {
 				String host = url.getHost();
 				int port = url.getPort();
 				Registry registry = LocateRegistry.getRegistry(host, port);
-				ServiceRMI service = (ServiceRMI) registry.lookup(serviceName);
+				RMIService service = (RMIService) registry.lookup(serviceName);
 				if (service.isActive()) {
 					assert !userId.equals("Toto"); // DEBUG
 					CorrespondentServiceInfo correspondentServiceInfo = new CorrespondentServiceInfo(userId, userName,

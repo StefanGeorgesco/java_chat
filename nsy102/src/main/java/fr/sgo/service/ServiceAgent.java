@@ -12,7 +12,7 @@ import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceInfo;
 
 import fr.sgo.app.App;
-import fr.sgo.controller.MainController;
+import fr.sgo.controller.RMIController;
 
 /**
  * Class ServiceAgent
@@ -80,7 +80,7 @@ public class ServiceAgent {
 			if (App.T)
 				System.out.println("registre RMI créé ou lié");
 			try {
-				registry.rebind(serviceName, MainController.getInstance());
+				registry.rebind(serviceName, RMIController.getInstance());
 			} catch (RemoteException re3) {
 				re3.printStackTrace();
 				System.exit(1);

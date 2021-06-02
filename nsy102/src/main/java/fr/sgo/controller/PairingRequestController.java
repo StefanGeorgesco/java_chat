@@ -6,7 +6,7 @@ import javax.swing.JOptionPane;
 import fr.sgo.entity.Correspondent;
 import fr.sgo.model.CorrespondentManager;
 import fr.sgo.service.CorrespondentServiceLocator;
-import fr.sgo.service.ServiceRMI;
+import fr.sgo.service.RMIService;
 import fr.sgo.view.MainView;
 
 /**
@@ -32,7 +32,7 @@ public class PairingRequestController extends Controller {
 		String inId = pairingInfo.getInId();
 		int pairingStatus = pairingInfo.getPairingStatus();
 		CorrespondentServiceLocator correspondentServiceLocator = CorrespondentServiceLocator.getInstance();
-		ServiceRMI correspondentServiceRMI = correspondentServiceLocator.lookup(userId).getServiceRMI();
+		RMIService correspondentRmiService = correspondentServiceLocator.lookup(userId).getServiceRMI();
 
 		boolean accept = false;
 		switch (pairingStatus) {
@@ -51,7 +51,7 @@ public class PairingRequestController extends Controller {
 		}
 		if (accept) {
 			try {
-				correspondentServiceRMI.acceptPairingRequest(MainController.getInstance(), inId, pairingInfo.getOutId());
+				correspondentRmiService.acceptPairingRequest(RMIController.getInstance(), inId, pairingInfo.getOutId());
 				pairingInfo.setPairingStatus(Correspondent.PAIRED);
 				CorrespondentManager.getInstance().reportChange(correspondent);
 			} catch (RemoteException e1) {
@@ -59,7 +59,7 @@ public class PairingRequestController extends Controller {
 			}
 		} else {
 			try {
-				correspondentServiceRMI.refusePairing(MainController.getInstance(), inId);
+				correspondentRmiService.refusePairing(RMIController.getInstance(), inId);
 				pairingInfo.setPairingStatus(Correspondent.UNPAIRED);
 			} catch (RemoteException e2) {
 				e2.printStackTrace();

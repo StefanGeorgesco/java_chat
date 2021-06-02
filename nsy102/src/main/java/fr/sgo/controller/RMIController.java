@@ -5,31 +5,31 @@ import java.rmi.server.UnicastRemoteObject;
 
 import fr.sgo.service.MessagingService;
 import fr.sgo.service.ProfileInfo;
-import fr.sgo.service.ServiceRMI;
+import fr.sgo.service.RMIService;
 import fr.sgo.view.InformationMessage;
 import fr.sgo.app.App;
 import fr.sgo.entity.Correspondent;
 import fr.sgo.model.CorrespondentManager;
 
 /**
- * Class MainController
+ * Class RMIController
  * 
  * Main application controller.
  *
  * @author Stéfan Georgesco
  * @version 1.0
  */
-public class MainController extends UnicastRemoteObject implements ServiceRMI {
+public class RMIController extends UnicastRemoteObject implements RMIService {
 	private static final long serialVersionUID = 8194586220342790039L;
-	private static MainController instance = null;
+	private static RMIController instance = null;
 
-	private MainController() throws RemoteException {
+	private RMIController() throws RemoteException {
 	}
 
-	public static synchronized MainController getInstance() {
+	public static synchronized RMIController getInstance() {
 		if (instance == null)
 			try {
-				instance = new MainController();
+				instance = new RMIController();
 			} catch (RemoteException e) {
 				e.printStackTrace();
 				System.exit(1);
@@ -45,7 +45,7 @@ public class MainController extends UnicastRemoteObject implements ServiceRMI {
 		return ProfileInfo.getInstance();
 	}
 	
-	public void requestPairing(ServiceRMI service, String inId) throws RemoteException {
+	public void requestPairing(RMIService service, String inId) throws RemoteException {
 		String userId = service.getProfileInfo().getUserId();
 		String userName = service.getProfileInfo().getUserName();
 		if (App.T)
@@ -70,7 +70,7 @@ public class MainController extends UnicastRemoteObject implements ServiceRMI {
 		case Correspondent.PAIRING_REQUEST_SENT:
 		case Correspondent.PAIRED:
 			try {
-				service.acceptPairingRequest(MainController.getInstance(), inId, pairingInfo.getOutId());
+				service.acceptPairingRequest(RMIController.getInstance(), inId, pairingInfo.getOutId());
 				pairingInfo.setPairingStatus(Correspondent.PAIRED);
 			} catch (RemoteException e) {
 				e.printStackTrace();
@@ -80,7 +80,7 @@ public class MainController extends UnicastRemoteObject implements ServiceRMI {
 		}
 	}
 	
-	public void acceptPairingRequest(ServiceRMI service, String inId, String outId) throws RemoteException {
+	public void acceptPairingRequest(RMIService service, String inId, String outId) throws RemoteException {
 		String userId = service.getProfileInfo().getUserId();
 		String userName = service.getProfileInfo().getUserName();
 		Correspondent correspondent = CorrespondentManager.getInstance().getCorrespondent(userId);
@@ -106,7 +106,7 @@ public class MainController extends UnicastRemoteObject implements ServiceRMI {
 		}
 	}
 	
-	public void refusePairing(ServiceRMI service, String inId)  throws RemoteException {
+	public void refusePairing(RMIService service, String inId)  throws RemoteException {
 		String userId = service.getProfileInfo().getUserId();
 		String userName = service.getProfileInfo().getUserName();
 		Correspondent correspondent = CorrespondentManager.getInstance().getCorrespondent(userId);
@@ -130,7 +130,7 @@ public class MainController extends UnicastRemoteObject implements ServiceRMI {
 		}
 	}
 	
-	public String getDestinationName(ServiceRMI service, String outId) throws RemoteException {
+	public String getDestinationName(RMIService service, String outId) throws RemoteException {
 		String userId = service.getProfileInfo().getUserId();
 		Correspondent correspondent = CorrespondentManager.getInstance().getCorrespondent(userId);
 		String destinationName = "refused";

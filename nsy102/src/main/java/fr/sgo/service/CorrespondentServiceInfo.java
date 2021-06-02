@@ -13,13 +13,13 @@ public class CorrespondentServiceInfo
     private String userId;
     private String userName;
     private String host;
-    private ServiceRMI serviceRMI;
+    private RMIService rmiService;
     
-    public CorrespondentServiceInfo(String userId, String userName, String host, ServiceRMI serviceRMI) {
+    public CorrespondentServiceInfo(String userId, String userName, String host, RMIService rmiService) {
         this.userId = userId;
         this.userName = userName;
         this.host = host;
-        this.serviceRMI = serviceRMI;
+        this.rmiService = rmiService;
     }
     
     public String getUserId() {
@@ -34,7 +34,7 @@ public class CorrespondentServiceInfo
     	return host;
     }
     
-    public ServiceRMI getServiceRMI() {
-        return serviceRMI;
+    public RMIService getServiceRMI() {
+        return rmiService;
     }
 }

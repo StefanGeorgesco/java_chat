@@ -5,7 +5,7 @@ import java.rmi.RemoteException;
 import fr.sgo.app.App;
 import fr.sgo.entity.Correspondent;
 import fr.sgo.service.CorrespondentServiceLocator;
-import fr.sgo.service.ServiceRMI;
+import fr.sgo.service.RMIService;
 import fr.sgo.view.InformationMessage;
 
 /**
@@ -30,7 +30,7 @@ public class RequestPairingController extends Controller {
 		Correspondent.PairingInfo pairingInfo = correspondent.getPairingInfo();
 		int pairingStatus = pairingInfo.getPairingStatus();
 		CorrespondentServiceLocator correspondentServiceLocator = CorrespondentServiceLocator.getInstance();
-		ServiceRMI correspondentServiceRMI = correspondentServiceLocator.lookup(userId).getServiceRMI();
+		RMIService correspondentRmiService = correspondentServiceLocator.lookup(userId).getServiceRMI();
 
 		switch (pairingStatus) {
 		case Correspondent.PAIRED:
@@ -41,7 +41,7 @@ public class RequestPairingController extends Controller {
 			break;
 		case Correspondent.PAIRING_REQUEST_RECEIVED:
 			try {
-				correspondentServiceRMI.acceptPairingRequest(MainController.getInstance(), pairingInfo.getInId(),
+				correspondentRmiService.acceptPairingRequest(RMIController.getInstance(), pairingInfo.getInId(),
 						pairingInfo.getOutId());
 				new InformationMessage("Invitation acceptée par " + userName + "...");
 				pairingInfo.setPairingStatus(Correspondent.PAIRED);
@@ -53,7 +53,7 @@ public class RequestPairingController extends Controller {
 			break;
 		case Correspondent.UNPAIRED:
 			try {
-				correspondentServiceRMI.requestPairing(MainController.getInstance(),
+				correspondentRmiService.requestPairing(RMIController.getInstance(),
 						pairingInfo.getOutId());
 				new InformationMessage("Invitation lancée pour " + userName + "...");
 				pairingInfo.setPairingStatus(Correspondent.PAIRING_REQUEST_SENT);
