@@ -25,24 +25,26 @@ public class App {
 	private static App instance = null;
 	private ProfileInfo profileInfo;
 	private CorrespondentServiceLocator correspondentServiceLocator;
+	private RMIController rmiController;
 	private CorrespondentManager correspondentManager;
 	private ServiceAgent serviceAgent;
 	private MessagingService messagingService;
+	private MainView mainView;
 	private ChatViewContainer chatViewContainer;
 
 	private App() {
 		profileInfo = ProfileInfo.getInstance();
 		assert !profileInfo.getUserId().equals("Toto"); // DEBUG
+		rmiController = RMIController.getInstance();
 		correspondentServiceLocator = CorrespondentServiceLocator.getInstance();
-		RMIController.getInstance();
 		correspondentManager = CorrespondentManager.getInstance();
 		serviceAgent = ServiceAgent.getInstance();
 		messagingService = MessagingService.getInstance();
-		MainView.getInstance();
+		mainView = MainView.getInstance();
 		chatViewContainer = ChatViewContainer.getInstance();
 	}
 
-	public static synchronized App getInstance() {
+	public static App getInstance() {
 		if (instance == null) {
 			instance = new App();
 		}
@@ -54,11 +56,43 @@ public class App {
 			System.out.println("profil : " + profileInfo.getUserName());
 		correspondentServiceLocator.addObserver(correspondentManager);
 		messagingService.open();
-		correspondentServiceLocator.open();
 		chatViewContainer.start();
+		correspondentServiceLocator.open();
 		serviceAgent.publishServices(3000);
 		if (T)
 			System.out.println("application démarrée, en attente...");
+	}
+
+	public ProfileInfo getProfileInfo() {
+		return profileInfo;
+	}
+
+	public CorrespondentServiceLocator getCorrespondentServiceLocator() {
+		return correspondentServiceLocator;
+	}
+
+	public RMIController getRmiController() {
+		return rmiController;
+	}
+	
+	public CorrespondentManager getCorrespondentManager() {
+		return correspondentManager;
+	}
+
+	public ServiceAgent getServiceAgent() {
+		return serviceAgent;
+	}
+
+	public MessagingService getMessagingService() {
+		return messagingService;
+	}
+
+	public MainView getMainView() {
+		return mainView;
+	}
+
+	public ChatViewContainer getChatViewContainer() {
+		return chatViewContainer;
 	}
 
 	public static void main(String[] args) throws RemoteException {
@@ -69,4 +103,5 @@ public class App {
 			ie.printStackTrace();
 		}
 	}
+
 }

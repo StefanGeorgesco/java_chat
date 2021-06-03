@@ -25,10 +25,11 @@ public class ChatViewContainer implements Observer {
 	}
 
 	public void start() {
-		for (Chat chat : ChatManager.getInstance().getChats()) {
+		ChatManager chatManager = ChatManager.getInstance();
+		for (Chat chat : chatManager.getChats()) {
 			addChatView(chat);
 		}
-		ChatManager.getInstance().addObserver(this);
+		chatManager.addObserver(this);
 	}
 
 	public void addChatView(ChatView chatView) {

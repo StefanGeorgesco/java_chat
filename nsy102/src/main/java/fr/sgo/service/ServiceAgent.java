@@ -62,16 +62,17 @@ public class ServiceAgent {
 
 		@Override
 		public void run() {
+			ProfileInfo profileInfo = ProfileInfo.getInstance();
 			try {
 				Thread.sleep(delay);
 			} catch (java.lang.InterruptedException ie) {
 				ie.printStackTrace();
 			}
 			try {
-				registry = LocateRegistry.createRegistry(ProfileInfo.getInstance().getRMIPort());
+				registry = LocateRegistry.createRegistry(profileInfo.getRMIPort());
 			} catch (RemoteException re1) {
 				try {
-					registry = LocateRegistry.getRegistry(ProfileInfo.getInstance().getRMIPort());
+					registry = LocateRegistry.getRegistry(profileInfo.getRMIPort());
 				} catch (RemoteException re2) {
 					re2.printStackTrace();
 					System.exit(1);
@@ -88,11 +89,11 @@ public class ServiceAgent {
 			if (App.T)
 				System.out.println("service enregistré dans le registre RMI");
 			Map<String, String> props = new HashMap<String, String>();
-			props.put("userId", ProfileInfo.getInstance().getUserId());
-			props.put("userName", ProfileInfo.getInstance().getUserName());
+			props.put("userId", profileInfo.getUserId());
+			props.put("userName", profileInfo.getUserName());
 			try {
 				ServiceInfo serviceInfo = ServiceInfo.create(SERVICE_TYPE, serviceName,
-						ProfileInfo.getInstance().getRMIPort(), 0, 0, props);
+						profileInfo.getRMIPort(), 0, 0, props);
 				jmdns.registerService(serviceInfo);
 			} catch (IOException ioe) {
 				ioe.printStackTrace();
