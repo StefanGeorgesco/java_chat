@@ -63,7 +63,7 @@ public class RMIController extends UnicastRemoteObject implements RMIService {
 		switch (pairingStatus) {
 		case Correspondent.UNPAIRED:
 			pairingInfo.setPairingStatus(Correspondent.PAIRING_REQUEST_RECEIVED);
-			new PairingRequestController("", correspondent).execute();
+			CorrespondentController.getInstance().handlePairingRequest(correspondent);
 			break;
 		case Correspondent.PAIRING_REQUEST_RECEIVED:
 			break;

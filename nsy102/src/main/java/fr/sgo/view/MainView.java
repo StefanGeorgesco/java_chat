@@ -13,7 +13,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import fr.sgo.controller.ChatController;
-import fr.sgo.controller.RequestPairingController;
+import fr.sgo.controller.Controller;
+import fr.sgo.controller.CorrespondentController;
 import fr.sgo.entity.Correspondent;
 import fr.sgo.model.ChatManager;
 import fr.sgo.model.CorrespondentManager;
@@ -84,7 +85,12 @@ public class MainView extends JFrame implements Observer {
 		unpairedCorrespondentsPanel.removeAll();
 		for (Correspondent correspondent : correspondentManager.getUnpairedCorrespondents()) {
 			unpairedCorrespondentsPanel.add(new CorrespondentPanel(correspondent,
-					new RequestPairingController("Inviter", correspondent)));
+					new Controller("Inviter") {
+						@Override
+						public void run() {
+							CorrespondentController.getInstance().requestPairing(correspondent);
+						}
+					}));
 		}
 		pack();
 		repaint();
@@ -141,7 +147,13 @@ public class MainView extends JFrame implements Observer {
 		}
 		if (!correspondentFound & correspondentExists && !correspondentIsPaired) {
 			unpairedCorrespondentsPanel.add(new CorrespondentPanel(correspondent,
-					new RequestPairingController("Inviter", correspondent)));
+//							new RequestPairingController("Inviter", correspondent)
+					new Controller("Inviter") {
+						@Override
+						public void run() {
+							CorrespondentController.getInstance().requestPairing(correspondent);
+						}
+					}));
 		}
 		if (viewContentsChange) {
 			pack();
