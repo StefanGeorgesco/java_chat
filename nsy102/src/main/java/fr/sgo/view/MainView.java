@@ -13,7 +13,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import fr.sgo.controller.ChatController;
-import fr.sgo.controller.Controller;
+import fr.sgo.controller.ActionHandler;
 import fr.sgo.controller.CorrespondentController;
 import fr.sgo.entity.Chat;
 import fr.sgo.entity.Correspondent;
@@ -73,14 +73,13 @@ public class MainView extends JFrame implements Observer {
 
 	private synchronized void buildView() {
 		for (Component component : pairedCorrespondentsPanel.getComponents()) {
-			((CorrespondentPanel) component).getCorrespondent().deleteObserver((CorrespondentPanel) component);
+			((CorrespondentView) component).getCorrespondent().deleteObserver((CorrespondentView) component);
 		}
 		pairedCorrespondentsPanel.removeAll();
 		for (Correspondent correspondent : correspondentManager.getPairedCorrespondents()) {
 			final Chat chat = chatManager.getCorrespondentChat(correspondent);
-			pairedCorrespondentsPanel.add(new CorrespondentPanel(correspondent,
-//					new ChatController_("Discuter", chatManager.getCorrespondentChat(correspondent))
-					new Controller("Discuter") {
+			pairedCorrespondentsPanel.add(new CorrespondentView(correspondent,
+					new ActionHandler("Discuter") {
 						@Override
 						public void run() {
 							ChatController.getInstance().showView(chat);
@@ -89,11 +88,11 @@ public class MainView extends JFrame implements Observer {
 					}));
 		}
 		for (Component component : unpairedCorrespondentsPanel.getComponents()) {
-			((CorrespondentPanel) component).getCorrespondent().deleteObserver((CorrespondentPanel) component);
+			((CorrespondentView) component).getCorrespondent().deleteObserver((CorrespondentView) component);
 		}
 		unpairedCorrespondentsPanel.removeAll();
 		for (Correspondent correspondent : correspondentManager.getUnpairedCorrespondents()) {
-			unpairedCorrespondentsPanel.add(new CorrespondentPanel(correspondent, new Controller("Inviter") {
+			unpairedCorrespondentsPanel.add(new CorrespondentView(correspondent, new ActionHandler("Inviter") {
 				@Override
 				public void run() {
 					CorrespondentController.getInstance().requestPairing(correspondent);
@@ -111,7 +110,7 @@ public class MainView extends JFrame implements Observer {
 		boolean viewContentsChange = false;
 		boolean correspondentFound = false;
 		for (Component component : pairedCorrespondentsPanel.getComponents()) {
-			CorrespondentPanel panel = (CorrespondentPanel) component;
+			CorrespondentView panel = (CorrespondentView) component;
 			if (panel.getCorrespondent().equals(correspondent)) {
 				if (correspondentFound) {
 					panel.getCorrespondent().deleteObserver(panel);
@@ -131,7 +130,7 @@ public class MainView extends JFrame implements Observer {
 		}
 		if (!correspondentFound & correspondentExists && correspondentIsPaired) {
 			final Chat chat = chatManager.getCorrespondentChat(correspondent);
-			pairedCorrespondentsPanel.add(new CorrespondentPanel(correspondent, new Controller("Discuter") {
+			pairedCorrespondentsPanel.add(new CorrespondentView(correspondent, new ActionHandler("Discuter") {
 				@Override
 				public void run() {
 					ChatController.getInstance().showView(chat);
@@ -141,7 +140,7 @@ public class MainView extends JFrame implements Observer {
 		}
 		correspondentFound = false;
 		for (Component component : unpairedCorrespondentsPanel.getComponents()) {
-			CorrespondentPanel panel = (CorrespondentPanel) component;
+			CorrespondentView panel = (CorrespondentView) component;
 			if (panel.getCorrespondent().equals(correspondent)) {
 				if (correspondentFound) {
 					panel.getCorrespondent().deleteObserver(panel);
@@ -160,9 +159,8 @@ public class MainView extends JFrame implements Observer {
 			}
 		}
 		if (!correspondentFound & correspondentExists && !correspondentIsPaired) {
-			unpairedCorrespondentsPanel.add(new CorrespondentPanel(correspondent,
-//							new RequestPairingController("Inviter", correspondent)
-					new Controller("Inviter") {
+			unpairedCorrespondentsPanel.add(new CorrespondentView(correspondent,
+					new ActionHandler("Inviter") {
 						@Override
 						public void run() {
 							CorrespondentController.getInstance().requestPairing(correspondent);

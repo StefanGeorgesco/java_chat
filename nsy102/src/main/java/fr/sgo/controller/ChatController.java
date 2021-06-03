@@ -19,5 +19,5 @@ public class ChatController {
 	public void showView(Chat chat) {
 		ChatViewContainer.getInstance().getChatView(chat);
 	}
-
+	
 }

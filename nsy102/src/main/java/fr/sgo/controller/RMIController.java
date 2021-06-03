@@ -6,7 +6,7 @@ import java.rmi.server.UnicastRemoteObject;
 import fr.sgo.service.MessagingService;
 import fr.sgo.service.ProfileInfo;
 import fr.sgo.service.RMIService;
-import fr.sgo.view.InformationMessage;
+import fr.sgo.view.InformationView;
 import fr.sgo.app.App;
 import fr.sgo.entity.Correspondent;
 import fr.sgo.model.CorrespondentManager;
@@ -94,7 +94,7 @@ public class RMIController extends UnicastRemoteObject implements RMIService {
 					if (App.T)
 						System.out.println("Connection accepted from " + userName
 								+ " with id " + outId);
-					new InformationMessage(userName +
+					new InformationView(userName +
 							" a accepté votre invitation. Il (elle) fait maintenant partie de vos contacts.");
 					pairingInfo.setInId(outId);
 					pairingInfo.setPairingStatus(Correspondent.PAIRED);
@@ -119,7 +119,7 @@ public class RMIController extends UnicastRemoteObject implements RMIService {
 				if (inId.equals(pairingInfo.getOutId())) {
 					if (App.T)
 						System.out.println("Connection refused from " + userName);
-					new InformationMessage(userName +
+					new InformationView(userName +
 							" a refusé votre invitation.");
 					pairingInfo.setPairingStatus(Correspondent.UNPAIRED);
 					CorrespondentManager.getInstance().reportChange(correspondent);

@@ -19,6 +19,7 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+//import javax.swing.SwingUtilities;
 import javax.swing.SwingUtilities;
 
 import fr.sgo.entity.Chat;
@@ -45,7 +46,8 @@ public class ChatView extends JFrame implements ActionListener, Observer {
 		if (chat instanceof GroupChat)
 			this.setTitle("Groupe de discussion " + ((GroupChat) chat).getName());
 		else
-			this.setTitle("Discussion avec " + ((CorrespondentChat) chat).getCorrespondent().getUserName());
+			this.setTitle(ProfileInfo.getInstance().getUserName() + " - Discussion avec "
+					+ ((CorrespondentChat) chat).getCorrespondent().getUserName());
 		JPanel panelNorth = new JPanel();
 		messagesHistory = new JTextArea(15, 40);
 		messagesHistory.setEditable(false);
@@ -76,7 +78,7 @@ public class ChatView extends JFrame implements ActionListener, Observer {
 		setVisible(false);
 		this.chat.addObserver(this);
 	}
-	
+
 	public Chat getChat() {
 		return chat;
 	}

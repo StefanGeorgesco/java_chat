@@ -9,7 +9,7 @@ import fr.sgo.entity.Correspondent;
 import fr.sgo.model.CorrespondentManager;
 import fr.sgo.service.CorrespondentServiceLocator;
 import fr.sgo.service.RMIService;
-import fr.sgo.view.InformationMessage;
+import fr.sgo.view.InformationView;
 import fr.sgo.view.MainView;
 
 public class CorrespondentController {
@@ -35,34 +35,34 @@ public class CorrespondentController {
 
 		switch (pairingStatus) {
 		case Correspondent.PAIRED:
-			new InformationMessage("Invitation déjà acceptée par " + userName + "...");
+			new InformationView("Invitation déjà acceptée par " + userName + "...");
 			break;
 		case Correspondent.PAIRING_REQUEST_SENT:
-			new InformationMessage("Invitation déjà lancée pour " + userName + "...");
+			new InformationView("Invitation déjà lancée pour " + userName + "...");
 			break;
 		case Correspondent.PAIRING_REQUEST_RECEIVED:
 			try {
 				correspondentRmiService.acceptPairingRequest(RMIController.getInstance(), pairingInfo.getInId(),
 						pairingInfo.getOutId());
-				new InformationMessage("Invitation acceptée par " + userName + "...");
+				new InformationView("Invitation acceptée par " + userName + "...");
 				pairingInfo.setPairingStatus(Correspondent.PAIRED);
 			} catch (RemoteException e1) {
 				if (App.T)
 					e1.printStackTrace();
-				new InformationMessage("Une erreur s'est produite...");
+				new InformationView("Une erreur s'est produite...");
 			}
 			break;
 		case Correspondent.UNPAIRED:
 			try {
 				correspondentRmiService.requestPairing(RMIController.getInstance(), pairingInfo.getOutId());
-				new InformationMessage("Invitation lancée pour " + userName + "...");
+				new InformationView("Invitation lancée pour " + userName + "...");
 				pairingInfo.setPairingStatus(Correspondent.PAIRING_REQUEST_SENT);
 				if (App.T)
 					System.out.println("Invitation lancée pour " + userName + "...");
 			} catch (RemoteException e2) {
 				if (App.T)
 					e2.printStackTrace();
-				new InformationMessage("Une erreur s'est produite...");
+				new InformationView("Une erreur s'est produite...");
 			}
 			break;
 		default:

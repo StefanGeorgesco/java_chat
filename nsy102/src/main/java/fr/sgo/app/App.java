@@ -61,7 +61,7 @@ public class App {
 		messagingService.open();
 		chatViewContainer.start();
 		correspondentServiceLocator.open();
-		serviceAgent.publishServices(3000);
+		serviceAgent.publishServices(2000);
 		if (T)
 			System.out.println("application démarrée, en attente...");
 	}

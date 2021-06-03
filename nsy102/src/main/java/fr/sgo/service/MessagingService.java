@@ -29,7 +29,7 @@ import fr.sgo.entity.InMessage;
 import fr.sgo.entity.OutMessage;
 import fr.sgo.model.ChatManager;
 import fr.sgo.model.CorrespondentManager;
-import fr.sgo.view.InformationMessage;
+import fr.sgo.view.InformationView;
 
 public class MessagingService {
 	private static MessagingService instance = null;
@@ -258,7 +258,7 @@ public class MessagingService {
 			jmsMessage.setString("userId", applicationMessage.getUserId());
 		} catch (JMSException e) {
 			e.printStackTrace();
-			new InformationMessage("Le message jms " + applicationMessage.getContents() + " n'a pas pu être créé");
+			new InformationView("Le message jms " + applicationMessage.getContents() + " n'a pas pu être créé");
 		}
 		return jmsMessage;
 	}

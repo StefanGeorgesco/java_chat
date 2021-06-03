@@ -4,11 +4,11 @@ import javax.swing.JOptionPane;
 
 import fr.sgo.app.App;
 
-public class InformationMessage extends Thread {
+public class InformationView extends Thread {
 	App app;
 	String message;
 	
-	public InformationMessage(String message) {
+	public InformationView(String message) {
 		this.message = message;
 		start();
 	}

@@ -1,17 +1,17 @@
 package fr.sgo.controller;
 
 /**
- * Abstract class Controller.
+ * Abstract class ActionHandler.
  * 
- * Represents a controller
+ * Subclasses Handle button-attached specific actions
  *
  * @author Stéfan Georgesco
  * @version 1.0
  */
-public abstract class Controller implements Runnable {
+public abstract class ActionHandler implements Runnable {
 	protected String actionName;
 
-	public Controller(String actionName) {
+	public ActionHandler(String actionName) {
 		this.actionName = actionName;
 	}
 

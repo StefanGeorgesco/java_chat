@@ -11,11 +11,11 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import fr.sgo.controller.Controller;
+import fr.sgo.controller.ActionHandler;
 import fr.sgo.entity.Correspondent;
 
 /**
- * Abstract class CorrespondentPanel
+ * Abstract class CorrespondentView
  * 
  * A panel representing a correspondent with action button
  *
@@ -23,7 +23,7 @@ import fr.sgo.entity.Correspondent;
  * @version 1.0
  */
 @SuppressWarnings("deprecation")
-public class CorrespondentPanel extends JPanel implements Observer {
+public class CorrespondentView extends JPanel implements Observer {
 	/**
 	 * 
 	 */
@@ -34,7 +34,7 @@ public class CorrespondentPanel extends JPanel implements Observer {
 	private JPanel onlinePanel;
 	private JButton actionButton1;
 
-	public CorrespondentPanel(Correspondent correspondent, Controller controller) {
+	public CorrespondentView(Correspondent correspondent, ActionHandler actionHandler) {
 		super();
 		this.correspondent = correspondent;
 		setSize(new Dimension(100, 20));
@@ -51,7 +51,7 @@ public class CorrespondentPanel extends JPanel implements Observer {
 		add(onlinePanel);
 		add(actionButton1);
 		refresh();
-		setActionButton1Controller(controller);
+		setActionButton1Controller(actionHandler);
 		this.correspondent.addObserver(this);
 	}
 
@@ -59,9 +59,9 @@ public class CorrespondentPanel extends JPanel implements Observer {
 		return correspondent;
 	}
 
-	public void setActionButton1Controller(Controller controller) {
-		final Controller ctrl = controller;
-		actionButton1.setText(controller.getActionName());
+	public void setActionButton1Controller(ActionHandler actionHandler) {
+		final ActionHandler ctrl = actionHandler;
+		actionButton1.setText(actionHandler.getActionName());
 		actionButton1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ae) {
 				ctrl.execute();
