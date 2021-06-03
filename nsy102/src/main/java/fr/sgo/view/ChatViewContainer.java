@@ -41,7 +41,7 @@ public class ChatViewContainer implements Observer {
 			chatViews.put(chat, new ChatView(chat));
 	}
 
-	public ChatView getChatView(Chat chat) throws Exception {
+	public ChatView getChatView(Chat chat) {
 		ChatView chatView = chatViews.get(chat);
 		if (chatView == null) {
 			chatView = new ChatView(chat);
