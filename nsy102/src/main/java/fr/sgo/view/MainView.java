@@ -38,6 +38,7 @@ public class MainView extends JFrame implements Observer {
 	private static MainView instance = null;
 	private JPanel pairedCorrespondentsPanel;
 	private JPanel unpairedCorrespondentsPanel;
+	private JPanel groupChatPanel;
 	private CorrespondentManager correspondentManager;
 	private ChatManager chatManager;
 
@@ -48,20 +49,26 @@ public class MainView extends JFrame implements Observer {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		Container contentPane = getContentPane();
 		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
-		JLabel pairedCorrespondentsPanelTitle = new JLabel("       Mes contacts       ");
+		JLabel pairedCorrespondentsPanelTitle = new JLabel("Mes contacts");
 		pairedCorrespondentsPanel = new JPanel();
 		pairedCorrespondentsPanel.setLayout(new BoxLayout(pairedCorrespondentsPanel, BoxLayout.Y_AXIS));
 		pairedCorrespondentsPanel.setBorder(BorderFactory.createLineBorder(Color.black));
-		JLabel unpairedCorrespondentsPanelTitle = new JLabel("Autres correspondants     ");
+		JLabel unpairedCorrespondentsPanelTitle = new JLabel("Autres correspondants");
 		unpairedCorrespondentsPanel = new JPanel();
 		unpairedCorrespondentsPanel.setLayout(new BoxLayout(unpairedCorrespondentsPanel, BoxLayout.Y_AXIS));
 		unpairedCorrespondentsPanel.setBorder(BorderFactory.createLineBorder(Color.black));
+		JLabel groupChatPanelTitle = new JLabel("Conversations de groupe");
+		groupChatPanel = new JPanel();
+		groupChatPanel.setLayout(new BoxLayout(groupChatPanel, BoxLayout.Y_AXIS));
+		groupChatPanel.setBorder(BorderFactory.createLineBorder(Color.black));
 		contentPane.add(pairedCorrespondentsPanelTitle, null);
 		contentPane.add(pairedCorrespondentsPanel, null);
 		contentPane.add(unpairedCorrespondentsPanelTitle, null);
 		contentPane.add(unpairedCorrespondentsPanel, null);
+		contentPane.add(groupChatPanelTitle, null);
+		contentPane.add(groupChatPanel, null);
+		pack();
 		setVisible(true);
-		buildView();
 		correspondentManager.addObserver(this);
 	}
 
@@ -71,40 +78,7 @@ public class MainView extends JFrame implements Observer {
 		return instance;
 	}
 
-	private synchronized void buildView() {
-		for (Component component : pairedCorrespondentsPanel.getComponents()) {
-			((CorrespondentView) component).getCorrespondent().deleteObserver((CorrespondentView) component);
-		}
-		pairedCorrespondentsPanel.removeAll();
-		for (Correspondent correspondent : correspondentManager.getPairedCorrespondents()) {
-			final Chat chat = chatManager.getCorrespondentChat(correspondent);
-			pairedCorrespondentsPanel.add(new CorrespondentView(correspondent,
-					new ActionHandler("Discuter") {
-						@Override
-						public void run() {
-							ChatController.getInstance().showView(chat);
-						}
-
-					}));
-		}
-		for (Component component : unpairedCorrespondentsPanel.getComponents()) {
-			((CorrespondentView) component).getCorrespondent().deleteObserver((CorrespondentView) component);
-		}
-		unpairedCorrespondentsPanel.removeAll();
-		for (Correspondent correspondent : correspondentManager.getUnpairedCorrespondents()) {
-			unpairedCorrespondentsPanel.add(new CorrespondentView(correspondent, new ActionHandler("Inviter") {
-				@Override
-				public void run() {
-					CorrespondentController.getInstance().requestPairing(correspondent);
-				}
-			}));
-		}
-		pack();
-		repaint();
-	}
-
-	private synchronized void refreshView(Correspondent correspondent) {
-		buildView();
+	private synchronized void updateView(Correspondent correspondent) {
 		boolean correspondentExists = correspondentManager.getCorrespondents().contains(correspondent);
 		boolean correspondentIsPaired = correspondent.isPaired();
 		boolean viewContentsChange = false;
@@ -137,6 +111,7 @@ public class MainView extends JFrame implements Observer {
 				}
 
 			}));
+			viewContentsChange = true;
 		}
 		correspondentFound = false;
 		for (Component component : unpairedCorrespondentsPanel.getComponents()) {
@@ -166,6 +141,7 @@ public class MainView extends JFrame implements Observer {
 							CorrespondentController.getInstance().requestPairing(correspondent);
 						}
 					}));
+			viewContentsChange = true;
 		}
 		if (viewContentsChange) {
 			pack();
@@ -178,7 +154,7 @@ public class MainView extends JFrame implements Observer {
 		new Thread() {
 			@Override
 			public void run() {
-				refreshView(correspondent);
+				updateView(correspondent);
 			}
 		}.start();
 	}

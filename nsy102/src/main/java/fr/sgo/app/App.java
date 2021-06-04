@@ -61,6 +61,7 @@ public class App {
 		if (T)
 			System.out.println("profil : " + profileInfo.getUserName());
 		correspondentServiceLocator.addObserver(correspondentManager);
+		correspondentManager.start();
 		messagingService.open();
 		chatViewContainer.start();
 		correspondentServiceLocator.open();

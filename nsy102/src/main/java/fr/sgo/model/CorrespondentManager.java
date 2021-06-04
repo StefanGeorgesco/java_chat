@@ -29,23 +29,28 @@ public class CorrespondentManager extends Observable implements Observer {
 	private Map<String, Correspondent> correspondents;
 	private static String objectName;
 
-	@SuppressWarnings("unchecked")
 	private CorrespondentManager() {
 		this.correspondents = Collections.synchronizedMap(new HashMap<String, Correspondent>());
 		objectName = ProfileInfo.getInstance().getUserId();
-		Collection<Correspondent> pairedCorrespondents = (Collection<Correspondent>) Storage.restore(objectName);
-		if (pairedCorrespondents != null) {
-			for (Correspondent c : pairedCorrespondents) {
-				c.setOnline(false);
-				correspondents.put(c.getUserId(), c);
-			}
-		}
 	}
 
 	public static synchronized CorrespondentManager getInstance() {
 		if (instance == null)
 			instance = new CorrespondentManager();
 		return instance;
+	}
+	
+	public void start() {
+		@SuppressWarnings("unchecked")
+		Collection<Correspondent> pairedCorrespondents = (Collection<Correspondent>) Storage.restore(objectName);
+		if (pairedCorrespondents != null) {
+			for (Correspondent correspondent : pairedCorrespondents) {
+				correspondent.setOnline(false);
+				correspondents.put(correspondent.getUserId(), correspondent);
+				setChanged();
+				notifyObservers(correspondent);
+			}
+		}
 	}
 
 	public Collection<Correspondent> getCorrespondents() {
