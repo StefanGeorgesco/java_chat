@@ -2,6 +2,7 @@ package fr.sgo.app;
 
 import java.rmi.RemoteException;
 
+import fr.sgo.controller.ChatController;
 import fr.sgo.controller.CorrespondentController;
 import fr.sgo.controller.RMIController;
 import fr.sgo.model.CorrespondentManager;
@@ -28,6 +29,7 @@ public class App {
 	private CorrespondentServiceLocator correspondentServiceLocator;
 	private RMIController rmiController;
 	private CorrespondentController correspondentController;
+	private ChatController chatController;
 	private CorrespondentManager correspondentManager;
 	private ServiceAgent serviceAgent;
 	private MessagingService messagingService;
@@ -36,9 +38,10 @@ public class App {
 
 	private App() {
 		profileInfo = ProfileInfo.getInstance();
-		assert !profileInfo.getUserId().equals("Toto"); // DEBUG
+		assert profileInfo.getUserId() != null; // DEBUG
 		rmiController = RMIController.getInstance();
 		correspondentController = CorrespondentController.getInstance();
+		chatController = ChatController.getInstance();
 		correspondentServiceLocator = CorrespondentServiceLocator.getInstance();
 		correspondentManager = CorrespondentManager.getInstance();
 		serviceAgent = ServiceAgent.getInstance();
@@ -61,7 +64,7 @@ public class App {
 		messagingService.open();
 		chatViewContainer.start();
 		correspondentServiceLocator.open();
-		serviceAgent.publishServices(2000);
+		serviceAgent.publishServices(3000);
 		if (T)
 			System.out.println("application démarrée, en attente...");
 	}
@@ -80,6 +83,10 @@ public class App {
 	
 	public CorrespondentController getCorrespondentController() {
 		return correspondentController;
+	}
+
+	public ChatController getChatController() {
+		return chatController;
 	}
 
 	public CorrespondentManager getCorrespondentManager() {

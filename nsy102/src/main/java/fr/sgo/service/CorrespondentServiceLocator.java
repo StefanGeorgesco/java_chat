@@ -15,6 +15,8 @@ import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
 import javax.jmdns.ServiceListener;
 
+import fr.sgo.app.App;
+
 /**
  * Class CorrespondentServiceLocator
  * 
@@ -79,9 +81,14 @@ public class CorrespondentServiceLocator extends Observable {
 
 	private class CorrespondentServiceListener implements ServiceListener {
 		public void serviceAdded(ServiceEvent event) {
+			if (App.T)
+				System.out.println("service ajouté : " + event.getName());
 		}
 
 		public void serviceRemoved(ServiceEvent event) {
+			if (App.T)
+				System.out.println("service retiré : " + event.getName() + "("
+						+ event.getInfo().getPropertyString("userName") + ")");
 			final String serviceName = event.getName();
 			final String userId = match.get(serviceName);
 			final CorrespondentServiceInfo correspondentServiceInfo = map.get(userId);
@@ -97,7 +104,10 @@ public class CorrespondentServiceLocator extends Observable {
 		}
 
 		public void serviceResolved(ServiceEvent event) {
-			assert !event.getInfo().getPropertyString("userId").equals("Toto"); // DEBUG
+			if (App.T)
+				System.out.println("service résolu : " + event.getName() + "("
+						+ event.getInfo().getPropertyString("userName") + ")");
+			assert event.getInfo().getPropertyString("userId") != null; // DEBUG
 			new ResolvedServiceInfo(event.getName(), event.getInfo()).start();
 		}
 	}
@@ -110,7 +120,7 @@ public class CorrespondentServiceLocator extends Observable {
 
 		public ResolvedServiceInfo(String serviceName, ServiceInfo si) {
 			this.userId = si.getPropertyString("userId");
-			assert !this.userId.equals("Toto"); // DEBUG
+			assert this.userId != null; // DEBUG
 			this.userName = si.getPropertyString("userName");
 			this.urlString = si.getURLs()[0];
 			this.serviceName = serviceName;
@@ -124,13 +134,15 @@ public class CorrespondentServiceLocator extends Observable {
 				Registry registry = LocateRegistry.getRegistry(host, port);
 				RMIService service = (RMIService) registry.lookup(serviceName);
 				if (service.isActive()) {
-					assert !userId.equals("Toto"); // DEBUG
+					if (App.T)
+						System.out.println("service actif pour " + userName);
+					assert userId != null; // DEBUG
 					CorrespondentServiceInfo correspondentServiceInfo = new CorrespondentServiceInfo(userId, userName,
 							host, service);
 					map.put(userId, correspondentServiceInfo);
 					match.put(serviceName, userId);
 					CorrespondentServiceLocator.this.setChanged();
-					assert !correspondentServiceInfo.getUserId().equals("Toto"); // DEBUG
+					assert correspondentServiceInfo.getUserId() != null; // DEBUG
 					CorrespondentServiceLocator.this.notifyObservers(correspondentServiceInfo);
 				}
 			} catch (Exception e) {

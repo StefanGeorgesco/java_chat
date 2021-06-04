@@ -35,11 +35,6 @@ public class ServiceAgent {
 		p.put("java.security.policy", "policy.all");
 		System.setProperties(p);
 		System.setSecurityManager(new RMISecurityManager());
-		try {
-			jmdns = JmDNS.create();
-		} catch (java.io.IOException ioe) {
-			ioe.printStackTrace();
-		}
 	}
 
 	public static synchronized ServiceAgent getInstance() {
@@ -94,6 +89,7 @@ public class ServiceAgent {
 			try {
 				ServiceInfo serviceInfo = ServiceInfo.create(SERVICE_TYPE, serviceName,
 						profileInfo.getRMIPort(), 0, 0, props);
+				jmdns = JmDNS.create();
 				jmdns.registerService(serviceInfo);
 			} catch (IOException ioe) {
 				ioe.printStackTrace();
