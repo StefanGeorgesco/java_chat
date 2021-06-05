@@ -1,8 +1,5 @@
 package fr.sgo.controller;
 
-import fr.sgo.entity.Chat;
-import fr.sgo.view.ChatViewContainer;
-
 public class ChatController {
 	private static ChatController instance = null;
 
@@ -14,10 +11,6 @@ public class ChatController {
 			instance = new ChatController();
 		}
 		return instance;
-	}
-	
-	public void showView(Chat chat) {
-		ChatViewContainer.getInstance().getChatView(chat);
 	}
 	
 }

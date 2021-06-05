@@ -60,11 +60,11 @@ public class CorrespondentView extends JPanel implements Observer {
 	}
 
 	public void setActionButton1Controller(ActionHandler actionHandler) {
-		final ActionHandler ctrl = actionHandler;
+		final ActionHandler handler = actionHandler;
 		actionButton1.setText(actionHandler.getActionName());
 		actionButton1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ae) {
-				ctrl.execute();
+				handler.execute();
 			}
 		});
 	}

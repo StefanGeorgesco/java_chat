@@ -5,6 +5,7 @@ import java.rmi.RemoteException;
 import fr.sgo.controller.ChatController;
 import fr.sgo.controller.CorrespondentController;
 import fr.sgo.controller.RMIController;
+import fr.sgo.model.ChatManager;
 import fr.sgo.model.CorrespondentManager;
 import fr.sgo.service.CorrespondentServiceLocator;
 import fr.sgo.service.MessagingService;
@@ -31,6 +32,7 @@ public class App {
 	private CorrespondentController correspondentController;
 	private ChatController chatController;
 	private CorrespondentManager correspondentManager;
+	private ChatManager chatManager;
 	private ServiceAgent serviceAgent;
 	private MessagingService messagingService;
 	private MainView mainView;
@@ -44,6 +46,7 @@ public class App {
 		chatController = ChatController.getInstance();
 		correspondentServiceLocator = CorrespondentServiceLocator.getInstance();
 		correspondentManager = CorrespondentManager.getInstance();
+		chatManager = ChatManager.getInstance();
 		serviceAgent = ServiceAgent.getInstance();
 		messagingService = MessagingService.getInstance();
 		mainView = MainView.getInstance();
@@ -61,9 +64,12 @@ public class App {
 		if (T)
 			System.out.println("profil : " + profileInfo.getUserName());
 		correspondentServiceLocator.addObserver(correspondentManager);
+		correspondentManager.addObserver(chatManager);
+		correspondentManager.addObserver(mainView);
+		chatManager.addObserver(chatViewContainer);
+		chatManager.addObserver(mainView);
 		correspondentManager.start();
 		messagingService.open();
-		chatViewContainer.start();
 		correspondentServiceLocator.open();
 		serviceAgent.publishServices(3000);
 		if (T)

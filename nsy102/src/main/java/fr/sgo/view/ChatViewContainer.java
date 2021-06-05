@@ -24,42 +24,27 @@ public class ChatViewContainer implements Observer {
 		return instance;
 	}
 
-	public void start() {
-		ChatManager chatManager = ChatManager.getInstance();
-		for (Chat chat : chatManager.getChats()) {
-			addChatView(chat);
-		}
-		chatManager.addObserver(this);
-	}
-
-	public void addChatView(ChatView chatView) {
-		chatViews.put(chatView.getChat(), chatView);
-	}
-
-	public void addChatView(Chat chat) {
-		if (chatViews.get(chat) == null)
-			chatViews.put(chat, new ChatView(chat));
-	}
-
-	public ChatView getChatView(Chat chat) {
+	public synchronized ChatView getChatView(Chat chat) {
 		ChatView chatView = chatViews.get(chat);
 		if (chatView == null) {
 			chatView = new ChatView(chat);
 			chatViews.put(chat, chatView);
 		}
-		chatView.setVisible(true);
 		return chatView;
+	}
+
+	private void removeChatView(Chat chat) {
+		chatViews.remove(chat);
 	}
 
 	@Override
 	public void update(Observable o, Object arg) {
-		new Thread() {
-			@Override
-			public void run() {
-				Chat chat = (Chat) arg;
-				addChatView(chat);
-			}
-		}.start();
+		Chat chat = (Chat) arg;
+		if (ChatManager.getInstance().existsChat(chat)) {
+			getChatView(chat);
+		} else {
+			removeChatView(chat);
+		}
 	}
 
 }

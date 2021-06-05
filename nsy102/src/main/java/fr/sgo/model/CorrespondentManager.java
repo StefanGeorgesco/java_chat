@@ -11,7 +11,6 @@ import java.util.Observer;
 import fr.sgo.entity.Correspondent;
 import fr.sgo.service.CorrespondentServiceInfo;
 import fr.sgo.service.CorrespondentServiceLocator;
-import fr.sgo.service.MessagingService;
 import fr.sgo.service.ProfileInfo;
 import fr.sgo.service.Storage;
 
@@ -100,6 +99,10 @@ public class CorrespondentManager extends Observable implements Observer {
 	public Correspondent getCorrespondent(String userId) {
 		return correspondents.get(userId);
 	}
+	
+	public boolean existsCorrespondent(Correspondent correspondent) {
+		return correspondents.values().contains(correspondent);
+	}
 
 	public void add(Correspondent correspondent) {
 		correspondents.put(correspondent.getUserId(), correspondent);
@@ -108,8 +111,6 @@ public class CorrespondentManager extends Observable implements Observer {
 	
 	public void reportChange(Correspondent correspondent) {
 		if (correspondent.isPaired()) {
-			final MessagingService messagingService = MessagingService.getInstance();
-			messagingService.setInMessagingHandler(correspondent);
 			Storage.save(getPairedCorrespondents(), objectName);
 		}
 		setChanged();
@@ -122,7 +123,6 @@ public class CorrespondentManager extends Observable implements Observer {
 			public void run() {
 				CorrespondentServiceLocator correspondentServiceLocator = (CorrespondentServiceLocator) observable;
 				CorrespondentServiceInfo correspondentServiceInfo = (CorrespondentServiceInfo) arg;
-				MessagingService messagingService = MessagingService.getInstance();
 				if (correspondentServiceInfo != null) { // got info
 					String userId = correspondentServiceInfo.getUserId();
 					assert userId != null; // DEBUG
@@ -133,7 +133,6 @@ public class CorrespondentManager extends Observable implements Observer {
 							if (correspondent != null) { // present
 								if (correspondent.isPaired()) { // paired
 									correspondent.setOnline(false); // set offline
-									messagingService.unsetInMessagingHandler(correspondent);
 								} else { // unpaired
 									correspondents.remove(correspondent.getUserId()); // remove
 								}
@@ -142,8 +141,6 @@ public class CorrespondentManager extends Observable implements Observer {
 							if (correspondent != null) { // present
 								correspondent.setUserName(correspondentServiceInfo.getUserName()); // update name
 								correspondent.setOnline(true); // set online
-								if (correspondent.isPaired()) // paired
-									messagingService.setInMessagingHandler(correspondent);
 							} else { // absent
 								// new online unpaired correspondent
 								correspondent = new Correspondent(userId, correspondentServiceInfo.getUserName(), true);
