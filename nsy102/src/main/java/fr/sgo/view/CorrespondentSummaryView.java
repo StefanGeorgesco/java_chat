@@ -15,7 +15,7 @@ import fr.sgo.controller.ActionHandler;
 import fr.sgo.entity.Correspondent;
 
 /**
- * Abstract class CorrespondentView
+ * Abstract class CorrespondentSummaryView
  * 
  * A panel representing a correspondent with action button
  *
@@ -23,7 +23,7 @@ import fr.sgo.entity.Correspondent;
  * @version 1.0
  */
 @SuppressWarnings("deprecation")
-public class CorrespondentView extends JPanel implements Observer {
+public class CorrespondentSummaryView extends JPanel implements Observer {
 	/**
 	 * 
 	 */
@@ -34,7 +34,7 @@ public class CorrespondentView extends JPanel implements Observer {
 	private JPanel onlinePanel;
 	private JButton actionButton1;
 
-	public CorrespondentView(Correspondent correspondent, ActionHandler actionHandler) {
+	public CorrespondentSummaryView(Correspondent correspondent, ActionHandler actionHandler) {
 		super();
 		this.correspondent = correspondent;
 		setSize(new Dimension(100, 20));
@@ -75,15 +75,14 @@ public class CorrespondentView extends JPanel implements Observer {
 			onlinePanel.setBackground(Color.GREEN);
 		else
 			onlinePanel.setBackground(Color.GRAY);
-		try {
-			repaint();
-		} catch (Exception e) {
-		}
+		repaint();
 	}
 
-	public void update(Observable observable, Object args) {
-		Correspondent c = (Correspondent) observable;
-		if (c.equals(correspondent))
-			refresh();
+	public void update(Observable observable, Object arg) {
+		if (observable instanceof Correspondent) {
+			Correspondent c = (Correspondent) observable;
+			if (c.equals(correspondent))
+				refresh();
+		}
 	}
 }

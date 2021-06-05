@@ -63,9 +63,15 @@ public class ChatManager extends Observable implements Observer {
 			setChanged();
 			notifyObservers(chat);
 		}
+		if (correspondent.isOnline()) {
+			MessagingService.getInstance().setInMessagingHandler(correspondent);
+		} else {
+			MessagingService.getInstance().unsetInMessagingHandler(correspondent);
+		}
 	}
 
 	private void removeCorrespondentChat(Correspondent correspondent) {
+		MessagingService.getInstance().unsetInMessagingHandler(correspondent);
 		CorrespondentChat chat = correspondentChats.remove(correspondent);
 		if (chat != null) {
 			setChanged();
@@ -73,8 +79,7 @@ public class ChatManager extends Observable implements Observer {
 		}
 	}
 
-	@SuppressWarnings("unused")
-	private void addGroupChat(GroupChat chat) {
+	public void addGroupChat(GroupChat chat) {
 		if (groupChats.add(chat)) {
 			setChanged();
 			notifyObservers(chat);
@@ -87,16 +92,10 @@ public class ChatManager extends Observable implements Observer {
 		if (CorrespondentManager.getInstance().existsCorrespondent(correspondent)) {
 			if (correspondent.isPaired()) {
 				addCorrespondentChatIfNone(correspondent);
-				if (correspondent.isOnline()) {
-					MessagingService.getInstance().setInMessagingHandler(correspondent);
-				} else {
-					MessagingService.getInstance().unsetInMessagingHandler(correspondent);
-				}
 				if (App.T)
 					System.out.println("chat ajouté pour " + correspondent.getUserName());
 			}
 		} else {
-			MessagingService.getInstance().unsetInMessagingHandler(correspondent);
 			removeCorrespondentChat(correspondent);
 		}
 	}

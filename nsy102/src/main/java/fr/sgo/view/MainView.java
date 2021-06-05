@@ -3,21 +3,28 @@ package fr.sgo.view;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import fr.sgo.controller.ActionHandler;
+import fr.sgo.controller.ChatController;
 import fr.sgo.controller.CorrespondentController;
 import fr.sgo.entity.Chat;
 import fr.sgo.entity.Correspondent;
 import fr.sgo.entity.CorrespondentChat;
 import fr.sgo.entity.GroupChat;
+import fr.sgo.entity.HostedGroupChat;
+import fr.sgo.entity.RemoteGroupChat;
+import fr.sgo.model.ChatManager;
 import fr.sgo.model.CorrespondentManager;
 import fr.sgo.service.ProfileInfo;
 
@@ -38,12 +45,14 @@ public class MainView extends JFrame implements Observer {
 	private static MainView instance = null;
 	private JPanel correspondentChatsPanel;
 	private JPanel unpairedCorrespondentsPanel;
-	private JPanel groupChatPanel;
+	private JPanel groupChatsPanel;
 	private CorrespondentManager correspondentManager;
+	private ChatManager chatManager;
 
 	private MainView() {
 		super(ProfileInfo.getInstance().getUserName());
 		correspondentManager = CorrespondentManager.getInstance();
+		chatManager = ChatManager.getInstance();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		Container contentPane = getContentPane();
 		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
@@ -56,15 +65,23 @@ public class MainView extends JFrame implements Observer {
 		unpairedCorrespondentsPanel.setLayout(new BoxLayout(unpairedCorrespondentsPanel, BoxLayout.Y_AXIS));
 		unpairedCorrespondentsPanel.setBorder(BorderFactory.createLineBorder(Color.black));
 		JLabel groupChatPanelTitle = new JLabel("Conversations de groupe");
-		groupChatPanel = new JPanel();
-		groupChatPanel.setLayout(new BoxLayout(groupChatPanel, BoxLayout.Y_AXIS));
-		groupChatPanel.setBorder(BorderFactory.createLineBorder(Color.black));
+		groupChatsPanel = new JPanel();
+		groupChatsPanel.setLayout(new BoxLayout(groupChatsPanel, BoxLayout.Y_AXIS));
+		groupChatsPanel.setBorder(BorderFactory.createLineBorder(Color.black));
+		JButton addGroupChat = new JButton("Nouveau groupe");
+		addGroupChat.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				ChatController.getInstance().createGroupChat();
+			}
+		});
 		contentPane.add(pairedCorrespondentsPanelTitle, null);
 		contentPane.add(correspondentChatsPanel, null);
 		contentPane.add(unpairedCorrespondentsPanelTitle, null);
 		contentPane.add(unpairedCorrespondentsPanel, null);
 		contentPane.add(groupChatPanelTitle, null);
-		contentPane.add(groupChatPanel, null);
+		contentPane.add(groupChatsPanel, null);
+		contentPane.add(addGroupChat, null);
 		pack();
 		setVisible(true);
 	}
@@ -81,7 +98,7 @@ public class MainView extends JFrame implements Observer {
 		boolean viewContentsChange = false;
 		boolean correspondentFound = false;
 		for (Component component : unpairedCorrespondentsPanel.getComponents()) {
-			CorrespondentView panel = (CorrespondentView) component;
+			CorrespondentSummaryView panel = (CorrespondentSummaryView) component;
 			if (panel.getCorrespondent().equals(correspondent)) {
 				if (correspondentFound) {
 					panel.getCorrespondent().deleteObserver(panel);
@@ -100,7 +117,7 @@ public class MainView extends JFrame implements Observer {
 			}
 		}
 		if (!correspondentFound & correspondentExists && !correspondentIsPaired) {
-			unpairedCorrespondentsPanel.add(new CorrespondentView(correspondent, new ActionHandler("Inviter") {
+			unpairedCorrespondentsPanel.add(new CorrespondentSummaryView(correspondent, new ActionHandler("Inviter") {
 				@Override
 				public void run() {
 					CorrespondentController.getInstance().requestPairing(correspondent);
@@ -116,7 +133,44 @@ public class MainView extends JFrame implements Observer {
 
 	private synchronized void updateView(Chat chat) {
 		if (chat instanceof GroupChat) {
-			// TO DO
+			GroupChat groupChat = (GroupChat) chat;
+			boolean chatExists = chatManager.existsChat(chat);
+			boolean summaryViewMustAppear = chatExists && (chat instanceof HostedGroupChat
+					|| chat instanceof RemoteGroupChat && ((RemoteGroupChat) chat).getCorrespondent().isOnline());
+			boolean summaryViewIsPresent = false;
+			boolean viewContentsChange = false;
+			for (Component component : groupChatsPanel.getComponents()) {
+				ChatSummaryView panel = (ChatSummaryView) component;
+				if (panel.getGroupChat().equals(chat)) {
+					if (summaryViewIsPresent) {
+						panel.getGroupChat().deleteObserver(panel);
+						groupChatsPanel.remove(component);
+						viewContentsChange = true;
+					} else {
+						summaryViewIsPresent = true;
+						if (summaryViewMustAppear) {
+							panel.refresh();
+						} else {
+							panel.getGroupChat().deleteObserver(panel);
+							groupChatsPanel.remove(component);
+							viewContentsChange = true;
+						}
+					}
+				}
+			}
+			if (!summaryViewIsPresent && summaryViewMustAppear) {
+				groupChatsPanel.add(new ChatSummaryView(groupChat, new ActionHandler("Ouvrir") {
+					@Override
+					public void run() {
+						ChatViewContainer.getInstance().getChatView(chat).update(null, null);
+					}
+				}));
+				viewContentsChange = true;
+			}
+			if (viewContentsChange) {
+				pack();
+				repaint();
+			}
 		} else { // CorrespondentChat -> updates correspondentChatsPanel
 			Correspondent correspondent = ((CorrespondentChat) chat).getCorrespondent();
 			boolean correspondentExists = correspondentManager.existsCorrespondent(correspondent);
@@ -124,7 +178,7 @@ public class MainView extends JFrame implements Observer {
 			boolean viewContentsChange = false;
 			boolean correspondentFound = false;
 			for (Component component : correspondentChatsPanel.getComponents()) {
-				CorrespondentView panel = (CorrespondentView) component;
+				CorrespondentSummaryView panel = (CorrespondentSummaryView) component;
 				if (panel.getCorrespondent().equals(correspondent)) {
 					if (correspondentFound) {
 						panel.getCorrespondent().deleteObserver(panel);
@@ -143,10 +197,10 @@ public class MainView extends JFrame implements Observer {
 				}
 			}
 			if (!correspondentFound & correspondentExists && correspondentIsPaired) {
-				correspondentChatsPanel.add(new CorrespondentView(correspondent, new ActionHandler("Discuter") {
+				correspondentChatsPanel.add(new CorrespondentSummaryView(correspondent, new ActionHandler("Discuter") {
 					@Override
 					public void run() {
-						ChatViewContainer.getInstance().getChatView(chat).update(null, null);;
+						ChatViewContainer.getInstance().getChatView(chat).update(null, null);
 					}
 
 				}));

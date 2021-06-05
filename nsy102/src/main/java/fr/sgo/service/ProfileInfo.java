@@ -40,11 +40,11 @@ public class ProfileInfo implements Serializable
             while (name.length() == 0) {
                 name = JOptionPane.showInputDialog("Nom");
                 if (name == null)
-                    name = "user";
+                	System.exit(1);
             }
             instance.set(name);
         }
-        assert !instance.getUserId().equals("Toto"); // DEBUG
+        assert instance.getUserId() != null; // DEBUG
         instance.setHost("localhost");
         instance.setRMIPort(1199);
         instance.setJMSPort(1099);
