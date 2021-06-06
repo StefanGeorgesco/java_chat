@@ -1,5 +1,10 @@
 package fr.sgo.entity;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Set;
+import java.util.TreeSet;
+
 import fr.sgo.service.IDGenerator;
 
 public abstract class GroupChat extends Chat {
@@ -8,13 +13,15 @@ public abstract class GroupChat extends Chat {
 	 * 
 	 */
 	private static final long serialVersionUID = 279792385811091040L;
-	String name;
-	String subscriberName;
+	protected String name;
+	protected String subscriberName;
+	protected Set<Correspondent> correspondents;
 
 	public GroupChat(String name) {
 		super();
 		this.name = name;
 		this.subscriberName = IDGenerator.newId();
+		this.correspondents = Collections.synchronizedSet(new TreeSet<Correspondent>());
 	}
 	
 	public String getName() {
@@ -24,6 +31,10 @@ public abstract class GroupChat extends Chat {
 	@Override
 	public String getSubscriberName() {
 		return subscriberName;
+	}
+	
+	public Collection<Correspondent> getCorrespondents() {
+		return correspondents;
 	}
 
 }

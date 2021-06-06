@@ -13,6 +13,7 @@ public class RemoteGroupChat extends GroupChat {
 		super(name);
 		this.correspondent = correspondent;
 		this.id = id;
+		correspondents.add(correspondent);
 	}
 
 	public Correspondent getCorrespondent() {

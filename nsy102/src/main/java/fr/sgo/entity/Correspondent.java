@@ -14,7 +14,7 @@ import fr.sgo.service.IDGenerator;
  * @version 1.0
  */
 @SuppressWarnings("deprecation")
-public class Correspondent extends Observable implements Serializable {
+public class Correspondent extends Observable implements Serializable, Comparable<Correspondent> {
 	/**
 	 * 
 	 */
@@ -119,5 +119,10 @@ public class Correspondent extends Observable implements Serializable {
 				this.inId = id;
 			}
 		}
+	}
+
+	@Override
+	public int compareTo(Correspondent correspondent) {
+		return new String(userName).compareTo(correspondent.getUserName());
 	}
 }

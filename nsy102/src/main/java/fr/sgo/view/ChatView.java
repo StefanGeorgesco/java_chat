@@ -9,11 +9,14 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.text.DateFormat;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Observable;
 import java.util.Observer;
 
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
@@ -23,6 +26,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
 import fr.sgo.entity.Chat;
+import fr.sgo.entity.Correspondent;
 import fr.sgo.entity.CorrespondentChat;
 import fr.sgo.entity.GroupChat;
 import fr.sgo.entity.InMessage;
@@ -38,8 +42,10 @@ public class ChatView extends JFrame implements ActionListener, Observer {
 	private static final long serialVersionUID = -4272327756479515057L;
 	private Chat chat;
 	private JTextArea messagesHistory;
+	private JScrollPane messagesHistoryScrollPane;
+	private JTextArea correspondentsList;
+	private JScrollPane correspondentsListScrollPane;
 	private JTextField messageField;
-	private JScrollPane jScrollPane;
 
 	public ChatView(Chat chat) {
 		this.chat = chat;
@@ -53,10 +59,23 @@ public class ChatView extends JFrame implements ActionListener, Observer {
 		messagesHistory.setEditable(false);
 		messagesHistory.setLineWrap(true);
 		messagesHistory.setWrapStyleWord(true);
-		jScrollPane = new JScrollPane();
-		jScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		jScrollPane.setViewportView(messagesHistory);
-		panelNorth.add(jScrollPane, BorderLayout.CENTER);
+		messagesHistoryScrollPane = new JScrollPane();
+		messagesHistoryScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		messagesHistoryScrollPane.setViewportView(messagesHistory);
+		panelNorth.add(messagesHistoryScrollPane, BorderLayout.CENTER);
+		refreshMessagesHistoryView();
+
+		JPanel panelCenter = new JPanel();
+		correspondentsList = new JTextArea(1, 40);
+		correspondentsList.setEditable(false);
+		correspondentsList.setLineWrap(true);
+		correspondentsList.setWrapStyleWord(true);
+		correspondentsListScrollPane = new JScrollPane();
+		correspondentsListScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		correspondentsListScrollPane.setViewportView(correspondentsList);
+		panelCenter.add(correspondentsListScrollPane, BorderLayout.CENTER);
+		refreshcorrespondentsListView();
+		
 		JPanel panelSouth = new JPanel(new FlowLayout());
 		messageField = new JTextField(30);
 		addWindowListener(new WindowAdapter() {
@@ -69,11 +88,13 @@ public class ChatView extends JFrame implements ActionListener, Observer {
 		getRootPane().setDefaultButton(sendButton);
 		panelSouth.add(messageField);
 		panelSouth.add(sendButton);
-		refreshMessagesHistoryView();
+		
 		Container container = this.getContentPane();
 		container.setLayout(new BorderLayout());
 		container.add(panelNorth, BorderLayout.NORTH);
 		container.add(panelSouth, BorderLayout.SOUTH);
+		if (chat instanceof GroupChat)
+			container.add(panelCenter, BorderLayout.CENTER);
 		pack();
 		setVisible(false);
 		this.chat.addObserver(this);
@@ -83,21 +104,36 @@ public class ChatView extends JFrame implements ActionListener, Observer {
 		return chat;
 	}
 
-	public void refreshMessagesHistoryView() {
+	private void refreshMessagesHistoryView() {
 		DateFormat shortDateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
 		String contents = "";
-		for (Message m : chat.getMessages()) {
-			if (m instanceof InMessage)
-				contents += ((InMessage) m).getAuthor().getUserName();
+		for (Message message : chat.getMessages()) {
+			if (message instanceof InMessage)
+				contents += ((InMessage) message).getAuthor().getUserName();
 			else
 				contents += "moi";
-			contents += " (" + shortDateFormat.format(new Date(m.getTimeWritten())) + ") : ";
-			contents += m.getContents();
+			contents += " (" + shortDateFormat.format(new Date(message.getTimeWritten())) + ") : ";
+			contents += message.getContents();
 			contents += "\n";
 		}
 		messagesHistory.setText(contents);
-		JScrollBar vertical = jScrollPane.getVerticalScrollBar();
+		JScrollBar vertical = messagesHistoryScrollPane.getVerticalScrollBar();
 		vertical.setValue(vertical.getMaximum());
+	}
+
+	private void refreshcorrespondentsListView() {
+		if (chat instanceof GroupChat) {
+			String contents = "Patricipants : ";
+			Iterator<Correspondent> it = ((GroupChat) chat).getCorrespondents().iterator();
+			while (it.hasNext()) {
+				contents += it.next().getUserName();
+				if (it.hasNext())
+					contents += ", ";
+			}
+			correspondentsList.setText(contents);
+			JScrollBar vertical = correspondentsListScrollPane.getVerticalScrollBar();
+			vertical.setValue(vertical.getMaximum());
+		}		
 	}
 
 	@Override
@@ -123,6 +159,7 @@ public class ChatView extends JFrame implements ActionListener, Observer {
 			@Override
 			public void run() {
 				refreshMessagesHistoryView();
+				refreshcorrespondentsListView();
 				setVisible(true);
 				toFront();
 			}
