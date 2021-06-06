@@ -13,7 +13,8 @@ public class HostedGroupChat extends GroupChat {
 	public HostedGroupChat(String name) {
 		super(name);
 		this.id = IDGenerator.newId();
-		correspondents.add(new Correspondent("", ProfileInfo.getInstance().getUserName(), true));
+		correspondents.add(new Correspondent(ProfileInfo.getInstance().getUserId(),
+				ProfileInfo.getInstance().getUserName(), true));
 	}
 
 	@Override

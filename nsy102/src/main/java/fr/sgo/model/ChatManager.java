@@ -40,7 +40,7 @@ public class ChatManager extends Observable implements Observer {
 	public Collection<GroupChat> getGroupChats() {
 		return groupChats;
 	}
-	
+
 	public Collection<Chat> getChats() {
 		Set<Chat> set = new HashSet<Chat>(groupChats);
 		set.addAll(correspondentChats.values());
@@ -50,7 +50,7 @@ public class ChatManager extends Observable implements Observer {
 	public CorrespondentChat getCorrespondentChat(Correspondent correspondent) {
 		return correspondentChats.get(correspondent);
 	}
-	
+
 	public boolean existsChat(Chat chat) {
 		return correspondentChats.values().contains(chat) || groupChats.contains(chat);
 	}
@@ -60,6 +60,8 @@ public class ChatManager extends Observable implements Observer {
 		if (chat == null) {
 			chat = new CorrespondentChat(correspondent);
 			correspondentChats.put(correspondent, chat);
+			if (App.T)
+				System.out.println("chat ajouté pour " + correspondent.getUserName());
 			setChanged();
 			notifyObservers(chat);
 		}
@@ -73,6 +75,8 @@ public class ChatManager extends Observable implements Observer {
 	private void removeCorrespondentChat(Correspondent correspondent) {
 		CorrespondentChat chat = correspondentChats.remove(correspondent);
 		if (chat != null) {
+			if (App.T)
+				System.out.println("chat retiré pour " + correspondent.getUserName());
 			MessagingService.getInstance().unsetInMessagingHandlers(chat);
 			setChanged();
 			notifyObservers(chat);
@@ -81,6 +85,7 @@ public class ChatManager extends Observable implements Observer {
 
 	public void addGroupChat(GroupChat chat) {
 		if (groupChats.add(chat)) {
+			MessagingService.getInstance().setMessagingHandlers(chat);
 			setChanged();
 			notifyObservers(chat);
 		}
@@ -89,14 +94,18 @@ public class ChatManager extends Observable implements Observer {
 	@Override
 	public void update(Observable o, Object arg) {
 		Correspondent correspondent = (Correspondent) arg;
-		if (CorrespondentManager.getInstance().existsCorrespondent(correspondent)) {
-			if (correspondent.isPaired()) {
-				addCorrespondentChatIfNone(correspondent);
-				if (App.T)
-					System.out.println("chat ajouté pour " + correspondent.getUserName());
-			}
+		if (CorrespondentManager.getInstance().existsCorrespondent(correspondent) && correspondent.isPaired()) {
+			addCorrespondentChatIfNone(correspondent);
 		} else {
 			removeCorrespondentChat(correspondent);
+			new Thread() {
+				@Override
+				public void run() {
+					for (GroupChat chat: getGroupChats()) {
+						chat.removeCorrespondent(correspondent);
+					}
+				}
+			}.start();
 		}
 	}
 

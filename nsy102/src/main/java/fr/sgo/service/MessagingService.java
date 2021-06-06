@@ -183,7 +183,7 @@ public class MessagingService {
 				e.printStackTrace();
 			}
 		} else {
-			Correspondent correspondent; 
+			Correspondent correspondent;
 			JMSInfo jmsInfo = null;
 			String InId = null;
 			if (chat instanceof CorrespondentChat) {
@@ -192,6 +192,8 @@ public class MessagingService {
 				InId = correspondent.getPairingInfo().getInId();
 				sender = this.sender;
 			} else if (chat instanceof RemoteGroupChat) {
+				if (App.T)
+					System.out.println("ajout du RemoteGroupChat id = " + chat.getId());
 				correspondent = ((RemoteGroupChat) chat).getCorrespondent();
 				jmsInfo = getJMSInfo(correspondent);
 				InId = chat.getId();
@@ -320,10 +322,15 @@ public class MessagingService {
 
 	private InMessage translateMessage(javax.jms.Message jmsMessage) {
 		InMessage applicationMessage = null;
+		Correspondent correspondent = null;
 		try {
+			String userId = ((MapMessageImpl) jmsMessage).getString("userId");
+			if (userId.equals(ProfileInfo.getInstance().getUserId()))
+				correspondent = new Correspondent(userId, ProfileInfo.getInstance().getUserName());
+			else
+				correspondent = CorrespondentManager.getInstance().getCorrespondent(userId);
 			applicationMessage = new InMessage(((MapMessageImpl) jmsMessage).getString("contents"),
-					((MapMessageImpl) jmsMessage).getLong("timeWritten"), CorrespondentManager.getInstance()
-							.getCorrespondent(((MapMessageImpl) jmsMessage).getString("userId")));
+					((MapMessageImpl) jmsMessage).getLong("timeWritten"), correspondent);
 		} catch (JMSException e) {
 			e.printStackTrace();
 		}

@@ -3,6 +3,7 @@ package fr.sgo.view;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -13,10 +14,8 @@ import java.util.Iterator;
 import java.util.Observable;
 import java.util.Observer;
 
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
@@ -25,10 +24,12 @@ import javax.swing.JTextField;
 //import javax.swing.SwingUtilities;
 import javax.swing.SwingUtilities;
 
+import fr.sgo.controller.ChatController;
 import fr.sgo.entity.Chat;
 import fr.sgo.entity.Correspondent;
 import fr.sgo.entity.CorrespondentChat;
 import fr.sgo.entity.GroupChat;
+import fr.sgo.entity.HostedGroupChat;
 import fr.sgo.entity.InMessage;
 import fr.sgo.entity.Message;
 import fr.sgo.entity.OutMessage;
@@ -49,11 +50,12 @@ public class ChatView extends JFrame implements ActionListener, Observer {
 
 	public ChatView(Chat chat) {
 		this.chat = chat;
-		if (chat instanceof GroupChat)
-			this.setTitle("Groupe de discussion " + ((GroupChat) chat).getName());
+		if (this.chat instanceof GroupChat)
+			this.setTitle(ProfileInfo.getInstance().getUserName() + " - Groupe de discussion "
+					+ ((GroupChat) this.chat).getName());
 		else
 			this.setTitle(ProfileInfo.getInstance().getUserName() + " - Discussion avec "
-					+ ((CorrespondentChat) chat).getCorrespondent().getUserName());
+					+ ((CorrespondentChat) this.chat).getCorrespondent().getUserName());
 		JPanel panelNorth = new JPanel();
 		messagesHistory = new JTextArea(15, 40);
 		messagesHistory.setEditable(false);
@@ -66,6 +68,7 @@ public class ChatView extends JFrame implements ActionListener, Observer {
 		refreshMessagesHistoryView();
 
 		JPanel panelCenter = new JPanel();
+		panelCenter.setLayout(new GridLayout(2, 1));
 		correspondentsList = new JTextArea(1, 40);
 		correspondentsList.setEditable(false);
 		correspondentsList.setLineWrap(true);
@@ -75,7 +78,7 @@ public class ChatView extends JFrame implements ActionListener, Observer {
 		correspondentsListScrollPane.setViewportView(correspondentsList);
 		panelCenter.add(correspondentsListScrollPane, BorderLayout.CENTER);
 		refreshcorrespondentsListView();
-		
+
 		JPanel panelSouth = new JPanel(new FlowLayout());
 		messageField = new JTextField(30);
 		addWindowListener(new WindowAdapter() {
@@ -88,13 +91,25 @@ public class ChatView extends JFrame implements ActionListener, Observer {
 		getRootPane().setDefaultButton(sendButton);
 		panelSouth.add(messageField);
 		panelSouth.add(sendButton);
-		
+
 		Container container = this.getContentPane();
 		container.setLayout(new BorderLayout());
 		container.add(panelNorth, BorderLayout.NORTH);
 		container.add(panelSouth, BorderLayout.SOUTH);
-		if (chat instanceof GroupChat)
+		if (this.chat instanceof GroupChat) {
+			if (this.chat instanceof HostedGroupChat) {
+				JButton addCorrespondent = new JButton("Ajouter");
+				addCorrespondent.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						ChatController.getInstance().showAddCorrespondentsView(ChatView.this,
+								(HostedGroupChat) ChatView.this.chat);
+					}
+				});
+				panelCenter.add(addCorrespondent);
+			}
 			container.add(panelCenter, BorderLayout.CENTER);
+		}
 		pack();
 		setVisible(false);
 		this.chat.addObserver(this);
@@ -133,7 +148,7 @@ public class ChatView extends JFrame implements ActionListener, Observer {
 			correspondentsList.setText(contents);
 			JScrollBar vertical = correspondentsListScrollPane.getVerticalScrollBar();
 			vertical.setValue(vertical.getMaximum());
-		}		
+		}
 	}
 
 	@Override

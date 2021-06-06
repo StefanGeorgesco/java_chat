@@ -133,7 +133,7 @@ public class CorrespondentServiceLocator extends Observable {
 				int port = url.getPort();
 				Registry registry = LocateRegistry.getRegistry(host, port);
 				RMIService service = (RMIService) registry.lookup(serviceName);
-				if (service.isActive()) {
+				if (service.isOnline()) {
 					if (App.T)
 						System.out.println("service actif pour " + userName);
 					assert userId != null; // DEBUG

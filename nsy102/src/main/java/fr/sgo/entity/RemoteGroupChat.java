@@ -1,5 +1,7 @@
 package fr.sgo.entity;
 
+import fr.sgo.service.ProfileInfo;
+
 public class RemoteGroupChat extends GroupChat {
 	/**
 	 * 
@@ -14,6 +16,8 @@ public class RemoteGroupChat extends GroupChat {
 		this.correspondent = correspondent;
 		this.id = id;
 		correspondents.add(correspondent);
+		correspondents.add(new Correspondent(ProfileInfo.getInstance().getUserId(),
+				ProfileInfo.getInstance().getUserName(), true));
 	}
 
 	public Correspondent getCorrespondent() {

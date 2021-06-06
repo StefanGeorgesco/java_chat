@@ -1,20 +1,25 @@
 package fr.sgo.view;
 
+import java.awt.Component;
+
 import javax.swing.JOptionPane;
 
-import fr.sgo.app.App;
-
 public class InformationView extends Thread {
-	App app;
-	String message;
+	private Component parent;
+	private String message;
 	
-	public InformationView(String message) {
+	public InformationView(Component parent, String message) {
+		this.parent = parent;
 		this.message = message;
 		start();
 	}
 	
+	public InformationView(String message) {
+		this(MainView.getInstance(), message);
+	}
+	
 	@Override
 	public void run() {
-		JOptionPane.showMessageDialog(MainView.getInstance(), message);
+		JOptionPane.showMessageDialog(parent, message);
 	}
 }

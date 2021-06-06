@@ -36,5 +36,29 @@ public abstract class GroupChat extends Chat {
 	public Collection<Correspondent> getCorrespondents() {
 		return correspondents;
 	}
+	
+	@SuppressWarnings("deprecation")
+	public void addCorrespondent(Correspondent correspondent) {
+		if (correspondents.add(correspondent)) {
+			setChanged();
+			notifyObservers();
+		}
+	}
+	
+	@SuppressWarnings("deprecation")
+	public void addCorrespondents(Collection<Correspondent> correspondents) {
+		if (this.correspondents.addAll(correspondents)) {
+			setChanged();
+			notifyObservers();
+		}
+	}
+	
+	@SuppressWarnings("deprecation")
+	public void removeCorrespondent(Correspondent correspondent) {
+		if (correspondents.remove(correspondent)) {
+			setChanged();
+			notifyObservers();
+		}
+	}
 
 }
