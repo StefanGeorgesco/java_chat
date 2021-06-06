@@ -21,4 +21,9 @@ public class CorrespondentChat extends Chat {
 		return correspondent.getPairingInfo().getOutId();
 	}
 
+	@Override
+	public String getSubscriberName() {
+		return getId();
+	}
+
 }

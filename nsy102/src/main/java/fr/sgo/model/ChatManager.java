@@ -56,24 +56,24 @@ public class ChatManager extends Observable implements Observer {
 	}
 
 	private void addCorrespondentChatIfNone(Correspondent correspondent) {
-		boolean none = correspondentChats.get(correspondent) == null;
-		if (none) {
-			CorrespondentChat chat = new CorrespondentChat(correspondent);
+		CorrespondentChat chat = correspondentChats.get(correspondent);
+		if (chat == null) {
+			chat = new CorrespondentChat(correspondent);
 			correspondentChats.put(correspondent, chat);
 			setChanged();
 			notifyObservers(chat);
 		}
 		if (correspondent.isOnline()) {
-			MessagingService.getInstance().setInMessagingHandler(correspondent);
+			MessagingService.getInstance().setMessagingHandlers(chat);
 		} else {
-			MessagingService.getInstance().unsetInMessagingHandler(correspondent);
+			MessagingService.getInstance().unsetInMessagingHandlers(chat);
 		}
 	}
 
 	private void removeCorrespondentChat(Correspondent correspondent) {
-		MessagingService.getInstance().unsetInMessagingHandler(correspondent);
 		CorrespondentChat chat = correspondentChats.remove(correspondent);
 		if (chat != null) {
+			MessagingService.getInstance().unsetInMessagingHandlers(chat);
 			setChanged();
 			notifyObservers(chat);
 		}

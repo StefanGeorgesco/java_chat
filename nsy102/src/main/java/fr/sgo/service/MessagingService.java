@@ -9,6 +9,7 @@ import java.util.Map;
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
+import javax.jms.MessageProducer;
 import javax.jms.Topic;
 import javax.jms.TopicConnection;
 import javax.jms.TopicConnectionFactory;
@@ -25,9 +26,10 @@ import fr.sgo.controller.RMIController;
 import fr.sgo.entity.Chat;
 import fr.sgo.entity.Correspondent;
 import fr.sgo.entity.CorrespondentChat;
+import fr.sgo.entity.HostedGroupChat;
 import fr.sgo.entity.InMessage;
 import fr.sgo.entity.OutMessage;
-import fr.sgo.model.ChatManager;
+import fr.sgo.entity.RemoteGroupChat;
 import fr.sgo.model.CorrespondentManager;
 import fr.sgo.view.InformationView;
 
@@ -40,18 +42,20 @@ public class MessagingService {
 	private static final String topicName = "topic1";
 	private TopicSession session;
 	private TopicPublisher sender;
-	private Map<String, Context> contextRecords; // key: url
-	private Map<String, TopicConnectionFactory> factoryRecords; // key: url
-	private Map<String, TopicConnection> connectionRecords; // key: url
-	private Map<String, TopicSession> sessionRecords; // key: url
-	private Map<String, MessageConsumer> receivers; // key: userId
+	private Map<String, Context> contextRecords; // key=url
+	private Map<String, TopicConnectionFactory> factoryRecords; // key=url
+	private Map<String, TopicConnection> connectionRecords; // key=url
+	private Map<String, TopicSession> sessionRecords; // key=url
+	private Map<Chat, MessageProducer> senders;
+	private Map<Chat, MessageConsumer> receivers;
 
 	private MessagingService() {
 		this.contextRecords = Collections.synchronizedMap(new HashMap<String, Context>());
 		this.factoryRecords = Collections.synchronizedMap(new HashMap<String, TopicConnectionFactory>());
 		this.connectionRecords = Collections.synchronizedMap(new HashMap<String, TopicConnection>());
 		this.sessionRecords = Collections.synchronizedMap(new HashMap<String, TopicSession>());
-		this.receivers = Collections.synchronizedMap(new HashMap<String, MessageConsumer>());
+		this.senders = Collections.synchronizedMap(new HashMap<Chat, MessageProducer>());
+		this.receivers = Collections.synchronizedMap(new HashMap<Chat, MessageConsumer>());
 	}
 
 	public static synchronized MessagingService getInstance() {
@@ -125,65 +129,116 @@ public class MessagingService {
 		});
 	}
 
-	public void sendMessage(String id, OutMessage message) {
+	public void sendMessage(Chat chat, OutMessage message) {
 		javax.jms.Message jmsMessage = translateMessage(message);
 		try {
-			jmsMessage.setStringProperty("InId", id);
+			jmsMessage.setStringProperty("InId", chat.getId());
 			sender.send(jmsMessage);
 		} catch (JMSException e) {
 			e.printStackTrace();
 		}
 	}
 
-	public void setInMessagingHandler(Correspondent correspondent) {
-		if (correspondent.isPaired()) {
-			String userId = correspondent.getUserId();
-			CorrespondentServiceInfo correspondentServiceInfo = CorrespondentServiceLocator.getInstance().lookup(userId);
-			if (correspondentServiceInfo != null) {
-				String host = correspondentServiceInfo.getHost();
-				RMIService service = correspondentServiceInfo.getServiceRMI();
-				MessageConsumer receiver = null;
+	private JMSInfo getJMSInfo(Correspondent correspondent) {
+		JMSInfo info = null;
+		String userId = correspondent.getUserId();
+		CorrespondentServiceInfo correspondentServiceInfo = CorrespondentServiceLocator.getInstance().lookup(userId);
+		if (correspondentServiceInfo != null) {
+			String host = correspondentServiceInfo.getHost();
+			RMIService service = correspondentServiceInfo.getServiceRMI();
+			try {
+				int port = service.getProfileInfo().getJMSPort();
+				String url = "rmi://" + host + ":" + Integer.toString(port) + "/";
+				Context context = getContext(url);
+				TopicConnection connection = getConnection(url);
+				TopicSession session = getSession(url);
+				String topicName = service.getDestinationName(RMIController.getInstance(),
+						correspondent.getPairingInfo().getOutId());
+				Topic topic = (Topic) context.lookup(topicName);
+				info = new JMSInfo(session, topic, connection);
+			} catch (RemoteException e) {
+				e.printStackTrace();
+			} catch (NamingException e) {
+				e.printStackTrace();
+			}
+		}
+		return info;
+	}
+
+	public void setMessagingHandlers(Chat chat) {
+		MessageProducer sender = null;
+		MessageConsumer receiver = null;
+		if (chat instanceof HostedGroupChat) {
+			sender = this.sender;
+			try {
+				Topic topic = (Topic) context.lookup(topicName);
+				connection.stop();
+				receiver = session.createDurableSubscriber(topic, chat.getSubscriberName(),
+						"InId = '" + chat.getId() + "'", true);
+				receiver.setMessageListener(new InMessageHandler(chat));
+				connection.start();
+			} catch (JMSException e) {
+				e.printStackTrace();
+			} catch (NamingException e) {
+				e.printStackTrace();
+			}
+		} else {
+			Correspondent correspondent; 
+			JMSInfo jmsInfo = null;
+			String InId = null;
+			if (chat instanceof CorrespondentChat) {
+				correspondent = ((CorrespondentChat) chat).getCorrespondent();
+				jmsInfo = getJMSInfo(correspondent);
+				InId = correspondent.getPairingInfo().getInId();
+				sender = this.sender;
+			} else if (chat instanceof RemoteGroupChat) {
+				correspondent = ((RemoteGroupChat) chat).getCorrespondent();
+				jmsInfo = getJMSInfo(correspondent);
+				InId = chat.getId();
 				try {
-					int port = service.getProfileInfo().getJMSPort();
-					String url = "rmi://" + host + ":" + Integer.toString(port) + "/";
-					Context context = getContext(url);
-					TopicConnection connection = getConnection(url);
-					TopicSession session = getSession(url);
-					String topicName = service.getDestinationName(RMIController.getInstance(),
-							correspondent.getPairingInfo().getOutId());
-					Topic topic = (Topic) context.lookup(topicName);
-					CorrespondentChat chat = ChatManager.getInstance().getCorrespondentChat(correspondent);
-					String chatId = chat.getId();
-					connection.stop();
-					receiver = session.createDurableSubscriber(topic, chatId,
-							"InId = '" + correspondent.getPairingInfo().getInId() + "'", true);
-					receiver.setMessageListener(new InMessageHandler(chat));
-					connection.start();
-				} catch (RemoteException e) {
-					e.printStackTrace();
-				} catch (NamingException e) {
-					e.printStackTrace();
+					sender = jmsInfo.getSession().createProducer(jmsInfo.getTopic());
 				} catch (JMSException e) {
 					e.printStackTrace();
 				}
-				if (receiver != null) {
-					receivers.put(userId, receiver);
-				}
+			}
+			try {
+				jmsInfo.getConnection().stop();
+				receiver = jmsInfo.getSession().createDurableSubscriber(jmsInfo.getTopic(), chat.getSubscriberName(),
+						"InId = '" + InId + "'", true);
+				receiver.setMessageListener(new InMessageHandler(chat));
+				jmsInfo.getConnection().start();
+			} catch (JMSException e) {
+				e.printStackTrace();
 			}
 		}
+		if (sender != null)
+			senders.put(chat, sender);
+		else
+			senders.remove(chat);
+		if (receiver != null)
+			receivers.put(chat, receiver);
+		else
+			receivers.remove(chat);
 	}
 
-	public void unsetInMessagingHandler(Correspondent correspondent) {
-		String userId = correspondent.getUserId();
-		MessageConsumer receiver = receivers.get(userId);
+	public void unsetInMessagingHandlers(Chat chat) {
+		MessageProducer sender = senders.get(chat);
+		MessageConsumer receiver = receivers.get(chat);
+		if (sender != null && !sender.equals(this.sender))
+			try {
+				sender.close();
+			} catch (JMSException e) {
+				e.printStackTrace();
+			}
 		if (receiver != null)
 			try {
 				receiver.setMessageListener(null);
 				receiver.close();
-				receivers.remove(userId);
 			} catch (JMSException e) {
 				e.printStackTrace();
 			}
+		senders.remove(chat);
+		receivers.remove(chat);
 	}
 
 	private Context getContext(String url) {
@@ -267,8 +322,8 @@ public class MessagingService {
 		InMessage applicationMessage = null;
 		try {
 			applicationMessage = new InMessage(((MapMessageImpl) jmsMessage).getString("contents"),
-					((MapMessageImpl) jmsMessage).getLong("timeWritten"),
-					CorrespondentManager.getInstance().getCorrespondent(((MapMessageImpl) jmsMessage).getString("userId")));
+					((MapMessageImpl) jmsMessage).getLong("timeWritten"), CorrespondentManager.getInstance()
+							.getCorrespondent(((MapMessageImpl) jmsMessage).getString("userId")));
 		} catch (JMSException e) {
 			e.printStackTrace();
 		}
@@ -287,9 +342,34 @@ public class MessagingService {
 			InMessage applicationMessage = translateMessage(jmsmessage);
 			Correspondent correspondent = applicationMessage.getAuthor();
 			if (App.T)
-				System.out.println("message reçu de "
-						+ correspondent.getUserName() + " : " + applicationMessage.getContents());
+				System.out.println(
+						"message reçu de " + correspondent.getUserName() + " : " + applicationMessage.getContents());
 			chat.addMessage(applicationMessage);
+		}
+
+	}
+
+	private class JMSInfo {
+		private TopicSession session;
+		private Topic topic;
+		private TopicConnection connection;
+
+		JMSInfo(TopicSession session, Topic topic, TopicConnection connection) {
+			this.session = session;
+			this.topic = topic;
+			this.connection = connection;
+		}
+
+		public TopicSession getSession() {
+			return session;
+		}
+
+		public Topic getTopic() {
+			return topic;
+		}
+
+		public TopicConnection getConnection() {
+			return connection;
 		}
 
 	}
