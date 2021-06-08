@@ -140,6 +140,24 @@ public class MessagingService {
 		}
 	}
 
+	private JMSInfo getJMSInfo() {
+		ProfileInfo profileInfo = ProfileInfo.getInstance();
+		JMSInfo info = null;
+		String host = profileInfo.getHost();
+		int port = profileInfo.getJMSPort();
+		try {
+			String url = "rmi://" + host + ":" + Integer.toString(port) + "/";
+			Context context = getContext(url);
+			TopicConnection connection = getConnection(url);
+			TopicSession session = getSession(url);
+			Topic topic = (Topic) context.lookup(topicName);
+			info = new JMSInfo(session, topic, connection);
+		} catch (NamingException e) {
+			e.printStackTrace();
+		}
+		return info;
+	}
+
 	private JMSInfo getJMSInfo(Correspondent correspondent) {
 		JMSInfo info = null;
 		String userId = correspondent.getUserId();
@@ -167,53 +185,38 @@ public class MessagingService {
 	}
 
 	public void setMessagingHandlers(Chat chat) {
+		JMSInfo senderJmsInfo = null;
+		JMSInfo receiverJmsInfo = null;
+		String InId = null;
 		MessageProducer sender = null;
 		MessageConsumer receiver = null;
 		if (chat instanceof HostedGroupChat) {
-			sender = this.sender;
-			try {
-				Topic topic = (Topic) context.lookup(topicName);
-				connection.stop();
-				receiver = session.createDurableSubscriber(topic, chat.getSubscriberName(),
-						"InId = '" + chat.getId() + "'", true);
-				receiver.setMessageListener(new InMessageHandler(chat));
-				connection.start();
-			} catch (JMSException e) {
-				e.printStackTrace();
-			} catch (NamingException e) {
-				e.printStackTrace();
-			}
+			senderJmsInfo = receiverJmsInfo = getJMSInfo();
+			InId = chat.getId();
 		} else {
 			Correspondent correspondent;
-			JMSInfo jmsInfo = null;
-			String InId = null;
 			if (chat instanceof CorrespondentChat) {
 				correspondent = ((CorrespondentChat) chat).getCorrespondent();
-				jmsInfo = getJMSInfo(correspondent);
+				senderJmsInfo = getJMSInfo();
+				receiverJmsInfo = getJMSInfo(correspondent);
 				InId = correspondent.getPairingInfo().getInId();
-				sender = this.sender;
 			} else if (chat instanceof RemoteGroupChat) {
-				if (App.T)
-					System.out.println("ajout du RemoteGroupChat id = " + chat.getId());
 				correspondent = ((RemoteGroupChat) chat).getCorrespondent();
-				jmsInfo = getJMSInfo(correspondent);
+				senderJmsInfo = receiverJmsInfo = getJMSInfo(correspondent);
 				InId = chat.getId();
-				try {
-					sender = jmsInfo.getSession().createProducer(jmsInfo.getTopic());
-				} catch (JMSException e) {
-					e.printStackTrace();
-				}
-			}
-			try {
-				jmsInfo.getConnection().stop();
-				receiver = jmsInfo.getSession().createDurableSubscriber(jmsInfo.getTopic(), chat.getSubscriberName(),
-						"InId = '" + InId + "'", true);
-				receiver.setMessageListener(new InMessageHandler(chat));
-				jmsInfo.getConnection().start();
-			} catch (JMSException e) {
-				e.printStackTrace();
 			}
 		}
+		try {
+			sender = senderJmsInfo.getSession().createPublisher(senderJmsInfo.getTopic());
+			receiverJmsInfo.getConnection().stop();
+			receiver = receiverJmsInfo.getSession().createDurableSubscriber(receiverJmsInfo.getTopic(),
+					chat.getSubscriberName(), "InId = '" + InId + "'", true);
+			receiver.setMessageListener(new InMessageHandler(chat));
+			receiverJmsInfo.getConnection().start();
+		} catch (JMSException e) {
+			e.printStackTrace();
+		}
+
 		if (sender != null)
 			senders.put(chat, sender);
 		else
