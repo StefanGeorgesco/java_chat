@@ -224,7 +224,7 @@ public class MessagingService {
 			receivers.remove(chat);
 	}
 
-	public void unsetInMessagingHandlers(Chat chat) {
+	public void unsetMessagingHandlers(Chat chat) {
 		MessageProducer sender = senders.get(chat);
 		MessageConsumer receiver = receivers.get(chat);
 		if (sender != null && !sender.equals(this.sender))

@@ -68,7 +68,7 @@ public class ChatManager extends Observable implements Observer {
 		if (correspondent.isOnline()) {
 			MessagingService.getInstance().setMessagingHandlers(chat);
 		} else {
-			MessagingService.getInstance().unsetInMessagingHandlers(chat);
+			MessagingService.getInstance().unsetMessagingHandlers(chat);
 		}
 	}
 
@@ -77,7 +77,7 @@ public class ChatManager extends Observable implements Observer {
 		if (chat != null) {
 			if (App.T)
 				System.out.println("chat retiré pour " + correspondent.getUserName());
-			MessagingService.getInstance().unsetInMessagingHandlers(chat);
+			MessagingService.getInstance().unsetMessagingHandlers(chat);
 			setChanged();
 			notifyObservers(chat);
 		}
