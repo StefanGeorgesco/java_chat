@@ -14,6 +14,8 @@ import fr.sgo.entity.Chat;
 import fr.sgo.entity.Correspondent;
 import fr.sgo.entity.CorrespondentChat;
 import fr.sgo.entity.GroupChat;
+import fr.sgo.entity.HostedGroupChat;
+import fr.sgo.entity.RemoteGroupChat;
 import fr.sgo.service.MessagingService;
 
 @SuppressWarnings("deprecation")
@@ -39,6 +41,17 @@ public class ChatManager extends Observable implements Observer {
 
 	public Collection<GroupChat> getGroupChats() {
 		return groupChats;
+	}
+	
+	public Collection<GroupChat> getGroupChats(Correspondent correspondent) {
+		Set<GroupChat> set = new HashSet<GroupChat>();
+		for (GroupChat chat: getGroupChats()) {
+			if (chat instanceof RemoteGroupChat && ((RemoteGroupChat) chat).getCorrespondent().equals(correspondent)) {
+				set.add(chat);
+			}
+		}
+		return set;
+		
 	}
 
 	public Collection<Chat> getChats() {
@@ -81,8 +94,8 @@ public class ChatManager extends Observable implements Observer {
 		if (chat != null) {
 			if (App.T)
 				System.out.println("chat retiré pour " + correspondent.getUserName());
-			MessagingService.getInstance().unsetOutMessagingHandlers(chat);
-			MessagingService.getInstance().unsetInMessagingHandlers(chat);
+			MessagingService.getInstance().unsetOutMessagingHandler(chat);
+			MessagingService.getInstance().unsetInMessagingHandler(chat);
 			if (App.T)
 				System.out.println("messagerie retirée pour " + correspondent.getUserName());
 			setChanged();
@@ -92,11 +105,24 @@ public class ChatManager extends Observable implements Observer {
 
 	public void addGroupChat(GroupChat chat) {
 		if (groupChats.add(chat)) {
-			MessagingService.getInstance().setOutMessagingHandler(chat);
-			MessagingService.getInstance().setInMessagingHandler(chat);
-			setChanged();
-			notifyObservers(chat);
+			if (chat instanceof HostedGroupChat || ((RemoteGroupChat) chat).getCorrespondent().isOnline()) {
+				setMessagingHandlers(chat);
+			}
 		}
+	}
+	
+	private void setMessagingHandlers(GroupChat chat) {
+		MessagingService.getInstance().setOutMessagingHandler(chat);
+		MessagingService.getInstance().setInMessagingHandler(chat);
+		setChanged();
+		notifyObservers(chat);
+	}
+
+	private void unsetMessagingHandlers(GroupChat chat) {
+		MessagingService.getInstance().unsetOutMessagingHandler(chat);
+		MessagingService.getInstance().unsetInMessagingHandler(chat);
+		setChanged();
+		notifyObservers(chat);
 	}
 
 	@Override
@@ -104,8 +130,19 @@ public class ChatManager extends Observable implements Observer {
 		Correspondent correspondent = (Correspondent) arg;
 		if (CorrespondentManager.getInstance().existsCorrespondent(correspondent) && correspondent.isPaired()) {
 			addCorrespondentChatIfNone(correspondent);
+			if (correspondent.isOnline())
+				for (GroupChat chat: getGroupChats(correspondent)) {
+					setMessagingHandlers(chat);
+				}
+			else
+				for (GroupChat chat: getGroupChats(correspondent)) {
+					unsetMessagingHandlers(chat);
+				}
 		} else {
 			removeCorrespondentChat(correspondent);
+			for (GroupChat chat: getGroupChats(correspondent)) {
+				unsetMessagingHandlers(chat);
+			}
 			new Thread() {
 				@Override
 				public void run() {

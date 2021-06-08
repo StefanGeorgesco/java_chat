@@ -199,7 +199,7 @@ public class MessagingService {
 			senders.remove(chat);
 	}
 
-	public void unsetInMessagingHandlers(Chat chat) {
+	public void unsetInMessagingHandler(Chat chat) {
 		TopicSubscriber receiver = receivers.get(chat);
 		if (receiver != null)
 			try {
@@ -211,7 +211,7 @@ public class MessagingService {
 		receivers.remove(chat);
 	}
 
-	public void unsetOutMessagingHandlers(Chat chat) {
+	public void unsetOutMessagingHandler(Chat chat) {
 		MessageProducer sender = senders.get(chat);
 		if (sender != null)
 			try {
