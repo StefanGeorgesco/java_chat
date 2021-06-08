@@ -62,13 +62,17 @@ public class ChatManager extends Observable implements Observer {
 			correspondentChats.put(correspondent, chat);
 			if (App.T)
 				System.out.println("chat ajouté pour " + correspondent.getUserName());
+			MessagingService.getInstance().setOutMessagingHandler(chat);
+			if (App.T)
+				System.out.println("messagerie installée en sortie pour " + correspondent.getUserName());
 			setChanged();
 			notifyObservers(chat);
 		}
 		if (correspondent.isOnline()) {
-			MessagingService.getInstance().setMessagingHandlers(chat);
-		} else {
-			MessagingService.getInstance().unsetMessagingHandlers(chat);
+			MessagingService.getInstance().setInMessagingHandler(chat);
+			if (App.T)
+				System.out.println("messagerie installée en entrée pour "
+						+ chat.getCorrespondent().getUserName());
 		}
 	}
 
@@ -77,7 +81,10 @@ public class ChatManager extends Observable implements Observer {
 		if (chat != null) {
 			if (App.T)
 				System.out.println("chat retiré pour " + correspondent.getUserName());
-			MessagingService.getInstance().unsetMessagingHandlers(chat);
+			MessagingService.getInstance().unsetOutMessagingHandlers(chat);
+			MessagingService.getInstance().unsetInMessagingHandlers(chat);
+			if (App.T)
+				System.out.println("messagerie retirée pour " + correspondent.getUserName());
 			setChanged();
 			notifyObservers(chat);
 		}
@@ -85,7 +92,8 @@ public class ChatManager extends Observable implements Observer {
 
 	public void addGroupChat(GroupChat chat) {
 		if (groupChats.add(chat)) {
-			MessagingService.getInstance().setMessagingHandlers(chat);
+			MessagingService.getInstance().setOutMessagingHandler(chat);
+			MessagingService.getInstance().setInMessagingHandler(chat);
 			setChanged();
 			notifyObservers(chat);
 		}
@@ -101,7 +109,7 @@ public class ChatManager extends Observable implements Observer {
 			new Thread() {
 				@Override
 				public void run() {
-					for (GroupChat chat: getGroupChats()) {
+					for (GroupChat chat : getGroupChats()) {
 						chat.removeCorrespondent(correspondent);
 					}
 				}

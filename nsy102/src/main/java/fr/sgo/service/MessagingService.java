@@ -35,13 +35,8 @@ import fr.sgo.view.InformationView;
 
 public class MessagingService {
 	private static MessagingService instance = null;
-//	private Context context;
-//	private TopicConnectionFactory factory;
-//	private TopicConnection connection;
 	private static final String factoryName = "JmsTopicConnectionFactory";
 	private static final String topicName = "topic1";
-//	private TopicSession session;
-//	private TopicPublisher sender;
 	private Map<String, Context> contexts; // key=url
 	private Map<String, TopicConnectionFactory> factories; // key=url
 	private Map<String, TopicConnection> connections; // key=url
@@ -142,30 +137,26 @@ public class MessagingService {
 		return getJMSInfo(host, port, topicName);
 	}
 
-	public void setMessagingHandlers(Chat chat) {
-		JMSInfo senderJmsInfo = null;
+	public void setInMessagingHandler(Chat chat) {
 		JMSInfo receiverJmsInfo = null;
 		String InId = null;
-		TopicPublisher sender = null;
 		TopicSubscriber receiver = null;
 		if (chat instanceof HostedGroupChat) {
-			senderJmsInfo = receiverJmsInfo = getJMSInfo();
+			receiverJmsInfo = getJMSInfo();
 			InId = chat.getId();
 		} else {
 			Correspondent correspondent;
 			if (chat instanceof CorrespondentChat) {
 				correspondent = ((CorrespondentChat) chat).getCorrespondent();
-				senderJmsInfo = getJMSInfo();
 				receiverJmsInfo = getJMSInfo(correspondent);
 				InId = correspondent.getPairingInfo().getInId();
 			} else if (chat instanceof RemoteGroupChat) {
 				correspondent = ((RemoteGroupChat) chat).getCorrespondent();
-				senderJmsInfo = receiverJmsInfo = getJMSInfo(correspondent);
+				receiverJmsInfo = getJMSInfo(correspondent);
 				InId = chat.getId();
 			}
 		}
 		try {
-			sender = senderJmsInfo.getSession().createPublisher(senderJmsInfo.getTopic());
 			receiverJmsInfo.getConnection().stop();
 			receiver = receiverJmsInfo.getSession().createDurableSubscriber(receiverJmsInfo.getTopic(),
 					chat.getSubscriberName(), "InId = '" + InId + "'", true);
@@ -175,25 +166,41 @@ public class MessagingService {
 			e.printStackTrace();
 		}
 
-		if (sender != null)
-			senders.put(chat, sender);
-		else
-			senders.remove(chat);
 		if (receiver != null)
 			receivers.put(chat, receiver);
 		else
 			receivers.remove(chat);
 	}
 
-	public void unsetMessagingHandlers(Chat chat) {
-		MessageProducer sender = senders.get(chat);
-		TopicSubscriber receiver = receivers.get(chat);
-		if (sender != null)
-			try {
-				sender.close();
-			} catch (JMSException e) {
-				e.printStackTrace();
+	public void setOutMessagingHandler(Chat chat) {
+		JMSInfo senderJmsInfo = null;
+		TopicPublisher sender = null;
+		if (chat instanceof HostedGroupChat) {
+			senderJmsInfo = getJMSInfo();
+		} else {
+			Correspondent correspondent;
+			if (chat instanceof CorrespondentChat) {
+				correspondent = ((CorrespondentChat) chat).getCorrespondent();
+				senderJmsInfo = getJMSInfo();
+			} else if (chat instanceof RemoteGroupChat) {
+				correspondent = ((RemoteGroupChat) chat).getCorrespondent();
+				senderJmsInfo = getJMSInfo(correspondent);
 			}
+		}
+		try {
+			sender = senderJmsInfo.getSession().createPublisher(senderJmsInfo.getTopic());
+		} catch (JMSException e) {
+			e.printStackTrace();
+		}
+
+		if (sender != null)
+			senders.put(chat, sender);
+		else
+			senders.remove(chat);
+	}
+
+	public void unsetInMessagingHandlers(Chat chat) {
+		TopicSubscriber receiver = receivers.get(chat);
 		if (receiver != null)
 			try {
 				receiver.setMessageListener(null);
@@ -201,8 +208,18 @@ public class MessagingService {
 			} catch (JMSException e) {
 				e.printStackTrace();
 			}
-		senders.remove(chat);
 		receivers.remove(chat);
+	}
+
+	public void unsetOutMessagingHandlers(Chat chat) {
+		MessageProducer sender = senders.get(chat);
+		if (sender != null)
+			try {
+				sender.close();
+			} catch (JMSException e) {
+				e.printStackTrace();
+			}
+		senders.remove(chat);
 	}
 
 	private Context getContext(String url) {
