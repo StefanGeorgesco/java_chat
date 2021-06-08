@@ -131,6 +131,7 @@ public class MessagingService {
 
 	public void sendMessage(Chat chat, OutMessage message) {
 		javax.jms.Message jmsMessage = translateMessage(message);
+		MessageProducer sender = senders.get(chat);
 		try {
 			jmsMessage.setStringProperty("InId", chat.getId());
 			sender.send(jmsMessage);
