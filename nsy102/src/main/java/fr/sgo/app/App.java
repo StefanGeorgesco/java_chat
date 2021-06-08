@@ -69,7 +69,6 @@ public class App {
 		chatManager.addObserver(chatViewContainer);
 		chatManager.addObserver(mainView);
 		correspondentManager.start();
-		messagingService.open();
 		correspondentServiceLocator.open();
 		serviceAgent.publishServices(3000);
 		if (T)

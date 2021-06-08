@@ -16,6 +16,7 @@ import fr.sgo.service.CorrespondentServiceLocator;
 import fr.sgo.service.RMIService;
 import fr.sgo.view.AddCorrespondentToChatView;
 import fr.sgo.view.InformationView;
+import fr.sgo.view.MainView;
 
 public class ChatController {
 	private static ChatController instance = null;
@@ -33,7 +34,8 @@ public class ChatController {
 	public void createGroupChat() {
 		String name = "";
 		while (name != null && name.length() == 0) {
-			name = JOptionPane.showInputDialog("Nom du groupe de discussion");
+			name = JOptionPane.showInputDialog(MainView.getInstance(), "Nom du groupe de discussion",
+					"Créer un groupe de discussion", JOptionPane.PLAIN_MESSAGE);
 		}
 		if (name != null) {
 			ChatManager.getInstance().addGroupChat(new HostedGroupChat(name));
@@ -41,8 +43,6 @@ public class ChatController {
 	}
 
 	public void showAddCorrespondentsView(Component component, HostedGroupChat chat) {
-		if (App.T)
-			System.out.println("ajout de participants...");
 		if (chat instanceof HostedGroupChat) {
 			Collection<Correspondent> correspondents = new HashSet<Correspondent>();
 			for (Correspondent correspondent : CorrespondentManager.getInstance().getPairedCorrespondents()) {
