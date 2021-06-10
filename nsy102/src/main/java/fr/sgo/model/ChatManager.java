@@ -86,6 +86,11 @@ public class ChatManager extends Observable implements Observer {
 			if (App.T)
 				System.out.println("messagerie installée en entrée pour "
 						+ chat.getCorrespondent().getUserName());
+		} else {
+			MessagingService.getInstance().unsetInMessagingHandler(chat);
+			if (App.T)
+				System.out.println("messagerie retirée en entrée pour "
+						+ chat.getCorrespondent().getUserName());
 		}
 	}
 
@@ -103,6 +108,20 @@ public class ChatManager extends Observable implements Observer {
 		}
 	}
 
+	private void setMessagingHandlers(Chat chat) {
+		MessagingService.getInstance().setOutMessagingHandler(chat);
+		MessagingService.getInstance().setInMessagingHandler(chat);
+		setChanged();
+		notifyObservers(chat);
+	}
+
+	private void unsetMessagingHandlers(Chat chat) {
+		MessagingService.getInstance().unsetOutMessagingHandler(chat);
+		MessagingService.getInstance().unsetInMessagingHandler(chat);
+		setChanged();
+		notifyObservers(chat);
+	}
+
 	public void addGroupChat(GroupChat chat) {
 		if (groupChats.add(chat)) {
 			if (chat instanceof HostedGroupChat || ((RemoteGroupChat) chat).getCorrespondent().isOnline()) {
@@ -111,20 +130,6 @@ public class ChatManager extends Observable implements Observer {
 		}
 	}
 	
-	private void setMessagingHandlers(GroupChat chat) {
-		MessagingService.getInstance().setOutMessagingHandler(chat);
-		MessagingService.getInstance().setInMessagingHandler(chat);
-		setChanged();
-		notifyObservers(chat);
-	}
-
-	private void unsetMessagingHandlers(GroupChat chat) {
-		MessagingService.getInstance().unsetOutMessagingHandler(chat);
-		MessagingService.getInstance().unsetInMessagingHandler(chat);
-		setChanged();
-		notifyObservers(chat);
-	}
-
 	@Override
 	public void update(Observable o, Object arg) {
 		Correspondent correspondent = (Correspondent) arg;

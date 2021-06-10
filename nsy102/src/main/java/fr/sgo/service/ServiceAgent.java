@@ -35,6 +35,18 @@ public class ServiceAgent {
 		p.put("java.security.policy", "policy.all");
 		System.setProperties(p);
 		System.setSecurityManager(new RMISecurityManager());
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run() {
+				try {
+					System.out.println("retrait des services RMI et mDNS...");
+					registry.unbind(serviceName);
+					jmdns.unregisterAllServices();
+					jmdns.close();
+				} catch (Exception e) {
+				}
+			}
+		});
 	}
 
 	public static synchronized ServiceAgent getInstance() {
@@ -97,18 +109,6 @@ public class ServiceAgent {
 			if (App.T)
 				System.out.println("service mDNS publié");
 			
-			Runtime.getRuntime().addShutdownHook(new Thread() {
-				@Override
-				public void run() {
-					try {
-						System.out.println("retrait des services RMI et mDNS...");
-						registry.unbind(serviceName);
-						jmdns.unregisterAllServices();
-						jmdns.close();
-					} catch (Exception e) {
-					}
-				}
-			});
 		}
 	}
 }

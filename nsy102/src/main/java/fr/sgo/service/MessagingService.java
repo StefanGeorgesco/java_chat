@@ -54,6 +54,20 @@ public class MessagingService {
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
 			public void run() {
+				for (TopicPublisher sender : senders.values()) {
+					try {
+						sender.close();
+					} catch (JMSException e) {
+						e.printStackTrace();
+					}
+				}
+				for (TopicSubscriber receiver : receivers.values()) {
+					try {
+						receiver.close();
+					} catch (JMSException e) {
+						e.printStackTrace();
+					}
+				}
 				for (Context context : contexts.values()) {
 					if (context != null)
 						try {
@@ -87,6 +101,8 @@ public class MessagingService {
 	public void sendMessage(Chat chat, OutMessage message) {
 		javax.jms.Message jmsMessage = translateMessage(message);
 		MessageProducer sender = senders.get(chat);
+		if (App.T)
+			System.out.println("envoi du message '" + message.getContents() + "'");
 		try {
 			jmsMessage.setStringProperty("InId", chat.getId());
 			sender.send(jmsMessage);
@@ -109,7 +125,7 @@ public class MessagingService {
 		}
 		return info;
 	}
-	
+
 	private JMSInfo getJMSInfo() {
 		ProfileInfo profileInfo = ProfileInfo.getInstance();
 		String host = profileInfo.getHost();
@@ -162,6 +178,9 @@ public class MessagingService {
 					chat.getSubscriberName(), "InId = '" + InId + "'", true);
 			receiver.setMessageListener(new InMessageHandler(chat));
 			receiverJmsInfo.getConnection().start();
+			if (App.T)
+				System.out.println("récepteur installé pour le chat id=" + chat.getId() + ", subscriber name="
+						+ chat.getSubscriberName() + " : " + receiver.toString());
 		} catch (JMSException e) {
 			e.printStackTrace();
 		}
@@ -189,6 +208,9 @@ public class MessagingService {
 		}
 		try {
 			sender = senderJmsInfo.getSession().createPublisher(senderJmsInfo.getTopic());
+			if (App.T)
+				System.out.println("émetteur installé pour le chat, id=" + chat.getId() + ", subscriber name="
+						+ chat.getSubscriberName() + " : " + sender.toString());
 		} catch (JMSException e) {
 			e.printStackTrace();
 		}
@@ -205,6 +227,9 @@ public class MessagingService {
 			try {
 				receiver.setMessageListener(null);
 				receiver.close();
+				if (App.T)
+					System.out.println("récepteur désactivé pour le chat id=" + chat.getId() + ", subscriber name="
+							+ chat.getSubscriberName() + " : " + receiver.toString());
 			} catch (JMSException e) {
 				e.printStackTrace();
 			}
@@ -216,6 +241,9 @@ public class MessagingService {
 		if (sender != null)
 			try {
 				sender.close();
+				if (App.T)
+					System.out.println("émetteur désactivé pour le chat, id=" + chat.getId() + ", subscriber name="
+							+ chat.getSubscriberName() + " : " + sender.toString());
 			} catch (JMSException e) {
 				e.printStackTrace();
 			}
@@ -325,12 +353,17 @@ public class MessagingService {
 
 		@Override
 		public void onMessage(javax.jms.Message jmsmessage) {
-			InMessage applicationMessage = translateMessage(jmsmessage);
+			final InMessage applicationMessage = translateMessage(jmsmessage);
 			Correspondent correspondent = applicationMessage.getAuthor();
 			if (App.T)
 				System.out.println(
 						"message reçu de " + correspondent.getUserName() + " : " + applicationMessage.getContents());
-			chat.addMessage(applicationMessage);
+			new Thread() {
+				@Override
+				public void run() {
+					chat.addMessage(applicationMessage);
+				}
+			}.start();
 		}
 
 	}
