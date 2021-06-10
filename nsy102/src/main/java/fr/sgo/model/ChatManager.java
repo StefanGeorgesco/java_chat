@@ -2,9 +2,7 @@ package fr.sgo.model;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Set;
@@ -21,12 +19,10 @@ import fr.sgo.service.MessagingService;
 @SuppressWarnings("deprecation")
 public class ChatManager extends Observable implements Observer {
 	private static ChatManager instance = null;
-	private Map<Correspondent, CorrespondentChat> correspondentChats;
-	private Set<GroupChat> groupChats;
+	private Set<Chat> chats;
 
 	private ChatManager() {
-		this.correspondentChats = Collections.synchronizedMap(new HashMap<Correspondent, CorrespondentChat>());
-		this.groupChats = Collections.synchronizedSet(new HashSet<GroupChat>());
+		this.chats = Collections.synchronizedSet(new HashSet<Chat>());
 	}
 
 	public static synchronized ChatManager getInstance() {
@@ -35,12 +31,26 @@ public class ChatManager extends Observable implements Observer {
 		return instance;
 	}
 
+	public Collection<Chat> getChats() {
+		return chats;
+	}
+
 	public Collection<CorrespondentChat> getCorrespondentChats() {
-		return correspondentChats.values();
+		Set<CorrespondentChat> chats = new HashSet<CorrespondentChat>();
+		for (Chat chat: getChats()) {
+			if (chat instanceof CorrespondentChat)
+				chats.add((CorrespondentChat) chat);
+		}
+		return chats;
 	}
 
 	public Collection<GroupChat> getGroupChats() {
-		return groupChats;
+		Set<GroupChat> chats = new HashSet<GroupChat>();
+		for (Chat chat: getChats()) {
+			if (chat instanceof GroupChat)
+				chats.add((GroupChat) chat);
+		}
+		return chats;
 	}
 	
 	public Collection<GroupChat> getGroupChats(Correspondent correspondent) {
@@ -54,25 +64,26 @@ public class ChatManager extends Observable implements Observer {
 		
 	}
 
-	public Collection<Chat> getChats() {
-		Set<Chat> set = new HashSet<Chat>(groupChats);
-		set.addAll(correspondentChats.values());
-		return set;
-	}
-
 	public CorrespondentChat getCorrespondentChat(Correspondent correspondent) {
-		return correspondentChats.get(correspondent);
+		CorrespondentChat chat = null;
+		for (CorrespondentChat c: getCorrespondentChats()) {
+			if (c.getCorrespondent().equals(correspondent)) {
+				chat = c;
+				break;
+			}
+		}
+		return chat;
 	}
 
 	public boolean existsChat(Chat chat) {
-		return correspondentChats.values().contains(chat) || groupChats.contains(chat);
+		return chats.contains(chat);
 	}
 
-	private void addCorrespondentChatIfNone(Correspondent correspondent) {
-		CorrespondentChat chat = correspondentChats.get(correspondent);
+	private void setCorrespondentChat(Correspondent correspondent) {
+		CorrespondentChat chat = getCorrespondentChat(correspondent);
 		if (chat == null) {
 			chat = new CorrespondentChat(correspondent);
-			correspondentChats.put(correspondent, chat);
+			chats.add(chat);
 			if (App.T)
 				System.out.println("chat ajouté pour " + correspondent.getUserName());
 			MessagingService.getInstance().setOutMessagingHandler(chat);
@@ -95,8 +106,8 @@ public class ChatManager extends Observable implements Observer {
 	}
 
 	private void removeCorrespondentChat(Correspondent correspondent) {
-		CorrespondentChat chat = correspondentChats.remove(correspondent);
-		if (chat != null) {
+		CorrespondentChat chat = getCorrespondentChat(correspondent);
+		if (chat != null && chats.remove(chat)) {
 			if (App.T)
 				System.out.println("chat retiré pour " + correspondent.getUserName());
 			MessagingService.getInstance().unsetOutMessagingHandler(chat);
@@ -123,7 +134,7 @@ public class ChatManager extends Observable implements Observer {
 	}
 
 	public void addGroupChat(GroupChat chat) {
-		if (groupChats.add(chat)) {
+		if (chats.add(chat)) {
 			if (chat instanceof HostedGroupChat || ((RemoteGroupChat) chat).getCorrespondent().isOnline()) {
 				setMessagingHandlers(chat);
 			}
@@ -149,7 +160,7 @@ public class ChatManager extends Observable implements Observer {
 	public void update(Observable o, Object arg) {
 		Correspondent correspondent = (Correspondent) arg;
 		if (CorrespondentManager.getInstance().existsCorrespondent(correspondent) && correspondent.isPaired()) {
-			addCorrespondentChatIfNone(correspondent);
+			setCorrespondentChat(correspondent);
 			if (correspondent.isOnline())
 				for (GroupChat chat: getGroupChats(correspondent)) {
 					setMessagingHandlers(chat);

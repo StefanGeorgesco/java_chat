@@ -30,7 +30,7 @@ public class CorrespondentManager extends Observable implements Observer {
 
 	private CorrespondentManager() {
 		this.correspondents = Collections.synchronizedMap(new HashMap<String, Correspondent>());
-		objectName = ProfileInfo.getInstance().getUserId();
+		objectName = "corr_" + ProfileInfo.getInstance().getUserId();
 	}
 
 	public static synchronized CorrespondentManager getInstance() {
