@@ -174,8 +174,10 @@ public class MessagingService {
 		}
 		try {
 			receiverJmsInfo.getConnection().stop();
-			receiver = receiverJmsInfo.getSession().createDurableSubscriber(receiverJmsInfo.getTopic(),
-					chat.getSubscriberName(), "InId = '" + InId + "'", true);
+//			receiver = receiverJmsInfo.getSession().createDurableSubscriber(receiverJmsInfo.getTopic(),
+//					chat.getSubscriberName(), "InId = '" + InId + "'", true);
+			receiver = receiverJmsInfo.getSession().createSubscriber(receiverJmsInfo.getTopic(),
+					"InId = '" + InId + "'", true);
 			receiver.setMessageListener(new InMessageHandler(chat));
 			receiverJmsInfo.getConnection().start();
 			if (App.T)

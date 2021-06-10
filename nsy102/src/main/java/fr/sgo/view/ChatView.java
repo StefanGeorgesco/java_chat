@@ -156,14 +156,14 @@ public class ChatView extends JFrame implements ActionListener, Observer {
 		new Thread(new Runnable() {
 			public void run() {
 				String text = messageField.getText();
-				chat.sendMessage(new OutMessage(text, ProfileInfo.getInstance().getUserId()));
-				SwingUtilities.invokeLater(new Runnable() {
-					public void run() {
-						if (text.length() > 0) {
+				if (text.length() > 0) {
+					chat.sendMessage(new OutMessage(text, ProfileInfo.getInstance().getUserId()));
+					SwingUtilities.invokeLater(new Runnable() {
+						public void run() {
 							messageField.setText("");
 						}
-					}
-				});
+					});
+				}
 			}
 		}).start();
 	}

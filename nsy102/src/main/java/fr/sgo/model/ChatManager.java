@@ -130,6 +130,21 @@ public class ChatManager extends Observable implements Observer {
 		}
 	}
 	
+	public void acceptRemoteGroupChat(GroupChat chat, Correspondent correspondent) {
+		CorrespondentManager correspondentManager = CorrespondentManager.getInstance();
+		RemoteGroupChat newChat = new RemoteGroupChat(correspondent, chat.getId(), chat.getName());
+		for (Correspondent remoteCorrespondent : chat.getCorrespondents()) {
+			Correspondent localCorrespondent = correspondentManager
+					.getCorrespondent(remoteCorrespondent.getUserId());
+			if (localCorrespondent != null)
+				newChat.addCorrespondent(localCorrespondent);
+			else
+				newChat.addCorrespondent(
+						new Correspondent(remoteCorrespondent.getUserId(), remoteCorrespondent.getUserName()));
+		}
+		addGroupChat(newChat);
+	}
+	
 	@Override
 	public void update(Observable o, Object arg) {
 		Correspondent correspondent = (Correspondent) arg;

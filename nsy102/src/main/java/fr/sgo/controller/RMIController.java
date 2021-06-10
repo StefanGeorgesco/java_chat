@@ -10,7 +10,6 @@ import fr.sgo.view.InformationView;
 import fr.sgo.app.App;
 import fr.sgo.entity.Correspondent;
 import fr.sgo.entity.GroupChat;
-import fr.sgo.entity.RemoteGroupChat;
 import fr.sgo.model.ChatManager;
 import fr.sgo.model.CorrespondentManager;
 
@@ -144,18 +143,8 @@ public class RMIController extends UnicastRemoteObject implements RMIService {
 		String userId = service.getProfileInfo().getUserId();
 		Correspondent correspondent = correspondentManager.getCorrespondent(userId);
 		boolean response = false;
-		if (userId != null && outId.equals(correspondent.getPairingInfo().getInId()))
-		{
-			RemoteGroupChat newChat = new RemoteGroupChat(
-					correspondentManager.getCorrespondent(userId), chat.getId(),
-					chat.getName());
-			for (Correspondent c : chat.getCorrespondents()) {
-				if (correspondentManager.existsCorrespondent(c))
-					newChat.addCorrespondent(c);
-				else
-					newChat.addCorrespondent(new Correspondent(c.getUserId(), c.getUserName()));
-			}
-			ChatManager.getInstance().addGroupChat(newChat);
+		if (userId != null && outId.equals(correspondent.getPairingInfo().getInId())) {
+			ChatManager.getInstance().acceptRemoteGroupChat(chat, correspondent);
 			response = true;
 		}
 		return response;
