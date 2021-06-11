@@ -15,14 +15,27 @@ import fr.sgo.entity.GroupChat;
 import fr.sgo.entity.HostedGroupChat;
 import fr.sgo.entity.RemoteGroupChat;
 import fr.sgo.service.MessagingService;
+import fr.sgo.service.ProfileInfo;
+import fr.sgo.service.Storage;
 
 @SuppressWarnings("deprecation")
 public class ChatManager extends Observable implements Observer {
 	private static ChatManager instance = null;
 	private Set<Chat> chats;
+	private static String objectName;
 
+	@SuppressWarnings("unchecked")
 	private ChatManager() {
-		this.chats = Collections.synchronizedSet(new HashSet<Chat>());
+		objectName = "chat_" + ProfileInfo.getInstance().getUserId();
+		this.chats = (Set<Chat>) Storage.restore(objectName);
+		if (this.chats == null)
+			this.chats = Collections.synchronizedSet(new HashSet<Chat>());
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run() {
+				Storage.save(ChatManager.this.chats, objectName);
+			}
+		});
 	}
 
 	public static synchronized ChatManager getInstance() {
@@ -31,13 +44,23 @@ public class ChatManager extends Observable implements Observer {
 		return instance;
 	}
 
+	public void start() {
+		for (Chat chat : getChats()) {
+			if (chat instanceof GroupChat)
+				if (chat instanceof HostedGroupChat || ((RemoteGroupChat) chat).getCorrespondent().isOnline())
+					setMessagingHandlers(chat);
+			setChanged();
+			notifyObservers(chat);
+		}
+	}
+
 	public Collection<Chat> getChats() {
 		return chats;
 	}
 
 	public Collection<CorrespondentChat> getCorrespondentChats() {
 		Set<CorrespondentChat> chats = new HashSet<CorrespondentChat>();
-		for (Chat chat: getChats()) {
+		for (Chat chat : getChats()) {
 			if (chat instanceof CorrespondentChat)
 				chats.add((CorrespondentChat) chat);
 		}
@@ -46,27 +69,27 @@ public class ChatManager extends Observable implements Observer {
 
 	public Collection<GroupChat> getGroupChats() {
 		Set<GroupChat> chats = new HashSet<GroupChat>();
-		for (Chat chat: getChats()) {
+		for (Chat chat : getChats()) {
 			if (chat instanceof GroupChat)
 				chats.add((GroupChat) chat);
 		}
 		return chats;
 	}
-	
+
 	public Collection<GroupChat> getGroupChats(Correspondent correspondent) {
 		Set<GroupChat> set = new HashSet<GroupChat>();
-		for (GroupChat chat: getGroupChats()) {
+		for (GroupChat chat : getGroupChats()) {
 			if (chat instanceof RemoteGroupChat && ((RemoteGroupChat) chat).getCorrespondent().equals(correspondent)) {
 				set.add(chat);
 			}
 		}
 		return set;
-		
+
 	}
 
 	public CorrespondentChat getCorrespondentChat(Correspondent correspondent) {
 		CorrespondentChat chat = null;
-		for (CorrespondentChat c: getCorrespondentChats()) {
+		for (CorrespondentChat c : getCorrespondentChats()) {
 			if (c.getCorrespondent().equals(correspondent)) {
 				chat = c;
 				break;
@@ -86,22 +109,20 @@ public class ChatManager extends Observable implements Observer {
 			chats.add(chat);
 			if (App.T)
 				System.out.println("chat ajouté pour " + correspondent.getUserName());
-			MessagingService.getInstance().setOutMessagingHandler(chat);
-			if (App.T)
-				System.out.println("messagerie installée en sortie pour " + correspondent.getUserName());
-			setChanged();
-			notifyObservers(chat);
 		}
+		MessagingService.getInstance().setOutMessagingHandler(chat);
+		if (App.T)
+			System.out.println("messagerie installée en sortie pour " + correspondent.getUserName());
+		setChanged();
+		notifyObservers(chat);
 		if (correspondent.isOnline()) {
 			MessagingService.getInstance().setInMessagingHandler(chat);
 			if (App.T)
-				System.out.println("messagerie installée en entrée pour "
-						+ chat.getCorrespondent().getUserName());
+				System.out.println("messagerie installée en entrée pour " + chat.getCorrespondent().getUserName());
 		} else {
 			MessagingService.getInstance().unsetInMessagingHandler(chat);
 			if (App.T)
-				System.out.println("messagerie retirée en entrée pour "
-						+ chat.getCorrespondent().getUserName());
+				System.out.println("messagerie retirée en entrée pour " + chat.getCorrespondent().getUserName());
 		}
 	}
 
@@ -135,18 +156,16 @@ public class ChatManager extends Observable implements Observer {
 
 	public void addGroupChat(GroupChat chat) {
 		if (chats.add(chat)) {
-			if (chat instanceof HostedGroupChat || ((RemoteGroupChat) chat).getCorrespondent().isOnline()) {
+			if (chat instanceof HostedGroupChat || ((RemoteGroupChat) chat).getCorrespondent().isOnline())
 				setMessagingHandlers(chat);
-			}
 		}
 	}
-	
+
 	public void acceptRemoteGroupChat(GroupChat chat, Correspondent correspondent) {
 		CorrespondentManager correspondentManager = CorrespondentManager.getInstance();
 		RemoteGroupChat newChat = new RemoteGroupChat(correspondent, chat.getId(), chat.getName());
 		for (Correspondent remoteCorrespondent : chat.getCorrespondents()) {
-			Correspondent localCorrespondent = correspondentManager
-					.getCorrespondent(remoteCorrespondent.getUserId());
+			Correspondent localCorrespondent = correspondentManager.getCorrespondent(remoteCorrespondent.getUserId());
 			if (localCorrespondent != null)
 				newChat.addCorrespondent(localCorrespondent);
 			else
@@ -155,23 +174,23 @@ public class ChatManager extends Observable implements Observer {
 		}
 		addGroupChat(newChat);
 	}
-	
+
 	@Override
 	public void update(Observable o, Object arg) {
 		Correspondent correspondent = (Correspondent) arg;
 		if (CorrespondentManager.getInstance().existsCorrespondent(correspondent) && correspondent.isPaired()) {
 			setCorrespondentChat(correspondent);
 			if (correspondent.isOnline())
-				for (GroupChat chat: getGroupChats(correspondent)) {
+				for (GroupChat chat : getGroupChats(correspondent)) {
 					setMessagingHandlers(chat);
 				}
 			else
-				for (GroupChat chat: getGroupChats(correspondent)) {
+				for (GroupChat chat : getGroupChats(correspondent)) {
 					unsetMessagingHandlers(chat);
 				}
 		} else {
 			removeCorrespondentChat(correspondent);
-			for (GroupChat chat: getGroupChats(correspondent)) {
+			for (GroupChat chat : getGroupChats(correspondent)) {
 				unsetMessagingHandlers(chat);
 			}
 			new Thread() {

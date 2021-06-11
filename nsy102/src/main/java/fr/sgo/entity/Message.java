@@ -1,6 +1,12 @@
 package fr.sgo.entity;
 
-public abstract class Message implements Comparable<Message> {
+import java.io.Serializable;
+
+public abstract class Message implements Comparable<Message>, Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8696923613037318840L;
 	protected String contents;
 	protected long timeWritten;
 

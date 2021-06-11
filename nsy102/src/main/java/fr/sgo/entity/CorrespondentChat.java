@@ -15,6 +15,10 @@ public class CorrespondentChat extends Chat {
 	public Correspondent getCorrespondent() {
 		return correspondent;
 	}
+	
+	public void setCorrespondent(Correspondent correspondent) {
+		this.correspondent = correspondent;
+	}
 
 	@Override
 	public String getId() {

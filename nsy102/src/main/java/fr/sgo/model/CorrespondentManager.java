@@ -8,7 +8,11 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 
+import fr.sgo.entity.Chat;
 import fr.sgo.entity.Correspondent;
+import fr.sgo.entity.CorrespondentChat;
+import fr.sgo.entity.GroupChat;
+import fr.sgo.entity.RemoteGroupChat;
 import fr.sgo.service.CorrespondentServiceInfo;
 import fr.sgo.service.CorrespondentServiceLocator;
 import fr.sgo.service.ProfileInfo;
@@ -38,14 +42,31 @@ public class CorrespondentManager extends Observable implements Observer {
 			instance = new CorrespondentManager();
 		return instance;
 	}
-	
+
 	public void start() {
 		@SuppressWarnings("unchecked")
 		Collection<Correspondent> pairedCorrespondents = (Collection<Correspondent>) Storage.restore(objectName);
 		if (pairedCorrespondents != null) {
+			ChatManager chatManager = ChatManager.getInstance();
 			for (Correspondent correspondent : pairedCorrespondents) {
 				correspondent.setOnline(false);
 				correspondents.put(correspondent.getUserId(), correspondent);
+				for (Chat chat : chatManager.getChats()) {
+					if (chat instanceof CorrespondentChat && ((CorrespondentChat) chat).getCorrespondent().getUserId()
+							.equals(correspondent.getUserId()))
+						((CorrespondentChat) chat).setCorrespondent(correspondent);
+					if (chat instanceof RemoteGroupChat && ((RemoteGroupChat) chat).getCorrespondent().getUserId()
+							.equals(correspondent.getUserId()))
+						((RemoteGroupChat) chat).setCorrespondent(correspondent);
+					if (chat instanceof GroupChat) {
+						Collection<Correspondent> chatCorrespondents = new HashSet<Correspondent>(
+								((GroupChat) chat).getCorrespondents());
+						for (Correspondent c : chatCorrespondents) {
+							if (c.getUserId().equals(correspondent.getUserId()))
+								((GroupChat) chat).replaceCorrespondent(c, correspondent);
+						}
+					}
+				}
 				setChanged();
 				notifyObservers(correspondent);
 			}
@@ -99,7 +120,7 @@ public class CorrespondentManager extends Observable implements Observer {
 	public Correspondent getCorrespondent(String userId) {
 		return correspondents.get(userId);
 	}
-	
+
 	public boolean existsCorrespondent(Correspondent correspondent) {
 		return correspondents.values().contains(correspondent);
 	}
@@ -108,7 +129,7 @@ public class CorrespondentManager extends Observable implements Observer {
 		correspondents.put(correspondent.getUserId(), correspondent);
 		reportChange(correspondent);
 	}
-	
+
 	public void reportChange(Correspondent correspondent) {
 		if (correspondent.isPaired()) {
 			Storage.save(getPairedCorrespondents(), objectName);

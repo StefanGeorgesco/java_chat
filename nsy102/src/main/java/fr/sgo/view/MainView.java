@@ -137,17 +137,17 @@ public class MainView extends JFrame implements Observer {
 			boolean chatExists = chatManager.existsChat(chat);
 			boolean summaryViewMustAppear = chatExists && (chat instanceof HostedGroupChat
 					|| chat instanceof RemoteGroupChat && ((RemoteGroupChat) chat).getCorrespondent().isOnline());
-			boolean summaryViewIsPresent = false;
+			boolean summaryViewFound = false;
 			boolean viewContentsChange = false;
 			for (Component component : groupChatsPanel.getComponents()) {
 				ChatSummaryView panel = (ChatSummaryView) component;
 				if (panel.getGroupChat().equals(chat)) {
-					if (summaryViewIsPresent) {
+					if (summaryViewFound) {
 						panel.getGroupChat().deleteObserver(panel);
 						groupChatsPanel.remove(component);
 						viewContentsChange = true;
 					} else {
-						summaryViewIsPresent = true;
+						summaryViewFound = true;
 						if (summaryViewMustAppear) {
 							panel.refresh();
 						} else {
@@ -158,7 +158,7 @@ public class MainView extends JFrame implements Observer {
 					}
 				}
 			}
-			if (!summaryViewIsPresent && summaryViewMustAppear) {
+			if (!summaryViewFound && summaryViewMustAppear) {
 				groupChatsPanel.add(new ChatSummaryView(groupChat, new ActionHandler("Ouvrir") {
 					@Override
 					public void run() {
@@ -176,16 +176,16 @@ public class MainView extends JFrame implements Observer {
 			boolean correspondentExists = correspondentManager.existsCorrespondent(correspondent);
 			boolean correspondentIsPaired = correspondent.isPaired();
 			boolean viewContentsChange = false;
-			boolean correspondentFound = false;
+			boolean correspondentViewFound = false;
 			for (Component component : correspondentChatsPanel.getComponents()) {
 				CorrespondentSummaryView panel = (CorrespondentSummaryView) component;
 				if (panel.getCorrespondent().equals(correspondent)) {
-					if (correspondentFound) {
+					if (correspondentViewFound) {
 						panel.getCorrespondent().deleteObserver(panel);
 						correspondentChatsPanel.remove(component);
 						viewContentsChange = true;
 					} else {
-						correspondentFound = true;
+						correspondentViewFound = true;
 						if (correspondentExists && correspondentIsPaired) {
 							panel.refresh();
 						} else {
@@ -196,7 +196,7 @@ public class MainView extends JFrame implements Observer {
 					}
 				}
 			}
-			if (!correspondentFound & correspondentExists && correspondentIsPaired) {
+			if (!correspondentViewFound & correspondentExists && correspondentIsPaired) {
 				correspondentChatsPanel.add(new CorrespondentSummaryView(correspondent, new ActionHandler("Discuter") {
 					@Override
 					public void run() {

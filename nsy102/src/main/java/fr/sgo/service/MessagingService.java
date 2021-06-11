@@ -187,8 +187,10 @@ public class MessagingService {
 			e.printStackTrace();
 		}
 
-		if (receiver != null)
+		if (receiver != null) {
+			unsetInMessagingHandler(chat);
 			receivers.put(chat, receiver);
+		}
 		else
 			receivers.remove(chat);
 	}
@@ -217,8 +219,10 @@ public class MessagingService {
 			e.printStackTrace();
 		}
 
-		if (sender != null)
+		if (sender != null) {
+			unsetOutMessagingHandler(chat);
 			senders.put(chat, sender);
+		}
 		else
 			senders.remove(chat);
 	}
