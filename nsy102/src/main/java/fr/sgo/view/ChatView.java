@@ -99,6 +99,7 @@ public class ChatView extends JFrame implements ActionListener, Observer {
 		panelSouth.add(messageField);
 		panelSouth.add(sendButton);
 		panelSouth.add(onlinePanel);
+		refreshConnectionStatusView();
 
 		Container container = this.getContentPane();
 		container.setLayout(new BorderLayout());
@@ -198,8 +199,10 @@ public class ChatView extends JFrame implements ActionListener, Observer {
 				refreshMessagesHistoryView();
 				refreshcorrespondentsListView();
 				refreshConnectionStatusView();
-				setVisible(true);
-				toFront();
+				if (arg != null) {
+					setVisible(true);
+					toFront();
+				}
 			}
 		}.start();
 

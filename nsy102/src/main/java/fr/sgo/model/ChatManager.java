@@ -156,8 +156,9 @@ public class ChatManager extends Observable implements Observer {
 
 	public void addGroupChat(GroupChat chat) {
 		if (chats.add(chat)) {
-			if (chat instanceof HostedGroupChat || ((RemoteGroupChat) chat).getCorrespondent().isOnline())
+			if (chat instanceof HostedGroupChat || ((RemoteGroupChat) chat).getCorrespondent().isOnline()) {
 				setMessagingHandlers(chat);
+			}
 		}
 	}
 
@@ -183,15 +184,18 @@ public class ChatManager extends Observable implements Observer {
 			if (correspondent.isOnline())
 				for (GroupChat chat : getGroupChats(correspondent)) {
 					setMessagingHandlers(chat);
+					chat.reportChange();
 				}
 			else
 				for (GroupChat chat : getGroupChats(correspondent)) {
 					unsetMessagingHandlers(chat);
+					chat.reportChange();
 				}
 		} else {
 			removeCorrespondentChat(correspondent);
 			for (GroupChat chat : getGroupChats(correspondent)) {
 				unsetMessagingHandlers(chat);
+				chat.reportChange();
 			}
 			new Thread() {
 				@Override

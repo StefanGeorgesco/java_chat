@@ -158,7 +158,7 @@ public class MainView extends JFrame implements Observer {
 				groupChatsPanel.add(new ChatSummaryView(groupChat, new ActionHandler("Ouvrir") {
 					@Override
 					public void run() {
-						ChatViewContainer.getInstance().getChatView(chat).update(null, null);
+						ChatViewContainer.getInstance().getChatView(chat).update(chat, new Object());
 					}
 				}));
 				viewContentsChange = true;
@@ -196,7 +196,7 @@ public class MainView extends JFrame implements Observer {
 				correspondentChatsPanel.add(new CorrespondentSummaryView(correspondent, new ActionHandler("Discuter") {
 					@Override
 					public void run() {
-						ChatViewContainer.getInstance().getChatView(chat).update(null, null);
+						ChatViewContainer.getInstance().getChatView(chat).update(chat, new Object());
 					}
 
 				}));

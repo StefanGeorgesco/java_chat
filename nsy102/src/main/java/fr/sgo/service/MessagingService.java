@@ -106,17 +106,22 @@ public class MessagingService {
 		return topicName;
 	}
 
-	public void sendMessage(Chat chat, OutMessage message) {
+	public boolean sendMessage(Chat chat, OutMessage message) {
+		boolean sent = false;
 		javax.jms.Message jmsMessage = translateMessage(message);
 		MessageProducer sender = senders.get(chat);
-		if (App.T)
-			System.out.println("envoi du message '" + message.getContents() + "'");
-		try {
-			jmsMessage.setStringProperty("InId", chat.getId());
-			sender.send(jmsMessage);
-		} catch (JMSException e) {
-			e.printStackTrace();
+		if (sender != null) {
+			try {
+				jmsMessage.setStringProperty("InId", chat.getId());
+				sender.send(jmsMessage);
+				sent = true;
+				if (App.T)
+					System.out.println("message '" + message.getContents() + "' envoyé");
+			} catch (JMSException e) {
+				e.printStackTrace();
+			}
 		}
+		return sent;
 	}
 
 	private JMSInfo getJMSInfo(String host, int port, String topicName) {
@@ -187,15 +192,16 @@ public class MessagingService {
 			inConnection.setClientID(chat.getSubscriberName());
 			TopicSession session = inConnection.createTopicSession(false, TopicSession.AUTO_ACKNOWLEDGE);
 			inConnection.stop();
-			receiver = session.createDurableSubscriber(receiverJmsInfo.getTopic(),
-					chat.getSubscriberName(), "InId = '" + InId + "'", true);
-//			receiver = receiverJmsInfo.getSession().createSubscriber(receiverJmsInfo.getTopic(),
-//					"InId = '" + InId + "'", true);
+			if (App.MESSAGE_PERSISTENCE)
+				receiver = session.createDurableSubscriber(receiverJmsInfo.getTopic(), chat.getSubscriberName(),
+						"InId = '" + InId + "'", true);
+			else
+				receiver = session.createSubscriber(receiverJmsInfo.getTopic(),
+						"InId = '" + InId + "'", true);
 			receiver.setMessageListener(new InMessageHandler(chat));
 			inConnections.put(chat, inConnection);
 			receivers.put(chat, receiver);
 			inConnection.start();
-			chat.reportChange();
 			if (App.T)
 				System.out.println("récepteur installé pour le chat id=" + chat.getId() + ", subscriber name="
 						+ chat.getSubscriberName() + " : " + receiver.toString());
@@ -228,7 +234,6 @@ public class MessagingService {
 			sender = session.createPublisher(senderJmsInfo.getTopic());
 			outConnections.put(chat, outConnection);
 			senders.put(chat, sender);
-			chat.reportChange();
 			if (App.T)
 				System.out.println("émetteur installé pour le chat, id=" + chat.getId() + ", subscriber name="
 						+ chat.getSubscriberName() + " : " + sender.toString());
@@ -362,8 +367,8 @@ public class MessagingService {
 					InMessage applicationMessage = translateMessage(jmsmessage);
 					Correspondent correspondent = applicationMessage.getAuthor();
 					if (App.T)
-						System.out.println(
-								"message reçu de " + correspondent.getUserName() + " : " + applicationMessage.getContents());
+						System.out.println("message reçu de " + correspondent.getUserName() + " : "
+								+ applicationMessage.getContents());
 					chat.addMessage(applicationMessage);
 				}
 			}.start();
@@ -383,7 +388,7 @@ public class MessagingService {
 		public TopicConnectionFactory getFactory() {
 			return factory;
 		}
-		
+
 		public Topic getTopic() {
 			return topic;
 		}
