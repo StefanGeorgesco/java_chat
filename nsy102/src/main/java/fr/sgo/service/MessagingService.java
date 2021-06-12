@@ -154,6 +154,7 @@ public class MessagingService {
 	}
 
 	public void setInMessagingHandler(Chat chat) {
+		unsetInMessagingHandler(chat);
 		JMSInfo receiverJmsInfo = null;
 		String InId = null;
 		TopicSubscriber receiver = null;
@@ -179,6 +180,7 @@ public class MessagingService {
 			receiver = receiverJmsInfo.getSession().createSubscriber(receiverJmsInfo.getTopic(),
 					"InId = '" + InId + "'", true);
 			receiver.setMessageListener(new InMessageHandler(chat));
+			receivers.put(chat, receiver);
 			receiverJmsInfo.getConnection().start();
 			if (App.T)
 				System.out.println("récepteur installé pour le chat id=" + chat.getId() + ", subscriber name="
@@ -187,15 +189,10 @@ public class MessagingService {
 			e.printStackTrace();
 		}
 
-		if (receiver != null) {
-			unsetInMessagingHandler(chat);
-			receivers.put(chat, receiver);
-		}
-		else
-			receivers.remove(chat);
 	}
 
 	public void setOutMessagingHandler(Chat chat) {
+		unsetOutMessagingHandler(chat);
 		JMSInfo senderJmsInfo = null;
 		TopicPublisher sender = null;
 		if (chat instanceof HostedGroupChat) {
@@ -212,6 +209,7 @@ public class MessagingService {
 		}
 		try {
 			sender = senderJmsInfo.getSession().createPublisher(senderJmsInfo.getTopic());
+			senders.put(chat, sender);
 			if (App.T)
 				System.out.println("émetteur installé pour le chat, id=" + chat.getId() + ", subscriber name="
 						+ chat.getSubscriberName() + " : " + sender.toString());
@@ -219,12 +217,6 @@ public class MessagingService {
 			e.printStackTrace();
 		}
 
-		if (sender != null) {
-			unsetOutMessagingHandler(chat);
-			senders.put(chat, sender);
-		}
-		else
-			senders.remove(chat);
 	}
 
 	public void unsetInMessagingHandler(Chat chat) {
