@@ -25,7 +25,7 @@ import fr.sgo.view.MainView;
 @SuppressWarnings("deprecation")
 public class App {
 	public static final boolean T = true; //
-	public static final boolean MESSAGE_PERSISTENCE = true; //
+	public static final boolean JMS_MESSAGE_PERSISTENCE = false; //
 	private static App instance = null;
 	private ProfileInfo profileInfo;
 	private CorrespondentServiceLocator correspondentServiceLocator;

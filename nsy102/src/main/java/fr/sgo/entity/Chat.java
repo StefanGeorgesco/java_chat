@@ -45,11 +45,11 @@ public abstract class Chat extends Observable implements Serializable {
 	public abstract String getSubscriberName();
 	
 	public void sendMessage(OutMessage message) {
+		addMessage(message);
 		new Thread() {
 			@Override
 			public void run() {
-				if (MessagingService.getInstance().sendMessage(Chat.this, message))
-					addMessage(message);
+				MessagingService.getInstance().sendMessage(Chat.this, message);
 			}
 		}.start();
 	}

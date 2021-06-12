@@ -8,8 +8,8 @@ import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.JButton;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 
 import fr.sgo.controller.ActionHandler;
 import fr.sgo.entity.GroupChat;
@@ -32,7 +32,7 @@ public class ChatSummaryView extends JPanel implements Observer {
 	private static final long serialVersionUID = -2566319621500711361L;
 	private GroupChat chat;
 	private JPanel namePanel;
-	private JLabel nameField;
+	private JTextArea nameField;
 	private JPanel onlinePanel;
 	private JButton actionButton1;
 
@@ -42,8 +42,8 @@ public class ChatSummaryView extends JPanel implements Observer {
 		setSize(new Dimension(100, 20));
 		namePanel = new JPanel();
 		namePanel.setSize(new Dimension(54, 14));
-		nameField = new JLabel();
-		nameField.setSize(new Dimension(50, 10));
+		nameField = new JTextArea(1, 15);
+		nameField.setEditable(false);
 		namePanel.add(nameField);
 		onlinePanel = new JPanel();
 		onlinePanel.setSize(new Dimension(10, 10));

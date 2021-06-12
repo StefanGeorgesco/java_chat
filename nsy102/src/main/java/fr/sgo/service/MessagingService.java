@@ -192,7 +192,7 @@ public class MessagingService {
 			inConnection.setClientID(chat.getSubscriberName());
 			TopicSession session = inConnection.createTopicSession(false, TopicSession.AUTO_ACKNOWLEDGE);
 			inConnection.stop();
-			if (App.MESSAGE_PERSISTENCE)
+			if (App.JMS_MESSAGE_PERSISTENCE)
 				receiver = session.createDurableSubscriber(receiverJmsInfo.getTopic(), chat.getSubscriberName(),
 						"InId = '" + InId + "'", true);
 			else

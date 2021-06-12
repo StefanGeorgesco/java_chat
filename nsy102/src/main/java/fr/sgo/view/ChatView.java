@@ -23,7 +23,6 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-//import javax.swing.SwingUtilities;
 import javax.swing.SwingUtilities;
 
 import fr.sgo.controller.ChatController;
