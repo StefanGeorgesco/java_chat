@@ -39,16 +39,16 @@ public class MessagingService {
 	private static final String topicName = "topic1";
 	private Map<String, Context> contexts; // key=url
 	private Map<String, TopicConnectionFactory> factories; // key=url
-	private Map<String, TopicConnection> connections; // key=url
-	private Map<String, TopicSession> sessions; // key=url
+	private Map<Chat, TopicConnection> inConnections;
+	private Map<Chat, TopicConnection> outConnections;
 	private Map<Chat, TopicPublisher> senders;
 	private Map<Chat, TopicSubscriber> receivers;
 
 	private MessagingService() {
 		this.contexts = Collections.synchronizedMap(new HashMap<String, Context>());
 		this.factories = Collections.synchronizedMap(new HashMap<String, TopicConnectionFactory>());
-		this.connections = Collections.synchronizedMap(new HashMap<String, TopicConnection>());
-		this.sessions = Collections.synchronizedMap(new HashMap<String, TopicSession>());
+		this.inConnections = Collections.synchronizedMap(new HashMap<Chat, TopicConnection>());
+		this.outConnections = Collections.synchronizedMap(new HashMap<Chat, TopicConnection>());
 		this.senders = Collections.synchronizedMap(new HashMap<Chat, TopicPublisher>());
 		this.receivers = Collections.synchronizedMap(new HashMap<Chat, TopicSubscriber>());
 		Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -76,7 +76,15 @@ public class MessagingService {
 							ne.printStackTrace();
 						}
 				}
-				for (TopicConnection connection : connections.values()) {
+				for (TopicConnection connection : inConnections.values()) {
+					if (connection != null)
+						try {
+							connection.close();
+						} catch (JMSException jmse) {
+							jmse.printStackTrace();
+						}
+				}
+				for (TopicConnection connection : outConnections.values()) {
 					if (connection != null)
 						try {
 							connection.close();
@@ -113,13 +121,13 @@ public class MessagingService {
 
 	private JMSInfo getJMSInfo(String host, int port, String topicName) {
 		JMSInfo info = null;
+		String url = "rmi://" + host + ":" + Integer.toString(port) + "/";
+		Context context = getContext(url);
+		TopicConnectionFactory factory = getFactory(url);
+		Topic topic;
 		try {
-			String url = "rmi://" + host + ":" + Integer.toString(port) + "/";
-			Context context = getContext(url);
-			TopicConnection connection = getConnection(url);
-			TopicSession session = getSession(url);
-			Topic topic = (Topic) context.lookup(topicName);
-			info = new JMSInfo(session, topic, connection);
+			topic = (Topic) context.lookup(topicName);
+			info = new JMSInfo(factory, topic);
 		} catch (NamingException e) {
 			e.printStackTrace();
 		}
@@ -157,6 +165,7 @@ public class MessagingService {
 		unsetInMessagingHandler(chat);
 		JMSInfo receiverJmsInfo = null;
 		String InId = null;
+		TopicConnection inConnection = null;
 		TopicSubscriber receiver = null;
 		if (chat instanceof HostedGroupChat) {
 			receiverJmsInfo = getJMSInfo();
@@ -174,14 +183,18 @@ public class MessagingService {
 			}
 		}
 		try {
-			receiverJmsInfo.getConnection().stop();
-			receiver = receiverJmsInfo.getSession().createDurableSubscriber(receiverJmsInfo.getTopic(),
+			inConnection = receiverJmsInfo.getFactory().createTopicConnection();
+			inConnection.setClientID(chat.getSubscriberName());
+			TopicSession session = inConnection.createTopicSession(false, TopicSession.AUTO_ACKNOWLEDGE);
+			inConnection.stop();
+			receiver = session.createDurableSubscriber(receiverJmsInfo.getTopic(),
 					chat.getSubscriberName(), "InId = '" + InId + "'", true);
 //			receiver = receiverJmsInfo.getSession().createSubscriber(receiverJmsInfo.getTopic(),
 //					"InId = '" + InId + "'", true);
 			receiver.setMessageListener(new InMessageHandler(chat));
+			inConnections.put(chat, inConnection);
 			receivers.put(chat, receiver);
-			receiverJmsInfo.getConnection().start();
+			inConnection.start();
 			chat.reportChange();
 			if (App.T)
 				System.out.println("récepteur installé pour le chat id=" + chat.getId() + ", subscriber name="
@@ -195,6 +208,7 @@ public class MessagingService {
 	public void setOutMessagingHandler(Chat chat) {
 		unsetOutMessagingHandler(chat);
 		JMSInfo senderJmsInfo = null;
+		TopicConnection outConnection = null;
 		TopicPublisher sender = null;
 		if (chat instanceof HostedGroupChat) {
 			senderJmsInfo = getJMSInfo();
@@ -209,7 +223,10 @@ public class MessagingService {
 			}
 		}
 		try {
-			sender = senderJmsInfo.getSession().createPublisher(senderJmsInfo.getTopic());
+			outConnection = senderJmsInfo.getFactory().createTopicConnection();
+			TopicSession session = outConnection.createTopicSession(false, TopicSession.AUTO_ACKNOWLEDGE);
+			sender = session.createPublisher(senderJmsInfo.getTopic());
+			outConnections.put(chat, outConnection);
 			senders.put(chat, sender);
 			chat.reportChange();
 			if (App.T)
@@ -234,6 +251,14 @@ public class MessagingService {
 				e.printStackTrace();
 			}
 		receivers.remove(chat);
+		TopicConnection inConnection = inConnections.get(chat);
+		if (inConnection != null)
+			try {
+				inConnection.close();
+			} catch (JMSException e) {
+				e.printStackTrace();
+			}
+		inConnections.remove(chat);
 	}
 
 	public void unsetOutMessagingHandler(Chat chat) {
@@ -248,6 +273,14 @@ public class MessagingService {
 				e.printStackTrace();
 			}
 		senders.remove(chat);
+		TopicConnection outConnection = inConnections.get(chat);
+		if (outConnection != null)
+			try {
+				outConnection.close();
+			} catch (JMSException e) {
+				e.printStackTrace();
+			}
+		inConnections.remove(chat);
 	}
 
 	private Context getContext(String url) {
@@ -281,36 +314,6 @@ public class MessagingService {
 				}
 		}
 		return factory;
-	}
-
-	private TopicConnection getConnection(String url) {
-		TopicConnection connection = connections.get(url);
-		if (connection == null) {
-			TopicConnectionFactory factory = getFactory(url);
-			if (factory != null)
-				try {
-					connection = factory.createTopicConnection();
-					connections.put(url, connection);
-				} catch (JMSException e) {
-					e.printStackTrace();
-				}
-		}
-		return connection;
-	}
-
-	private TopicSession getSession(String url) {
-		TopicSession session = sessions.get(url);
-		if (session == null) {
-			TopicConnection connection = getConnection(url);
-			if (connection != null)
-				try {
-					session = connection.createTopicSession(false, TopicSession.AUTO_ACKNOWLEDGE);
-					sessions.put(url, session);
-				} catch (JMSException e) {
-					e.printStackTrace();
-				}
-		}
-		return session;
 	}
 
 	private javax.jms.Message translateMessage(OutMessage applicationMessage) {
@@ -369,26 +372,20 @@ public class MessagingService {
 	}
 
 	private class JMSInfo {
-		private TopicSession session;
+		private TopicConnectionFactory factory;
 		private Topic topic;
-		private TopicConnection connection;
 
-		JMSInfo(TopicSession session, Topic topic, TopicConnection connection) {
-			this.session = session;
+		JMSInfo(TopicConnectionFactory factory, Topic topic) {
+			this.factory = factory;
 			this.topic = topic;
-			this.connection = connection;
 		}
 
-		public TopicSession getSession() {
-			return session;
+		public TopicConnectionFactory getFactory() {
+			return factory;
 		}
-
+		
 		public Topic getTopic() {
 			return topic;
-		}
-
-		public TopicConnection getConnection() {
-			return connection;
 		}
 
 	}
