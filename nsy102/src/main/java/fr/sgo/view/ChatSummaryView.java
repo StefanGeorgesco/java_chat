@@ -1,5 +1,6 @@
 package fr.sgo.view;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -12,6 +13,8 @@ import javax.swing.JPanel;
 
 import fr.sgo.controller.ActionHandler;
 import fr.sgo.entity.GroupChat;
+import fr.sgo.entity.HostedGroupChat;
+import fr.sgo.entity.RemoteGroupChat;
 
 /**
  * Abstract class CorrespondentSummaryView
@@ -30,6 +33,7 @@ public class ChatSummaryView extends JPanel implements Observer {
 	private GroupChat chat;
 	private JPanel namePanel;
 	private JLabel nameField;
+	private JPanel onlinePanel;
 	private JButton actionButton1;
 
 	public ChatSummaryView(GroupChat chat, ActionHandler actionHandler) {
@@ -41,10 +45,13 @@ public class ChatSummaryView extends JPanel implements Observer {
 		nameField = new JLabel();
 		nameField.setSize(new Dimension(50, 10));
 		namePanel.add(nameField);
+		onlinePanel = new JPanel();
+		onlinePanel.setSize(new Dimension(10, 10));
 		actionButton1 = new JButton();
 		actionButton1.setSize(new Dimension(30, 10));
 		add(namePanel);
 		add(actionButton1);
+		add(onlinePanel);
 		refresh();
 		setActionButton1Controller(actionHandler);
 		this.chat.addObserver(this);
@@ -66,6 +73,11 @@ public class ChatSummaryView extends JPanel implements Observer {
 
 	public void refresh() {
 		nameField.setText(chat.getName());
+		if (chat instanceof HostedGroupChat
+				|| chat instanceof RemoteGroupChat && ((RemoteGroupChat) chat).getCorrespondent().isOnline())
+			onlinePanel.setBackground(Color.GREEN);
+		else
+			onlinePanel.setBackground(Color.GRAY);
 		repaint();
 	}
 

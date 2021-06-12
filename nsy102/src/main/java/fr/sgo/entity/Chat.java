@@ -24,11 +24,15 @@ public abstract class Chat extends Observable implements Serializable {
 	public Collection<Message> getMessages() {
 		return messages;
 	}
+	
+	public void reportChange() {
+		setChanged();
+		notifyObservers();
+	}
 
 	public void addMessage(Message message) {
 		messages.add(message);
-		setChanged();
-		notifyObservers();
+		reportChange();
 	}
 
 	public abstract String getId();

@@ -175,13 +175,14 @@ public class MessagingService {
 		}
 		try {
 			receiverJmsInfo.getConnection().stop();
-//			receiver = receiverJmsInfo.getSession().createDurableSubscriber(receiverJmsInfo.getTopic(),
-//					chat.getSubscriberName(), "InId = '" + InId + "'", true);
-			receiver = receiverJmsInfo.getSession().createSubscriber(receiverJmsInfo.getTopic(),
-					"InId = '" + InId + "'", true);
+			receiver = receiverJmsInfo.getSession().createDurableSubscriber(receiverJmsInfo.getTopic(),
+					chat.getSubscriberName(), "InId = '" + InId + "'", true);
+//			receiver = receiverJmsInfo.getSession().createSubscriber(receiverJmsInfo.getTopic(),
+//					"InId = '" + InId + "'", true);
 			receiver.setMessageListener(new InMessageHandler(chat));
 			receivers.put(chat, receiver);
 			receiverJmsInfo.getConnection().start();
+			chat.reportChange();
 			if (App.T)
 				System.out.println("récepteur installé pour le chat id=" + chat.getId() + ", subscriber name="
 						+ chat.getSubscriberName() + " : " + receiver.toString());
@@ -210,6 +211,7 @@ public class MessagingService {
 		try {
 			sender = senderJmsInfo.getSession().createPublisher(senderJmsInfo.getTopic());
 			senders.put(chat, sender);
+			chat.reportChange();
 			if (App.T)
 				System.out.println("émetteur installé pour le chat, id=" + chat.getId() + ", subscriber name="
 						+ chat.getSubscriberName() + " : " + sender.toString());
@@ -351,14 +353,14 @@ public class MessagingService {
 
 		@Override
 		public void onMessage(javax.jms.Message jmsmessage) {
-			final InMessage applicationMessage = translateMessage(jmsmessage);
-			Correspondent correspondent = applicationMessage.getAuthor();
-			if (App.T)
-				System.out.println(
-						"message reçu de " + correspondent.getUserName() + " : " + applicationMessage.getContents());
 			new Thread() {
 				@Override
 				public void run() {
+					InMessage applicationMessage = translateMessage(jmsmessage);
+					Correspondent correspondent = applicationMessage.getAuthor();
+					if (App.T)
+						System.out.println(
+								"message reçu de " + correspondent.getUserName() + " : " + applicationMessage.getContents());
 					chat.addMessage(applicationMessage);
 				}
 			}.start();

@@ -22,8 +22,6 @@ import fr.sgo.entity.Chat;
 import fr.sgo.entity.Correspondent;
 import fr.sgo.entity.CorrespondentChat;
 import fr.sgo.entity.GroupChat;
-import fr.sgo.entity.HostedGroupChat;
-import fr.sgo.entity.RemoteGroupChat;
 import fr.sgo.model.ChatManager;
 import fr.sgo.model.CorrespondentManager;
 import fr.sgo.service.ProfileInfo;
@@ -134,9 +132,7 @@ public class MainView extends JFrame implements Observer {
 	private synchronized void updateView(Chat chat) {
 		if (chat instanceof GroupChat) {
 			GroupChat groupChat = (GroupChat) chat;
-			boolean chatExists = chatManager.existsChat(chat);
-			boolean summaryViewMustAppear = chatExists && (chat instanceof HostedGroupChat
-					|| chat instanceof RemoteGroupChat && ((RemoteGroupChat) chat).getCorrespondent().isOnline());
+			boolean summaryViewMustAppear = chatManager.existsChat(chat);
 			boolean summaryViewFound = false;
 			boolean viewContentsChange = false;
 			for (Component component : groupChatsPanel.getComponents()) {

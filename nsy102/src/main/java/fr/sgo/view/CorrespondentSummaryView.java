@@ -48,8 +48,8 @@ public class CorrespondentSummaryView extends JPanel implements Observer {
 		actionButton1 = new JButton();
 		actionButton1.setSize(new Dimension(30, 10));
 		add(namePanel);
-		add(onlinePanel);
 		add(actionButton1);
+		add(onlinePanel);
 		refresh();
 		setActionButton1Controller(actionHandler);
 		this.correspondent.addObserver(this);

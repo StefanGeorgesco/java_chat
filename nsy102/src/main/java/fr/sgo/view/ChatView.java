@@ -1,7 +1,9 @@
 package fr.sgo.view;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -33,6 +35,7 @@ import fr.sgo.entity.HostedGroupChat;
 import fr.sgo.entity.InMessage;
 import fr.sgo.entity.Message;
 import fr.sgo.entity.OutMessage;
+import fr.sgo.entity.RemoteGroupChat;
 import fr.sgo.service.ProfileInfo;
 
 @SuppressWarnings("deprecation")
@@ -47,6 +50,8 @@ public class ChatView extends JFrame implements ActionListener, Observer {
 	private JTextArea correspondentsList;
 	private JScrollPane correspondentsListScrollPane;
 	private JTextField messageField;
+	private JButton sendButton;
+	private JPanel onlinePanel;
 
 	public ChatView(Chat chat) {
 		this.chat = chat;
@@ -86,11 +91,14 @@ public class ChatView extends JFrame implements ActionListener, Observer {
 				messageField.requestFocus();
 			}
 		});
-		JButton sendButton = new JButton("Envoyer");
+		sendButton = new JButton("Envoyer");
 		sendButton.addActionListener(this);
 		getRootPane().setDefaultButton(sendButton);
+		onlinePanel = new JPanel();
+		onlinePanel.setSize(new Dimension(10, 10));
 		panelSouth.add(messageField);
 		panelSouth.add(sendButton);
+		panelSouth.add(onlinePanel);
 
 		Container container = this.getContentPane();
 		container.setLayout(new BorderLayout());
@@ -151,6 +159,20 @@ public class ChatView extends JFrame implements ActionListener, Observer {
 		}
 	}
 
+	private void refreshConnectionStatusView() {
+		if (chat instanceof HostedGroupChat
+				|| chat instanceof RemoteGroupChat && ((RemoteGroupChat) chat).getCorrespondent().isOnline()
+				|| chat instanceof CorrespondentChat && ((CorrespondentChat) chat).getCorrespondent().isOnline())
+			onlinePanel.setBackground(Color.GREEN);
+		else
+			onlinePanel.setBackground(Color.GRAY);
+		repaint();
+		if (chat instanceof RemoteGroupChat) {
+			messageField.setEnabled(((RemoteGroupChat) chat).getCorrespondent().isOnline());
+			sendButton.setEnabled(((RemoteGroupChat) chat).getCorrespondent().isOnline());
+		}
+	}
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		new Thread(new Runnable() {
@@ -175,6 +197,7 @@ public class ChatView extends JFrame implements ActionListener, Observer {
 			public void run() {
 				refreshMessagesHistoryView();
 				refreshcorrespondentsListView();
+				refreshConnectionStatusView();
 				setVisible(true);
 				toFront();
 			}
