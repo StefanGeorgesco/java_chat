@@ -14,6 +14,7 @@ import javax.jmdns.ServiceInfo;
 import javax.jmdns.ServiceListener;
 
 import fr.sgo.app.App;
+import fr.sgo.controller.RMIService;
 
 /**
  * Class CorrespondentServiceLocator

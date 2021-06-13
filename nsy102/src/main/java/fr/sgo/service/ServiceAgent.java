@@ -56,45 +56,47 @@ public class ServiceAgent {
 	}
 
 	public void publishServices(int delay) {
-		new ServicePublisher(delay);
+		ProfileInfo profileInfo = ProfileInfo.getInstance();
+		try {
+			registry = LocateRegistry.createRegistry(profileInfo.getRMIPort());
+		} catch (RemoteException re1) {
+			try {
+				registry = LocateRegistry.getRegistry(profileInfo.getRMIPort());
+			} catch (RemoteException re2) {
+				re2.printStackTrace();
+				System.exit(1);
+			}
+		}
+		if (App.T)
+			System.out.println("registre RMI créé ou lié");
+		try {
+			registry.rebind(serviceName, RMIController.getInstance());
+		} catch (RemoteException re3) {
+			re3.printStackTrace();
+			System.exit(1);
+		}
+		if (App.T)
+			System.out.println("service enregistré dans le registre RMI");
+		new DNSServicePublisher(delay, profileInfo);
 	}
 
-	private class ServicePublisher extends Thread {
+	private class DNSServicePublisher extends Thread {
 		private int delay;
+		private ProfileInfo profileInfo;
 
-		public ServicePublisher(int delay) {
+		public DNSServicePublisher(int delay, ProfileInfo profileInfo) {
 			this.delay = delay;
+			this.profileInfo = profileInfo;
 			start();
 		}
 
 		@Override
 		public void run() {
-			ProfileInfo profileInfo = ProfileInfo.getInstance();
 			try {
 				Thread.sleep(delay);
 			} catch (java.lang.InterruptedException ie) {
 				ie.printStackTrace();
 			}
-			try {
-				registry = LocateRegistry.createRegistry(profileInfo.getRMIPort());
-			} catch (RemoteException re1) {
-				try {
-					registry = LocateRegistry.getRegistry(profileInfo.getRMIPort());
-				} catch (RemoteException re2) {
-					re2.printStackTrace();
-					System.exit(1);
-				}
-			}
-			if (App.T)
-				System.out.println("registre RMI créé ou lié");
-			try {
-				registry.rebind(serviceName, RMIController.getInstance());
-			} catch (RemoteException re3) {
-				re3.printStackTrace();
-				System.exit(1);
-			}
-			if (App.T)
-				System.out.println("service enregistré dans le registre RMI");
 			Map<String, String> props = new HashMap<String, String>();
 			props.put("userId", profileInfo.getUserId());
 			props.put("userName", profileInfo.getUserName());

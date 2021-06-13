@@ -13,7 +13,6 @@ import fr.sgo.entity.HostedGroupChat;
 import fr.sgo.model.ChatManager;
 import fr.sgo.model.CorrespondentManager;
 import fr.sgo.service.CorrespondentServiceLocator;
-import fr.sgo.service.RMIService;
 import fr.sgo.view.AddCorrespondentToChatView;
 import fr.sgo.view.InformationView;
 import fr.sgo.view.MainView;

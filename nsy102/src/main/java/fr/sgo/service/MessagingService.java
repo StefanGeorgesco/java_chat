@@ -23,6 +23,7 @@ import org.exolab.jms.message.MapMessageImpl;
 
 import fr.sgo.app.App;
 import fr.sgo.controller.RMIController;
+import fr.sgo.controller.RMIService;
 import fr.sgo.entity.Chat;
 import fr.sgo.entity.Correspondent;
 import fr.sgo.entity.CorrespondentChat;

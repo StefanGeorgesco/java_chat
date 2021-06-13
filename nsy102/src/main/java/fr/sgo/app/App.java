@@ -72,7 +72,7 @@ public class App {
 		correspondentManager.start();
 		chatManager.start();
 		correspondentServiceLocator.open();
-		serviceAgent.publishServices(3000);
+		serviceAgent.publishServices(2000);
 		if (T)
 			System.out.println("application démarrée, en attente...");
 	}

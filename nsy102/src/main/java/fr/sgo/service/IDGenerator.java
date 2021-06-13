@@ -13,6 +13,6 @@ import java.util.UUID;
 public class IDGenerator
 {
     public static String newId() {
-        return UUID.randomUUID().toString().replace("-", "").toUpperCase();
+        return UUID.randomUUID().toString().replace("-", "");
     }
 }

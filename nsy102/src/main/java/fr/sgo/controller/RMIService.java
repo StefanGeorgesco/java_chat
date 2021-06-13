@@ -1,9 +1,10 @@
-package fr.sgo.service;
+package fr.sgo.controller;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 import fr.sgo.entity.GroupChat;
+import fr.sgo.service.ProfileInfo;
 
 /**
  * Interface RMIService

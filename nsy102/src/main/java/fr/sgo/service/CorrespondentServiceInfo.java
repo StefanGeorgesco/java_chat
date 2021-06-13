@@ -1,5 +1,7 @@
 package fr.sgo.service;
 
+import fr.sgo.controller.RMIService;
+
 /**
  * Class CorrespondentServiceInfo
  * 
