@@ -27,9 +27,11 @@ public class ChatManager extends Observable implements Observer {
 	@SuppressWarnings("unchecked")
 	private ChatManager() {
 		objectName = "chat_" + ProfileInfo.getInstance().getUserId();
-		this.chats = (Set<Chat>) Storage.restore(objectName);
-		if (this.chats == null)
+		Set<Chat> restoredChats = (Set<Chat>) Storage.restore(objectName);
+		if (restoredChats == null)
 			this.chats = Collections.synchronizedSet(new HashSet<Chat>());
+		else
+			this.chats = Collections.synchronizedSet(restoredChats);
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
 			public void run() {
