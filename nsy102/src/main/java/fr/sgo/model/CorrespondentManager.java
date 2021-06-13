@@ -79,7 +79,7 @@ public class CorrespondentManager extends Observable implements Observer {
 
 	public Collection<Correspondent> getPairedCorrespondents() {
 		Collection<Correspondent> collection = new HashSet<Correspondent>();
-		for (Correspondent c : correspondents.values()) {
+		for (Correspondent c : getCorrespondents()) {
 			if (c.isPaired())
 				collection.add(c);
 		}
@@ -91,28 +91,6 @@ public class CorrespondentManager extends Observable implements Observer {
 		for (Correspondent c : correspondents.values()) {
 			if (!c.isPaired())
 				collection.add(c);
-		}
-		return collection;
-	}
-
-	public Collection<String> getCorrespondentsUserIds() {
-		return correspondents.keySet();
-	}
-
-	public Collection<String> getPairedCorrespondentsUserIds() {
-		Collection<String> collection = new HashSet<String>();
-		for (Correspondent c : correspondents.values()) {
-			if (c.isPaired())
-				collection.add(c.getUserId());
-		}
-		return collection;
-	}
-
-	public Collection<String> getUnpairedCorrespondentsUserIds() {
-		Collection<String> collection = new HashSet<String>();
-		for (Correspondent c : correspondents.values()) {
-			if (!c.isPaired())
-				collection.add(c.getUserId());
 		}
 		return collection;
 	}

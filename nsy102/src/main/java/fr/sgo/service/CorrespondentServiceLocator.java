@@ -5,8 +5,6 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 
@@ -73,10 +71,6 @@ public class CorrespondentServiceLocator extends Observable {
 
 	public CorrespondentServiceInfo lookup(String userId) {
 		return map.get(userId);
-	}
-
-	public List<String> allUserIds() {
-		return new LinkedList<String>(map.keySet());
 	}
 
 	private class CorrespondentServiceListener implements ServiceListener {
