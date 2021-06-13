@@ -25,7 +25,7 @@ import fr.sgo.controller.RMIController;
 @SuppressWarnings("deprecation")
 public class ServiceAgent {
 	private static ServiceAgent instance = null;
-	public static final String SERVICE_TYPE = "_monserviceRMI._tcp.local.";
+	public static final String SERVICE_TYPE = "_CorrespondentService._tcp.local.";
 	private static final String serviceName = IDGenerator.newId();
 	private static Registry registry;
 	private static JmDNS jmdns = null;
