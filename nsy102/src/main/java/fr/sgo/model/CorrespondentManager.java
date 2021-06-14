@@ -67,8 +67,7 @@ public class CorrespondentManager extends Observable implements Observer {
 						}
 					}
 				}
-				setChanged();
-				notifyObservers(correspondent);
+				reportChange(correspondent);
 			}
 		}
 	}
@@ -88,7 +87,7 @@ public class CorrespondentManager extends Observable implements Observer {
 
 	public Collection<Correspondent> getUnpairedCorrespondents() {
 		Collection<Correspondent> collection = new HashSet<Correspondent>();
-		for (Correspondent c : correspondents.values()) {
+		for (Correspondent c : getCorrespondents()) {
 			if (!c.isPaired())
 				collection.add(c);
 		}
@@ -105,15 +104,19 @@ public class CorrespondentManager extends Observable implements Observer {
 
 	public void add(Correspondent correspondent) {
 		correspondents.put(correspondent.getUserId(), correspondent);
-		reportChange(correspondent);
+		saveAndReportChange(correspondent);
+	}
+	
+	public void reportChange(Correspondent correspondent) {
+		setChanged();
+		notifyObservers(correspondent);
 	}
 
-	public void reportChange(Correspondent correspondent) {
+	public void saveAndReportChange(Correspondent correspondent) {
 		if (correspondent.isPaired()) {
 			Storage.save(getPairedCorrespondents(), objectName);
 		}
-		setChanged();
-		notifyObservers(correspondent);
+		reportChange(correspondent);
 	}
 
 	public void update(Observable observable, Object arg) {
@@ -146,8 +149,7 @@ public class CorrespondentManager extends Observable implements Observer {
 								correspondents.put(userId, correspondent);
 							}
 						}
-						setChanged();
-						notifyObservers(correspondent);
+						reportChange(correspondent);
 					}
 				}
 			}

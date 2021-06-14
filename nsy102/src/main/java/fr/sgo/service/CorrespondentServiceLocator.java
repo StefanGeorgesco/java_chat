@@ -35,23 +35,6 @@ public class CorrespondentServiceLocator extends Observable {
 	private CorrespondentServiceLocator() {
 		this.map = Collections.synchronizedMap(new HashMap<String, CorrespondentServiceInfo>());
 		this.match = Collections.synchronizedMap(new HashMap<String, String>());
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-			@Override
-			public void run() {
-				try {
-					jmdns.removeServiceListener(ServiceAgent.SERVICE_TYPE, correspondentServiceListener);
-					correspondentServiceListener = null;
-					jmdns.unregisterAllServices();
-					jmdns.close();
-				} catch (Exception e) {
-				} finally {
-					jmdns = null;
-				}
-				map.clear();
-				match.clear();
-				System.gc();
-			}
-		});
 	}
 
 	public static synchronized CorrespondentServiceLocator getInstance() {

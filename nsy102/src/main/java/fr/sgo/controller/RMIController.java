@@ -97,7 +97,7 @@ public class RMIController extends UnicastRemoteObject implements RMIService {
 							+ " a accepté votre invitation. Il (elle) fait maintenant partie de vos contacts.");
 					pairingInfo.setInId(outId);
 					pairingInfo.setPairingStatus(Correspondent.PAIRED);
-					CorrespondentManager.getInstance().reportChange(correspondent);
+					CorrespondentManager.getInstance().saveAndReportChange(correspondent);
 				}
 				break;
 			default:

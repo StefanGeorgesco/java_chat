@@ -109,7 +109,7 @@ public class CorrespondentController {
 					correspondentRmiService.acceptPairingRequest(RMIController.getInstance(), inId,
 							pairingInfo.getOutId());
 					pairingInfo.setPairingStatus(Correspondent.PAIRED);
-					CorrespondentManager.getInstance().reportChange(correspondent);
+					CorrespondentManager.getInstance().saveAndReportChange(correspondent);
 				} catch (RemoteException e1) {
 					e1.printStackTrace();
 				}
