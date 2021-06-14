@@ -8,7 +8,6 @@ public class RemoteGroupChat extends GroupChat {
 	 */
 	private static final long serialVersionUID = -3659564476019099765L;
 	private Correspondent correspondent;
-	private String id;
 	
 
 	public RemoteGroupChat(Correspondent correspondent, String id, String name) {
@@ -26,11 +25,6 @@ public class RemoteGroupChat extends GroupChat {
 
 	public void setCorrespondent(Correspondent correspondent) {
 		this.correspondent = correspondent;
-	}
-
-	@Override
-	public String getId() {
-		return id;
 	}
 
 }

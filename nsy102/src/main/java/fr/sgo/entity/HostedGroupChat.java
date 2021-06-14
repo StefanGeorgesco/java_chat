@@ -8,18 +8,12 @@ public class HostedGroupChat extends GroupChat {
 	 * 
 	 */
 	private static final long serialVersionUID = 6948740240113777937L;
-	private String id;
 
 	public HostedGroupChat(String name) {
 		super(name);
 		this.id = IDGenerator.newId();
 		correspondents.add(new Correspondent(ProfileInfo.getInstance().getUserId(),
 				ProfileInfo.getInstance().getUserName(), true));
-	}
-
-	@Override
-	public String getId() {
-		return id;
 	}
 
 }

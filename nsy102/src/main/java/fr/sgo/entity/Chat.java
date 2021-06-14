@@ -7,6 +7,7 @@ import java.util.Observable;
 import java.util.Set;
 import java.util.TreeSet;
 
+import fr.sgo.service.IDGenerator;
 import fr.sgo.service.MessagingService;
 
 @SuppressWarnings("deprecation")
@@ -16,15 +17,21 @@ public abstract class Chat extends Observable implements Serializable {
 	 */
 	private static final long serialVersionUID = 5801761275943085099L;
 	protected Set<Message> messages;
+	protected String subscriberName;
 
 	public Chat() {
 		this.messages = Collections.synchronizedSet(new TreeSet<Message>());
+		this.subscriberName = IDGenerator.newId();
 	}
 
 	public Collection<Message> getMessages() {
 		return messages;
 	}
 	
+	public String getSubscriberName() {
+		return subscriberName;
+	}
+
 	public void reportChange() {
 		setChanged();
 		notifyObservers();
@@ -42,8 +49,6 @@ public abstract class Chat extends Observable implements Serializable {
 
 	public abstract String getId();
 
-	public abstract String getSubscriberName();
-	
 	public void sendMessage(OutMessage message) {
 		addMessage(message);
 		new Thread() {
