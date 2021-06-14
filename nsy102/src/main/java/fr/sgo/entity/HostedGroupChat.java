@@ -1,7 +1,6 @@
 package fr.sgo.entity;
 
 import fr.sgo.service.IDGenerator;
-import fr.sgo.service.ProfileInfo;
 
 public class HostedGroupChat extends GroupChat {
 	/**
@@ -12,8 +11,6 @@ public class HostedGroupChat extends GroupChat {
 	public HostedGroupChat(String name) {
 		super(name);
 		this.id = IDGenerator.newId();
-		correspondents.add(new Correspondent(ProfileInfo.getInstance().getUserId(),
-				ProfileInfo.getInstance().getUserName(), true));
 	}
 
 }

@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.TreeSet;
 
+import fr.sgo.service.ProfileInfo;
+
 public abstract class GroupChat extends Chat {
 
 	/**
@@ -18,7 +20,10 @@ public abstract class GroupChat extends Chat {
 	public GroupChat(String name) {
 		super();
 		this.name = name;
+		this.id = null;
 		this.correspondents = Collections.synchronizedSet(new TreeSet<Correspondent>());
+		this.correspondents.add(new Correspondent(ProfileInfo.getInstance().getUserId(),
+				ProfileInfo.getInstance().getUserName(), true));
 	}
 
 	public String getName() {
@@ -36,11 +41,6 @@ public abstract class GroupChat extends Chat {
 
 	public void addCorrespondent(Correspondent correspondent) {
 		if (correspondents.add(correspondent))
-			reportChange();
-	}
-
-	public void addCorrespondents(Collection<Correspondent> correspondents) {
-		if (this.correspondents.addAll(correspondents))
 			reportChange();
 	}
 
