@@ -30,7 +30,7 @@ public abstract class Chat extends Observable implements Serializable {
 		notifyObservers();
 	}
 
-	public void reportChange(Message message) {
+	private void reportChange(Message message) {
 		setChanged();
 		notifyObservers(message);
 	}
