@@ -7,6 +7,7 @@ import java.util.HashSet;
 import javax.swing.JOptionPane;
 
 import fr.sgo.app.App;
+import fr.sgo.entity.Chat;
 import fr.sgo.entity.Correspondent;
 import fr.sgo.entity.GroupChat;
 import fr.sgo.entity.HostedGroupChat;
@@ -79,6 +80,10 @@ public class ChatController {
 				}
 			}
 		}.start();
+	}
+	
+	public void sendMessage(Chat chat, String text) {
+		ChatManager.getInstance().sendMessage(chat, text);
 	}
 
 }

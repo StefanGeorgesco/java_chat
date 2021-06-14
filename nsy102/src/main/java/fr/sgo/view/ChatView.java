@@ -33,7 +33,6 @@ import fr.sgo.entity.GroupChat;
 import fr.sgo.entity.HostedGroupChat;
 import fr.sgo.entity.InMessage;
 import fr.sgo.entity.Message;
-import fr.sgo.entity.OutMessage;
 import fr.sgo.entity.RemoteGroupChat;
 import fr.sgo.service.ProfileInfo;
 
@@ -179,7 +178,7 @@ public class ChatView extends JFrame implements ActionListener, Observer {
 			public void run() {
 				String text = messageField.getText();
 				if (text.length() > 0) {
-					chat.sendMessage(new OutMessage(text, ProfileInfo.getInstance().getUserId()));
+					ChatController.getInstance().sendMessage(chat, text);
 					SwingUtilities.invokeLater(new Runnable() {
 						public void run() {
 							messageField.setText("");

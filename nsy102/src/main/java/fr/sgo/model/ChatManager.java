@@ -13,6 +13,7 @@ import fr.sgo.entity.Correspondent;
 import fr.sgo.entity.CorrespondentChat;
 import fr.sgo.entity.GroupChat;
 import fr.sgo.entity.HostedGroupChat;
+import fr.sgo.entity.OutMessage;
 import fr.sgo.entity.RemoteGroupChat;
 import fr.sgo.service.MessagingService;
 import fr.sgo.service.ProfileInfo;
@@ -176,6 +177,10 @@ public class ChatManager extends Observable implements Observer {
 						new Correspondent(remoteCorrespondent.getUserId(), remoteCorrespondent.getUserName()));
 		}
 		addGroupChat(newChat);
+	}
+	
+	public void sendMessage(Chat chat, String text) {
+		chat.sendMessage(new OutMessage(text, ProfileInfo.getInstance().getUserId()));
 	}
 
 	@Override
