@@ -61,7 +61,7 @@ public class ChatManager extends Observable implements Observer {
 		return chats;
 	}
 
-	public Collection<CorrespondentChat> getCorrespondentChats() {
+	private Collection<CorrespondentChat> getCorrespondentChats() {
 		Set<CorrespondentChat> chats = new HashSet<CorrespondentChat>();
 		for (Chat chat : getChats()) {
 			if (chat instanceof CorrespondentChat)
@@ -70,7 +70,7 @@ public class ChatManager extends Observable implements Observer {
 		return chats;
 	}
 
-	public Collection<GroupChat> getGroupChats() {
+	private Collection<GroupChat> getGroupChats() {
 		Set<GroupChat> chats = new HashSet<GroupChat>();
 		for (Chat chat : getChats()) {
 			if (chat instanceof GroupChat)
@@ -79,7 +79,7 @@ public class ChatManager extends Observable implements Observer {
 		return chats;
 	}
 
-	public Collection<GroupChat> getGroupChats(Correspondent correspondent) {
+	private Collection<GroupChat> getGroupChats(Correspondent correspondent) {
 		Set<GroupChat> set = new HashSet<GroupChat>();
 		for (GroupChat chat : getGroupChats()) {
 			if (chat instanceof RemoteGroupChat && ((RemoteGroupChat) chat).getCorrespondent().equals(correspondent)) {
@@ -90,7 +90,7 @@ public class ChatManager extends Observable implements Observer {
 
 	}
 
-	public CorrespondentChat getCorrespondentChat(Correspondent correspondent) {
+	private CorrespondentChat getCorrespondentChat(Correspondent correspondent) {
 		CorrespondentChat chat = null;
 		for (CorrespondentChat c : getCorrespondentChats()) {
 			if (c.getCorrespondent().equals(correspondent)) {
