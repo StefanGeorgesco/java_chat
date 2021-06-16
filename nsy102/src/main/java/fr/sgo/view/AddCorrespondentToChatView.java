@@ -1,7 +1,5 @@
 package fr.sgo.view;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -12,6 +10,8 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -48,27 +48,24 @@ public class AddCorrespondentToChatView {
 		panel.add(validate);
 		panel.add(cancel);
 		frame.add(panel);
-		getCorrespondents();
-	}
-	
-	public void getCorrespondents() {
 		Set<Correspondent> selectedCorrespondents = new HashSet<Correspondent>();
-		String[] userNames = new String[this.correspondents.size()];
-		Correspondent[] correspondents = new Correspondent[this.correspondents.size()];
+		String[] userNamesTable = new String[this.correspondents.size()];
+		Correspondent[] correspondentsTable = new Correspondent[this.correspondents.size()];
 		int i = 0;
-		for (Correspondent correspondent: this.correspondents) {
-			userNames[i] = correspondent.getUserName();
-			correspondents[i++] = correspondent;
+		for (Correspondent correspondent : this.correspondents) {
+			userNamesTable[i] = correspondent.getUserName();
+			correspondentsTable[i++] = correspondent;
 		}
-		list.setListData(userNames);
+		list.setListData(userNamesTable);
 		validate.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (selected != null && selected.length > 0) {
-					for (int i: selected) {
-						selectedCorrespondents.add(correspondents[i]);
+					for (int i : selected) {
+						selectedCorrespondents.add(correspondentsTable[i]);
 					}
-					ChatController.getInstance().addCorrespondentsToChat(chat, selectedCorrespondents);
+					ChatController.getInstance().addCorrespondentsToChat(AddCorrespondentToChatView.this.chat,
+							selectedCorrespondents);
 					frame.dispose();
 				}
 			}
