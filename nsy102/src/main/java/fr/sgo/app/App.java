@@ -17,7 +17,7 @@ import fr.sgo.view.MainView;
 /**
  * Class App
  * 
- * The application
+ * Initializes the application
  *
  * @author Stéfan Georgesco
  * @version 1.0
@@ -29,32 +29,28 @@ public class App {
 	private static App instance = null;
 	private ProfileInfo profileInfo;
 	private CorrespondentServiceLocator correspondentServiceLocator;
-	private RMIController rmiController;
-	private CorrespondentController correspondentController;
-	private ChatController chatController;
 	private CorrespondentManager correspondentManager;
 	private ChatManager chatManager;
 	private ServiceAgent serviceAgent;
-	private MessagingService messagingService;
 	private MainView mainView;
 	private ChatViewContainer chatViewContainer;
 
 	private App() {
 		profileInfo = ProfileInfo.getInstance();
 		assert profileInfo.getUserId() != null; // DEBUG
-		rmiController = RMIController.getInstance();
-		correspondentController = CorrespondentController.getInstance();
-		chatController = ChatController.getInstance();
+		RMIController.getInstance();
+		CorrespondentController.getInstance();
+		ChatController.getInstance();
 		correspondentServiceLocator = CorrespondentServiceLocator.getInstance();
 		correspondentManager = CorrespondentManager.getInstance();
 		chatManager = ChatManager.getInstance();
 		serviceAgent = ServiceAgent.getInstance();
-		messagingService = MessagingService.getInstance();
+		MessagingService.getInstance();
 		mainView = MainView.getInstance();
 		chatViewContainer = ChatViewContainer.getInstance();
 	}
 
-	public static App getInstance() {
+	private static App getInstance() {
 		if (instance == null) {
 			instance = new App();
 		}
@@ -75,46 +71,6 @@ public class App {
 		serviceAgent.publishServices(2000);
 		if (T)
 			System.out.println("application démarrée, en attente...");
-	}
-
-	public ProfileInfo getProfileInfo() {
-		return profileInfo;
-	}
-
-	public CorrespondentServiceLocator getCorrespondentServiceLocator() {
-		return correspondentServiceLocator;
-	}
-
-	public RMIController getRmiController() {
-		return rmiController;
-	}
-	
-	public CorrespondentController getCorrespondentController() {
-		return correspondentController;
-	}
-
-	public ChatController getChatController() {
-		return chatController;
-	}
-
-	public CorrespondentManager getCorrespondentManager() {
-		return correspondentManager;
-	}
-
-	public ServiceAgent getServiceAgent() {
-		return serviceAgent;
-	}
-
-	public MessagingService getMessagingService() {
-		return messagingService;
-	}
-
-	public MainView getMainView() {
-		return mainView;
-	}
-
-	public ChatViewContainer getChatViewContainer() {
-		return chatViewContainer;
 	}
 
 	public static void main(String[] args) throws RemoteException {
