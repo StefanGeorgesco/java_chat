@@ -40,10 +40,10 @@ public class ChatViewContainer implements Observer {
 	@Override
 	public void update(Observable o, Object arg) {
 		Chat chat = (Chat) arg;
-		if (ChatManager.getInstance().existsChat(chat)) {
-			getChatView(chat);
-		} else {
+		ChatView chatView = getChatView(chat);
+		if (!ChatManager.getInstance().existsChat(chat)) {
 			removeChatView(chat);
+			chatView.dispose();
 		}
 	}
 
