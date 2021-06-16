@@ -105,7 +105,7 @@ public class ChatView extends JFrame implements ActionListener, Observer {
 		container.add(panelSouth, BorderLayout.SOUTH);
 		if (this.chat instanceof GroupChat) {
 			if (this.chat instanceof HostedGroupChat) {
-				JButton addCorrespondent = new JButton("Ajouter un participant");
+				JButton addCorrespondent = new JButton("Ajouter des participants");
 				addCorrespondent.addActionListener(new ActionListener() {
 					@Override
 					public void actionPerformed(ActionEvent e) {

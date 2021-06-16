@@ -221,16 +221,8 @@ public class MainView extends JFrame implements Observer {
 					updateView(correspondent);
 				}
 			}.start();
-		} else if (arg instanceof GroupChat) { // from ChatManager - GroupChat
-			final GroupChat chat = (GroupChat) arg;
-			new Thread() {
-				@Override
-				public void run() {
-					updateView(chat);
-				}
-			}.start();
-		} else { // from ChatManager - CorrespondentChat
-			final CorrespondentChat chat = (CorrespondentChat) arg;
+		} else { // from ChatManager
+			final Chat chat = (Chat) arg;
 			new Thread() {
 				@Override
 				public void run() {

@@ -2,6 +2,8 @@ package fr.sgo.entity;
 
 import java.io.Serializable;
 
+import fr.sgo.service.ProfileInfo;
+
 public abstract class Message implements Comparable<Message>, Serializable {
 	/**
 	 * 
@@ -28,14 +30,21 @@ public abstract class Message implements Comparable<Message>, Serializable {
 		int res;
 		Long time1 = new Long(timeWritten);
 		Long time2 = new Long(m.getTimeWritten());
-		if (!time1.equals(time2))
+		if (!time1.equals(time2.longValue()))
 			res = time1.compareTo(time2);
-		else if (contents.equals(m.getContents()) && (this instanceof OutMessage && m instanceof OutMessage
+		else if (contents.equals(m.getContents()) &&
+				(this instanceof OutMessage && m instanceof OutMessage
 				|| this instanceof InMessage && m instanceof InMessage
-						&& ((InMessage) this).getAuthor().equals(((InMessage) m).getAuthor())))
+						&& ((InMessage) this).getAuthor().equals(((InMessage) m).getAuthor())
+				|| this instanceof InMessage && m instanceof OutMessage
+						&& ((InMessage) this).getAuthor().getUserId().equals(ProfileInfo.getInstance().getUserId())
+				|| this instanceof OutMessage && m instanceof InMessage
+						&& ((InMessage) m).getAuthor().getUserId().equals(ProfileInfo.getInstance().getUserId())))
 			res = 0;
-		else
+		else {
+			System.out.println("Les messages sont différents");
 			res = -1;
+		}
 		return res;
 	}
 
