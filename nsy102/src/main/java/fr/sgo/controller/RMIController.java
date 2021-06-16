@@ -46,6 +46,15 @@ public class RMIController extends UnicastRemoteObject implements RMIService {
 		return ProfileInfo.getInstance();
 	}
 
+	public String getDestinationName(RMIService service, String outId) throws RemoteException {
+		String userId = service.getProfileInfo().getUserId();
+		Correspondent correspondent = CorrespondentManager.getInstance().getCorrespondent(userId);
+		String destinationName = "refused";
+		if (outId.equals(correspondent.getPairingInfo().getInId()))
+			destinationName = MessagingService.getInstance().getDestinationName();
+		return destinationName;
+	}
+
 	public void requestPairing(RMIService service, String inId) throws RemoteException {
 		String userId = service.getProfileInfo().getUserId();
 		String userName = service.getProfileInfo().getUserName();
@@ -72,6 +81,7 @@ public class RMIController extends UnicastRemoteObject implements RMIService {
 			try {
 				service.acceptPairingRequest(RMIController.getInstance(), inId, pairingInfo.getOutId());
 				pairingInfo.setPairingStatus(Correspondent.PAIRED);
+				CorrespondentManager.getInstance().saveAndReportChange(correspondent);
 			} catch (RemoteException e) {
 				e.printStackTrace();
 			}
@@ -126,15 +136,6 @@ public class RMIController extends UnicastRemoteObject implements RMIService {
 			default:
 			}
 		}
-	}
-
-	public String getDestinationName(RMIService service, String outId) throws RemoteException {
-		String userId = service.getProfileInfo().getUserId();
-		Correspondent correspondent = CorrespondentManager.getInstance().getCorrespondent(userId);
-		String destinationName = "refused";
-		if (outId.equals(correspondent.getPairingInfo().getInId()))
-			destinationName = MessagingService.getInstance().getDestinationName();
-		return destinationName;
 	}
 
 	public boolean inviteToGroupChat(RMIService service, String outId, GroupChat chat) throws Exception {
