@@ -13,11 +13,6 @@ public abstract class Message implements Comparable<Message>, Serializable {
 	public Message(String contents, long timeWritten) {
 		this.contents = contents;
 		this.timeWritten = timeWritten;
-		try {
-			Thread.sleep(2);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
 	}
 
 	public String getContents() {
@@ -30,7 +25,18 @@ public abstract class Message implements Comparable<Message>, Serializable {
 
 	@SuppressWarnings("deprecation")
 	public int compareTo(Message m) {
-		return new Long(timeWritten).compareTo(new Long(m.getTimeWritten()));
+		int res;
+		Long time1 = new Long(timeWritten);
+		Long time2 = new Long(m.getTimeWritten());
+		if (!time1.equals(time2))
+			res = time1.compareTo(time2);
+		else if (contents.equals(m.getContents()) && (this instanceof OutMessage && m instanceof OutMessage
+				|| this instanceof InMessage && m instanceof InMessage
+						&& ((InMessage) this).getAuthor().equals(((InMessage) m).getAuthor())))
+			res = 0;
+		else
+			res = -1;
+		return res;
 	}
 
 	@Override
