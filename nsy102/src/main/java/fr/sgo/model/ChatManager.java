@@ -180,7 +180,7 @@ public class ChatManager extends Observable implements Observer {
 	}
 	
 	public void sendMessage(Chat chat, String text) {
-		chat.sendMessage(new OutMessage(text, ProfileInfo.getInstance().getUserId()));
+		chat.sendMessage(new OutMessage(text));
 	}
 
 	@Override
