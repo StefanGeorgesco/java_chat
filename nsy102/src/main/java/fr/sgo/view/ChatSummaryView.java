@@ -1,15 +1,6 @@
 package fr.sgo.view;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.Observable;
-import java.util.Observer;
-
-import javax.swing.JButton;
-import javax.swing.JPanel;
-import javax.swing.JTextArea;
 
 import fr.sgo.controller.ActionHandler;
 import fr.sgo.entity.GroupChat;
@@ -17,70 +8,40 @@ import fr.sgo.entity.HostedGroupChat;
 import fr.sgo.entity.RemoteGroupChat;
 
 /**
- * Abstract class CorrespondentSummaryView
+ * Class ChatSummaryView
  * 
- * A panel representing a correspondent with action button
+ * A panel representing a chat with action button
  *
  * @author Stéfan Georgesco
  * @version 1.0
  */
 @SuppressWarnings("deprecation")
-public class ChatSummaryView extends JPanel implements Observer {
+public class ChatSummaryView extends SummaryView {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -2566319621500711361L;
 	private GroupChat chat;
-	private JPanel namePanel;
-	private JTextArea nameField;
-	private JPanel onlinePanel;
-	private JButton actionButton1;
 
-	public ChatSummaryView(GroupChat chat, ActionHandler actionHandler) {
-		super();
+	public ChatSummaryView(ActionHandler actionHandler, GroupChat chat) {
+		super(actionHandler);
 		this.chat = chat;
-		setSize(new Dimension(100, 20));
-		namePanel = new JPanel();
-		namePanel.setSize(new Dimension(54, 14));
-		nameField = new JTextArea(1, 15);
-		nameField.setEditable(false);
-		namePanel.add(nameField);
-		onlinePanel = new JPanel();
-		onlinePanel.setSize(new Dimension(10, 10));
-		actionButton1 = new JButton();
-		actionButton1.setSize(new Dimension(30, 10));
-		add(namePanel);
-		add(actionButton1);
-		add(onlinePanel);
-		refresh();
-		setActionButton1Controller(actionHandler);
 		this.chat.addObserver(this);
+		refresh();
 	}
 
 	public GroupChat getGroupChat() {
 		return chat;
 	}
 
-	public void setActionButton1Controller(ActionHandler actionHandler) {
-		final ActionHandler handler = actionHandler;
-		actionButton1.setText(actionHandler.getActionName());
-		actionButton1.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent ae) {
-				handler.execute();
-			}
-		});
-	}
-
+	@Override
 	public void refresh() {
-		nameField.setText(chat.getName());
-		if (chat instanceof HostedGroupChat
-				|| chat instanceof RemoteGroupChat && ((RemoteGroupChat) chat).getCorrespondent().isOnline())
-			onlinePanel.setBackground(Color.GREEN);
-		else
-			onlinePanel.setBackground(Color.GRAY);
-		repaint();
+		boolean online = chat instanceof HostedGroupChat
+				|| chat instanceof RemoteGroupChat && ((RemoteGroupChat) chat).getCorrespondent().isOnline();
+		refresh(chat.getName(), online);
 	}
 
+	@Override
 	public void update(Observable observable, Object arg) {
 		if (observable instanceof GroupChat) {
 			GroupChat c = (GroupChat) observable;

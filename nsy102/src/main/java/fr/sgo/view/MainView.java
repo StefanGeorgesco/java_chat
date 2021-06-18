@@ -119,12 +119,12 @@ public class MainView extends JFrame implements Observer {
 			}
 		}
 		if (!correspondentFound & correspondentExists && !correspondentIsPaired) {
-			unpairedCorrespondentsPanel.add(new CorrespondentSummaryView(corr, new ActionHandler("Inviter") {
+			unpairedCorrespondentsPanel.add(new CorrespondentSummaryView(new ActionHandler("Inviter") {
 				@Override
 				public void run() {
 					CorrespondentController.getInstance().requestPairing(corr);
 				}
-			}));
+			}, corr));
 			viewContentsChange = true;
 		}
 		if (viewContentsChange) {
@@ -160,12 +160,12 @@ public class MainView extends JFrame implements Observer {
 				}
 			}
 			if (!summaryViewFound && summaryViewMustAppear) {
-				groupChatsPanel.add(new ChatSummaryView(groupChat, new ActionHandler("Ouvrir") {
+				groupChatsPanel.add(new ChatSummaryView(new ActionHandler("Ouvrir") {
 					@Override
 					public void run() {
 						ChatViewContainer.getInstance().getChatView(ch).update(ch, new Object());
 					}
-				}));
+				}, groupChat));
 				viewContentsChange = true;
 			}
 			if (viewContentsChange) {
@@ -198,13 +198,13 @@ public class MainView extends JFrame implements Observer {
 				}
 			}
 			if (!correspondentViewFound & correspondentExists && correspondentIsPaired) {
-				correspondentChatsPanel.add(new CorrespondentSummaryView(correspondent, new ActionHandler("Discuter") {
+				correspondentChatsPanel.add(new CorrespondentSummaryView(new ActionHandler("Discuter") {
 					@Override
 					public void run() {
 						ChatViewContainer.getInstance().getChatView(ch).update(ch, new Object());
 					}
 
-				}));
+				}, correspondent));
 				viewContentsChange = true;
 			}
 			if (viewContentsChange) {

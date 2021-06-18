@@ -46,7 +46,6 @@ public abstract class SummaryView extends JPanel implements Observer {
 		add(namePanel);
 		add(actionButton1);
 		add(onlinePanel);
-		refresh();
 		setActionButton1Controller(actionHandler);
 	}
 
