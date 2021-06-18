@@ -94,13 +94,14 @@ public class MainView extends JFrame implements Observer {
 	}
 
 	private synchronized void updateView(Correspondent correspondent) { // updates unpairedCorrespondentsPanel
-		boolean correspondentExists = correspondentManager.existsCorrespondent(correspondent);
-		boolean correspondentIsPaired = correspondent.isPaired();
+		final Correspondent corr = correspondent;
+		boolean correspondentExists = correspondentManager.existsCorrespondent(corr);
+		boolean correspondentIsPaired = corr.isPaired();
 		boolean viewContentsChange = false;
 		boolean correspondentFound = false;
 		for (Component component : unpairedCorrespondentsPanel.getComponents()) {
 			CorrespondentSummaryView panel = (CorrespondentSummaryView) component;
-			if (panel.getCorrespondent().equals(correspondent)) {
+			if (panel.getCorrespondent().equals(corr)) {
 				if (correspondentFound) {
 					panel.getCorrespondent().deleteObserver(panel);
 					unpairedCorrespondentsPanel.remove(component);
@@ -118,10 +119,10 @@ public class MainView extends JFrame implements Observer {
 			}
 		}
 		if (!correspondentFound & correspondentExists && !correspondentIsPaired) {
-			unpairedCorrespondentsPanel.add(new CorrespondentSummaryView(correspondent, new ActionHandler("Inviter") {
+			unpairedCorrespondentsPanel.add(new CorrespondentSummaryView(corr, new ActionHandler("Inviter") {
 				@Override
 				public void run() {
-					CorrespondentController.getInstance().requestPairing(correspondent);
+					CorrespondentController.getInstance().requestPairing(corr);
 				}
 			}));
 			viewContentsChange = true;
@@ -133,14 +134,15 @@ public class MainView extends JFrame implements Observer {
 	}
 
 	private synchronized void updateView(Chat chat) {
-		if (chat instanceof GroupChat) {
-			GroupChat groupChat = (GroupChat) chat;
-			boolean summaryViewMustAppear = chatManager.existsChat(chat);
+		final Chat ch = chat;
+		if (ch instanceof GroupChat) {
+			GroupChat groupChat = (GroupChat) ch;
+			boolean summaryViewMustAppear = chatManager.existsChat(ch);
 			boolean summaryViewFound = false;
 			boolean viewContentsChange = false;
 			for (Component component : groupChatsPanel.getComponents()) {
 				ChatSummaryView panel = (ChatSummaryView) component;
-				if (panel.getGroupChat().equals(chat)) {
+				if (panel.getGroupChat().equals(ch)) {
 					if (summaryViewFound) {
 						panel.getGroupChat().deleteObserver(panel);
 						groupChatsPanel.remove(component);
@@ -161,7 +163,7 @@ public class MainView extends JFrame implements Observer {
 				groupChatsPanel.add(new ChatSummaryView(groupChat, new ActionHandler("Ouvrir") {
 					@Override
 					public void run() {
-						ChatViewContainer.getInstance().getChatView(chat).update(chat, new Object());
+						ChatViewContainer.getInstance().getChatView(ch).update(ch, new Object());
 					}
 				}));
 				viewContentsChange = true;
@@ -171,7 +173,7 @@ public class MainView extends JFrame implements Observer {
 				repaint();
 			}
 		} else { // CorrespondentChat -> updates correspondentChatsPanel
-			Correspondent correspondent = ((CorrespondentChat) chat).getCorrespondent();
+			Correspondent correspondent = ((CorrespondentChat) ch).getCorrespondent();
 			boolean correspondentExists = correspondentManager.existsCorrespondent(correspondent);
 			boolean correspondentIsPaired = correspondent.isPaired();
 			boolean viewContentsChange = false;
@@ -199,7 +201,7 @@ public class MainView extends JFrame implements Observer {
 				correspondentChatsPanel.add(new CorrespondentSummaryView(correspondent, new ActionHandler("Discuter") {
 					@Override
 					public void run() {
-						ChatViewContainer.getInstance().getChatView(chat).update(chat, new Object());
+						ChatViewContainer.getInstance().getChatView(ch).update(ch, new Object());
 					}
 
 				}));

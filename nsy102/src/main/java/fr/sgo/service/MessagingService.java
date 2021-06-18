@@ -362,10 +362,11 @@ public class MessagingService {
 
 		@Override
 		public void onMessage(javax.jms.Message jmsmessage) {
+			final javax.jms.Message m = jmsmessage;
 			new Thread() {
 				@Override
 				public void run() {
-					InMessage applicationMessage = translateMessage(jmsmessage);
+					InMessage applicationMessage = translateMessage(m);
 					Correspondent correspondent = applicationMessage.getAuthor();
 					if (App.T)
 						System.out.println("message reçu de " + correspondent.getUserName() + " : "

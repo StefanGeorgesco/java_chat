@@ -185,7 +185,7 @@ public class ChatManager extends Observable implements Observer {
 
 	@Override
 	public void update(Observable o, Object arg) {
-		Correspondent correspondent = (Correspondent) arg;
+		final Correspondent correspondent = (Correspondent) arg;
 		if (CorrespondentManager.getInstance().existsCorrespondent(correspondent) && correspondent.isPaired()) {
 			setCorrespondentChat(correspondent);
 			if (correspondent.isOnline())

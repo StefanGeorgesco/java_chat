@@ -48,9 +48,9 @@ public class AddCorrespondentToChatView {
 		panel.add(validate);
 		panel.add(cancel);
 		frame.add(panel);
-		Set<Correspondent> selectedCorrespondents = new HashSet<Correspondent>();
+		final Set<Correspondent> selectedCorrespondents = new HashSet<Correspondent>();
 		String[] userNamesTable = new String[this.correspondents.size()];
-		Correspondent[] correspondentsTable = new Correspondent[this.correspondents.size()];
+		final Correspondent[] correspondentsTable = new Correspondent[this.correspondents.size()];
 		int i = 0;
 		for (Correspondent correspondent : this.correspondents) {
 			userNamesTable[i] = correspondent.getUserName();

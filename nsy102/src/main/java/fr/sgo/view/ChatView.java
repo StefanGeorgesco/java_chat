@@ -191,13 +191,14 @@ public class ChatView extends JFrame implements ActionListener, Observer {
 
 	@Override
 	public void update(Observable o, Object arg) {
+		final Object obj = arg;
 		new Thread() {
 			@Override
 			public void run() {
 				refreshMessagesHistoryView();
 				refreshcorrespondentsListView();
 				refreshConnectionStatusView();
-				if (arg != null) {
+				if (obj != null) {
 					setVisible(true);
 					toFront();
 				}

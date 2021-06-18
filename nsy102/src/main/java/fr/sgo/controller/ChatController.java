@@ -58,20 +58,22 @@ public class ChatController {
 	}
 
 	public void addCorrespondentsToChat(HostedGroupChat chat, Collection<Correspondent> correspondents) {
+		final HostedGroupChat ch = chat;
+		final Collection<Correspondent> corrs = new HashSet<Correspondent>(correspondents);
 		if (App.T)
 			System.out.println(
-					"ajout de participants au chat" + ((GroupChat) chat).getName() + " : " + correspondents.toString());
+					"ajout de participants au chat" + ((GroupChat) ch).getName() + " : " + corrs.toString());
 		final CorrespondentServiceLocator correspondentServiceLocator = CorrespondentServiceLocator.getInstance();
 		new Thread() {
 			@Override
 			public void run() {
-				for (Correspondent correspondent : correspondents) {
+				for (Correspondent correspondent : corrs) {
 					RMIService service = correspondentServiceLocator.lookup(correspondent.getUserId()).getServiceRMI();
 					if (service != null)
 						try {
 							if (service.inviteToGroupChat(RMIController.getInstance(),
-									correspondent.getPairingInfo().getOutId(), chat))
-								chat.addCorrespondent(correspondent);
+									correspondent.getPairingInfo().getOutId(), ch))
+								ch.addCorrespondent(correspondent);
 							else
 								new InformationView(null, correspondent.getUserName() + " n'est pas disponible");
 						} catch (Exception e) {

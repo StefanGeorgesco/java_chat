@@ -120,11 +120,11 @@ public class CorrespondentManager extends Observable implements Observer {
 	}
 
 	public void update(Observable observable, Object arg) {
+		final CorrespondentServiceLocator correspondentServiceLocator = (CorrespondentServiceLocator) observable;
+		final CorrespondentServiceInfo correspondentServiceInfo = (CorrespondentServiceInfo) arg;
 		new Thread() {
 			@Override
 			public void run() {
-				CorrespondentServiceLocator correspondentServiceLocator = (CorrespondentServiceLocator) observable;
-				CorrespondentServiceInfo correspondentServiceInfo = (CorrespondentServiceInfo) arg;
 				if (correspondentServiceInfo != null) { // got info
 					String userId = correspondentServiceInfo.getUserId();
 					assert userId != null; // DEBUG
