@@ -77,7 +77,8 @@ public class Correspondent extends Observable implements Serializable, Comparabl
 
 	@Override
 	public String toString() {
-		return userName + " (" + (isOnline() ? "online" : "offline") + ")";
+		return userName + ", userId=" + getUserId() + ", " + (isOnline() ? "online" : "offline") + ", "
+				+ (isPaired() ? "paired" : "unpaired");
 	}
 
 	public class PairingInfo implements Serializable {

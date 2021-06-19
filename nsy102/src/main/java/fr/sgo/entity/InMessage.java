@@ -1,5 +1,8 @@
 package fr.sgo.entity;
 
+import java.text.DateFormat;
+import java.util.Date;
+
 public class InMessage extends Message {
 	/**
 	 * 
@@ -11,9 +14,16 @@ public class InMessage extends Message {
 		super(contents, timeWritten);
 		this.author = author;
 	}
-	
+
 	public Correspondent getAuthor() {
 		return author;
 	}
-	
+
+	@Override
+	public String toString() {
+		DateFormat shortDateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
+		return getAuthor().getUserName() + " (" + shortDateFormat.format(new Date(getTimeWritten())) + ") : "
+				+ getContents();
+	}
+
 }

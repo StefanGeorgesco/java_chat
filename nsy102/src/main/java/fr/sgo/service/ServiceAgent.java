@@ -1,6 +1,7 @@
 package fr.sgo.service;
 
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.rmi.RMISecurityManager;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -10,8 +11,11 @@ import java.util.Map;
 
 import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceInfo;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
 
 import fr.sgo.app.App;
+import fr.sgo.app.AppMBean;
 import fr.sgo.controller.RMIController;
 
 /**
@@ -78,6 +82,17 @@ public class ServiceAgent {
 		}
 		if (App.T)
 			System.out.println("service enregistré dans le registre RMI");
+		MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+
+		AppMBean bean = App.getInstance();
+		ObjectName name = null;
+
+		try {
+			name = new ObjectName("app.App:name=AppAgent");
+			mbs.registerMBean(bean, name);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		new DNSServicePublisher(delay, profileInfo);
 	}
 
@@ -102,8 +117,8 @@ public class ServiceAgent {
 			props.put("userId", profileInfo.getUserId());
 			props.put("userName", profileInfo.getUserName());
 			try {
-				ServiceInfo serviceInfo = ServiceInfo.create(SERVICE_TYPE, serviceName,
-						profileInfo.getRMIPort(), 0, 0, true, props);
+				ServiceInfo serviceInfo = ServiceInfo.create(SERVICE_TYPE, serviceName, profileInfo.getRMIPort(), 0, 0,
+						true, props);
 				jmdns = JmDNS.create();
 				jmdns.registerService(serviceInfo);
 			} catch (IOException ioe) {
@@ -111,7 +126,7 @@ public class ServiceAgent {
 			}
 			if (App.T)
 				System.out.println("service mDNS publié");
-			
+
 		}
 	}
 }

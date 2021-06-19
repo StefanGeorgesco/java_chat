@@ -23,4 +23,9 @@ public class RemoteGroupChat extends GroupChat {
 		this.correspondent = correspondent;
 	}
 
+	@Override
+	public String toString() {
+		return getName() + " , remote (" + getCorrespondent().getUserName() + "), chatId=" + getId();
+	}
+
 }

@@ -48,8 +48,4 @@ public abstract class Message implements Comparable<Message>, Serializable {
 		return res;
 	}
 
-	@Override
-	public String toString() {
-		return getContents();
-	}
 }

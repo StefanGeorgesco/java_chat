@@ -1,5 +1,8 @@
 package fr.sgo.entity;
 
+import java.text.DateFormat;
+import java.util.Date;
+
 import fr.sgo.service.ProfileInfo;
 
 public class OutMessage extends Message {
@@ -16,6 +19,13 @@ public class OutMessage extends Message {
 	
 	public String getUserId() {
 		return userId;
+	}
+
+	@Override
+	public String toString() {
+		DateFormat shortDateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
+		return "Me (" + shortDateFormat.format(new Date(getTimeWritten())) + ") : "
+				+ getContents();
 	}
 
 }

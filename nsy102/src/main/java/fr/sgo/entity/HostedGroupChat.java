@@ -13,4 +13,9 @@ public class HostedGroupChat extends GroupChat {
 		this.id = IDGenerator.newId();
 	}
 
+	@Override
+	public String toString() {
+		return getName() + " , hosted, chatId=" + getId();
+	}
+
 }
