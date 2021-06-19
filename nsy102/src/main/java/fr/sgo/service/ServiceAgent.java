@@ -26,11 +26,12 @@ import fr.sgo.controller.RMIController;
 public class ServiceAgent {
 	private static ServiceAgent instance = null;
 	public static final String SERVICE_TYPE = "_CorrespondentService._tcp.local.";
-	private static final String serviceName = IDGenerator.newId();
+	private static String serviceName;
 	private static Registry registry;
 	private static JmDNS jmdns = null;
 
 	private ServiceAgent() {
+		serviceName = ProfileInfo.getInstance().getUserId();
 		java.util.Properties p = System.getProperties();
 		p.put("java.security.policy", "policy.all");
 		System.setProperties(p);
@@ -102,7 +103,7 @@ public class ServiceAgent {
 			props.put("userName", profileInfo.getUserName());
 			try {
 				ServiceInfo serviceInfo = ServiceInfo.create(SERVICE_TYPE, serviceName,
-						profileInfo.getRMIPort(), 0, 0, props);
+						profileInfo.getRMIPort(), 0, 0, true, props);
 				jmdns = JmDNS.create();
 				jmdns.registerService(serviceInfo);
 			} catch (IOException ioe) {

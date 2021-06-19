@@ -30,11 +30,9 @@ public class CorrespondentServiceLocator extends Observable {
 	private JmDNS jmdns;
 	private CorrespondentServiceListener correspondentServiceListener;
 	private Map<String, CorrespondentServiceInfo> map;
-	private Map<String, String> match;
 
 	private CorrespondentServiceLocator() {
 		this.map = Collections.synchronizedMap(new HashMap<String, CorrespondentServiceInfo>());
-		this.match = Collections.synchronizedMap(new HashMap<String, String>());
 	}
 
 	public static synchronized CorrespondentServiceLocator getInstance() {
@@ -61,20 +59,20 @@ public class CorrespondentServiceLocator extends Observable {
 		public void serviceAdded(ServiceEvent event) {
 			if (App.T)
 				System.out.println("service ajouté : " + event.getName());
+			ServiceInfo info = event.getDNS().getServiceInfo(event.getType(), event.getName());
+			new ResolvedServiceInfo(event.getName(), info).start();
 		}
 
 		public void serviceRemoved(ServiceEvent event) {
 			if (App.T)
 				System.out.println("service retiré : " + event.getName() + "("
 						+ event.getInfo().getPropertyString("userName") + ")");
-			final String serviceName = event.getName();
-			final String userId = match.get(serviceName);
+			final String userId = event.getName();
 			final CorrespondentServiceInfo correspondentServiceInfo = map.get(userId);
 			new Thread() {
 				@Override
 				public void run() {
 					map.remove(userId);
-					match.remove(serviceName);
 					CorrespondentServiceLocator.this.setChanged();
 					CorrespondentServiceLocator.this.notifyObservers(correspondentServiceInfo);
 				}
@@ -86,7 +84,6 @@ public class CorrespondentServiceLocator extends Observable {
 				System.out.println("service résolu : " + event.getName() + "("
 						+ event.getInfo().getPropertyString("userName") + ")");
 			assert event.getInfo().getPropertyString("userId") != null; // DEBUG
-			new ResolvedServiceInfo(event.getName(), event.getInfo()).start();
 		}
 	}
 
@@ -118,7 +115,6 @@ public class CorrespondentServiceLocator extends Observable {
 					CorrespondentServiceInfo correspondentServiceInfo = new CorrespondentServiceInfo(userId, userName,
 							host, service);
 					map.put(userId, correspondentServiceInfo);
-					match.put(serviceName, userId);
 					CorrespondentServiceLocator.this.setChanged();
 					assert correspondentServiceInfo.getUserId() != null; // DEBUG
 					CorrespondentServiceLocator.this.notifyObservers(correspondentServiceInfo);
