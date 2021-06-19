@@ -127,7 +127,6 @@ public class CorrespondentManager extends Observable implements Observer {
 			public void run() {
 				if (correspondentServiceInfo != null) { // got info
 					String userId = correspondentServiceInfo.getUserId();
-					assert userId != null; // DEBUG
 					String myUserId = ProfileInfo.getInstance().getUserId();
 					if (!userId.equals(myUserId)) { // not me
 						Correspondent correspondent = correspondents.get(userId); // get correspondent if present

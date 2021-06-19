@@ -83,7 +83,6 @@ public class CorrespondentServiceLocator extends Observable {
 			if (App.T)
 				System.out.println("service résolu : " + event.getName() + "("
 						+ event.getInfo().getPropertyString("userName") + ")");
-			assert event.getInfo().getPropertyString("userId") != null; // DEBUG
 		}
 	}
 
@@ -95,7 +94,6 @@ public class CorrespondentServiceLocator extends Observable {
 
 		public AddedServiceHandler(String serviceName, ServiceInfo si) {
 			this.userId = si.getPropertyString("userId");
-			assert this.userId != null; // DEBUG
 			this.userName = si.getPropertyString("userName");
 			this.urlString = si.getURLs()[0];
 			this.serviceName = serviceName;
@@ -111,12 +109,10 @@ public class CorrespondentServiceLocator extends Observable {
 				if (service.isOnline()) {
 					if (App.T)
 						System.out.println("service actif pour " + userName);
-					assert userId != null; // DEBUG
 					CorrespondentServiceInfo correspondentServiceInfo = new CorrespondentServiceInfo(userId, userName,
 							host, service);
 					map.put(userId, correspondentServiceInfo);
 					CorrespondentServiceLocator.this.setChanged();
-					assert correspondentServiceInfo.getUserId() != null; // DEBUG
 					CorrespondentServiceLocator.this.notifyObservers(correspondentServiceInfo);
 				}
 			} catch (Exception e) {

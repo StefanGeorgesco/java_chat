@@ -47,7 +47,6 @@ public class App extends NotificationBroadcasterSupport implements AppMBean, Obs
 
 	private App() {
 		profileInfo = ProfileInfo.getInstance();
-		assert profileInfo.getUserId() != null; // DEBUG
 		RMIController.getInstance();
 		CorrespondentController.getInstance();
 		ChatController.getInstance();
