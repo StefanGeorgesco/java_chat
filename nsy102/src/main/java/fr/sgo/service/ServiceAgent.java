@@ -62,38 +62,43 @@ public class ServiceAgent {
 
 	public void publishServices(int delay) {
 		ProfileInfo profileInfo = ProfileInfo.getInstance();
+		
 		try {
 			registry = LocateRegistry.createRegistry(profileInfo.getRMIPort());
+			if (App.T)
+				System.out.println("registre RMI créé");
 		} catch (RemoteException re1) {
 			try {
 				registry = LocateRegistry.getRegistry(profileInfo.getRMIPort());
+				if (App.T)
+					System.out.println("registre RMI lié");
 			} catch (RemoteException re2) {
 				re2.printStackTrace();
 				System.exit(1);
 			}
 		}
-		if (App.T)
-			System.out.println("registre RMI créé ou lié");
 		try {
 			registry.rebind(serviceName, RMIController.getInstance());
+			if (App.T)
+				System.out.println("service enregistré dans le registre RMI");
 		} catch (RemoteException re3) {
 			re3.printStackTrace();
 			System.exit(1);
 		}
-		if (App.T)
-			System.out.println("service enregistré dans le registre RMI");
+		
 		MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-
 		AppMBean bean = App.getInstance();
 		ObjectName name = null;
-
 		try {
 			name = new ObjectName("app.App:name=AppAgent");
 			mbs.registerMBean(bean, name);
+			if (App.T)
+				System.out.println("service JMX (MBean) publié");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		new DNSServicePublisher(delay, profileInfo);
+		
+		new DNSServicePublisher(delay, profileInfo); // mDNS service
 	}
 
 	private class DNSServicePublisher extends Thread {
