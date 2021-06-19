@@ -7,7 +7,7 @@ import java.util.UUID;
  * 
  * generates random 32 characters strings
  *
- * @author Stéfan Georgesco
+ * @author Stefan Georgesco
  * @version 1.0
  */
 public class IDGenerator

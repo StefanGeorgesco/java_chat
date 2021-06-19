@@ -19,6 +19,14 @@ import fr.sgo.controller.ChatController;
 import fr.sgo.entity.Correspondent;
 import fr.sgo.entity.HostedGroupChat;
 
+/**
+ * Class AddCorrespondentToChatView
+ * 
+ * view allowing to add correspondents to a chat
+ *
+ * @author Stefan Georgesco
+ * @version 1.0
+ */
 public class AddCorrespondentToChatView {
 	private HostedGroupChat chat;
 	private Set<Correspondent> correspondents;

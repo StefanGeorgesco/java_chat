@@ -4,6 +4,14 @@ import java.io.Serializable;
 
 import fr.sgo.service.ProfileInfo;
 
+/**
+ * Abstract class Message
+ * 
+ * Represents a generic message in chats
+ *
+ * @author Stefan Georgesco
+ * @version 1.0
+ */
 public abstract class Message implements Comparable<Message>, Serializable {
 	/**
 	 * 

@@ -5,7 +5,7 @@ package fr.sgo.controller;
  * 
  * Subclasses Handle button-attached specific actions
  *
- * @author Stéfan Georgesco
+ * @author Stefan Georgesco
  * @version 1.0
  */
 public abstract class ActionHandler implements Runnable {

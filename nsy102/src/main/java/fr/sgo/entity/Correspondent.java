@@ -8,9 +8,9 @@ import fr.sgo.service.IDGenerator;
 /**
  * Class Correspondent
  * 
- * Represents a conversation correspondent
+ * Represents a correspondent
  *
- * @author Stéfan Georgesco
+ * @author Stefan Georgesco
  * @version 1.0
  */
 @SuppressWarnings("deprecation")

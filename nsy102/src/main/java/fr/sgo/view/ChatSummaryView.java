@@ -10,9 +10,9 @@ import fr.sgo.entity.RemoteGroupChat;
 /**
  * Class ChatSummaryView
  * 
- * A panel representing a chat with action button
+ * A panel representing a chat with an action button
  *
- * @author Stéfan Georgesco
+ * @author Stefan Georgesco
  * @version 1.0
  */
 @SuppressWarnings("deprecation")

@@ -2,6 +2,14 @@ package fr.sgo.entity;
 
 import fr.sgo.service.IDGenerator;
 
+/**
+ * Class HostedGroupChat
+ * 
+ * Represents a local (hosted) group chat
+ *
+ * @author Stefan Georgesco
+ * @version 1.0
+ */
 public class HostedGroupChat extends GroupChat {
 	/**
 	 * 

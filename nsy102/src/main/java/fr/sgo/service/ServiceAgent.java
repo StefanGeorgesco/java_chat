@@ -21,9 +21,9 @@ import fr.sgo.controller.RMIController;
 /**
  * Class ServiceAgent
  * 
- * Publishes services (RMI & JmDNS)
+ * Publishes services (RMI, MBean & JmDNS)
  *
- * @author Stéfan Georgesco
+ * @author Stefan Georgesco
  * @version 1.0
  */
 @SuppressWarnings("deprecation")

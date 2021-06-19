@@ -1,5 +1,13 @@
 package fr.sgo.entity;
 
+/**
+ * Class CorrespondentChat
+ * 
+ * Represents a chat with one correspondent
+ *
+ * @author Stefan Georgesco
+ * @version 1.0
+ */
 public class CorrespondentChat extends Chat {
 	/**
 	 * 

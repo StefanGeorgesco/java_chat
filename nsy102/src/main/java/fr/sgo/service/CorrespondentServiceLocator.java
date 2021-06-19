@@ -21,7 +21,7 @@ import fr.sgo.controller.RMIService;
  * 
  * Keep a record of live Correspondents based on mDNS service
  *
- * @author Stéfan Georgesco
+ * @author Stefan Georgesco
  * @version 1.0
  */
 @SuppressWarnings({ "deprecation" })

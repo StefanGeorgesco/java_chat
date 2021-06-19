@@ -19,6 +19,14 @@ import fr.sgo.service.MessagingService;
 import fr.sgo.service.ProfileInfo;
 import fr.sgo.service.Storage;
 
+/**
+ * Class ChatManager
+ * 
+ * Model manager for chat objects
+ *
+ * @author Stefan Georgesco
+ * @version 1.0
+ */
 @SuppressWarnings("deprecation")
 public class ChatManager extends Observable implements Observer {
 	private static ChatManager instance = null;

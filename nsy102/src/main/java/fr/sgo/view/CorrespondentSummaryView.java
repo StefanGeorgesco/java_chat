@@ -8,9 +8,9 @@ import fr.sgo.entity.Correspondent;
 /**
  * Class CorrespondentSummaryView
  * 
- * A panel representing a correspondent with action button
+ * A panel representing a correspondent with an action button
  *
- * @author Stéfan Georgesco
+ * @author Stefan Georgesco
  * @version 1.0
  */
 @SuppressWarnings("deprecation")

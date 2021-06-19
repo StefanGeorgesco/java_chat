@@ -5,10 +5,11 @@ import java.io.Serializable;
 import javax.swing.JOptionPane;
 
 /**
- * Class ProfileInfo.
+ * Class ProfileInfo
+ * 
  * Keeps profile info
  *
- * @author Stéfan Georgesco
+ * @author Stefan Georgesco
  * @version 1.0
  */
 public class ProfileInfo implements Serializable

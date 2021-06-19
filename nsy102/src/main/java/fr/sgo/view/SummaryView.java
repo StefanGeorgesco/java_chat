@@ -15,9 +15,9 @@ import fr.sgo.controller.ActionHandler;
 /**
  * Abstract class SummaryView
  * 
- * A panel representing a correspondent or a chat with action button
+ * A panel representing a correspondent or a chat with an action button
  *
- * @author Stéfan Georgesco
+ * @author Stefan Georgesco
  * @version 1.0
  */
 @SuppressWarnings("deprecation")

@@ -21,9 +21,9 @@ import fr.sgo.service.Storage;
 /**
  * Class CorrespondentManager
  * 
- * Manages correspondents
+ * Model manager for correspondents objects
  *
- * @author Stéfan Georgesco
+ * @author Stefan Georgesco
  * @version 1.0
  */
 @SuppressWarnings("deprecation")

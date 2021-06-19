@@ -1,5 +1,13 @@
 package fr.sgo.entity;
 
+/**
+ * Class RemoteGroupChat
+ * 
+ * Represents a remote (non hosted) group chat
+ *
+ * @author Stefan Georgesco
+ * @version 1.0
+ */
 public class RemoteGroupChat extends GroupChat {
 	/**
 	 * 

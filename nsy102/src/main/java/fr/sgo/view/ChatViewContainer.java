@@ -9,6 +9,14 @@ import java.util.Observer;
 import fr.sgo.entity.Chat;
 import fr.sgo.model.ChatManager;
 
+/**
+ * Class ChatViewContainer
+ * 
+ * A container for ChatView objects
+ *
+ * @author Stefan Georgesco
+ * @version 1.0
+ */
 @SuppressWarnings("deprecation")
 public class ChatViewContainer implements Observer {
 	private static ChatViewContainer instance = null;

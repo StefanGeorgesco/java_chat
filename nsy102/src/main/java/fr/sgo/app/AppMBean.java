@@ -2,6 +2,14 @@ package fr.sgo.app;
 
 import javax.management.NotificationEmitter;
 
+/**
+ * Interface AppMBean
+ * 
+ * Bean interface for App class.
+ *
+ * @author Stefan Georgesco
+ * @version 1.0
+ */
 public interface AppMBean extends NotificationEmitter {
 	
 	public String userName();

@@ -10,6 +10,14 @@ import java.util.TreeSet;
 import fr.sgo.service.IDGenerator;
 import fr.sgo.service.MessagingService;
 
+/**
+ * Abstract class Chat
+ * 
+ * A generic chat object
+ *
+ * @author Stefan Georgesco
+ * @version 1.0
+ */
 @SuppressWarnings("deprecation")
 public abstract class Chat extends Observable implements Serializable {
 	/**

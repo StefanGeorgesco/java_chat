@@ -18,6 +18,14 @@ import fr.sgo.view.AddCorrespondentToChatView;
 import fr.sgo.view.InformationView;
 import fr.sgo.view.MainView;
 
+/**
+ * Class ChatController
+ * 
+ * Controls chat operations
+ *
+ * @author Stefan Georgesco
+ * @version 1.0
+ */
 public class ChatController {
 	private static ChatController instance = null;
 

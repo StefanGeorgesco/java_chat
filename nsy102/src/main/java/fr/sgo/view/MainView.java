@@ -31,7 +31,7 @@ import fr.sgo.service.ProfileInfo;
  * 
  * Main application view. Application terminates when closed.
  *
- * @author Stéfan Georgesco
+ * @author Stefan Georgesco
  * @version 1.0
  */
 @SuppressWarnings("deprecation")

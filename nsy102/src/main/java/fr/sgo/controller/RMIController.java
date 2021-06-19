@@ -15,9 +15,9 @@ import fr.sgo.model.CorrespondentManager;
 /**
  * Class RMIController
  * 
- * Main application controller.
+ * Receives RMI invocations.
  *
- * @author Stéfan Georgesco
+ * @author Stefan Georgesco
  * @version 1.0
  */
 public class RMIController extends UnicastRemoteObject implements RMIService {

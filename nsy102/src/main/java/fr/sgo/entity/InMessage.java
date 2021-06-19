@@ -3,6 +3,14 @@ package fr.sgo.entity;
 import java.text.DateFormat;
 import java.util.Date;
 
+/**
+ * Class InMessage
+ * 
+ * Represents a message received from a chat
+ *
+ * @author Stefan Georgesco
+ * @version 1.0
+ */
 public class InMessage extends Message {
 	/**
 	 * 

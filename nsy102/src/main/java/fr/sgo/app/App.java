@@ -26,9 +26,9 @@ import fr.sgo.view.MainView;
 /**
  * Class App
  * 
- * Initializes the application
+ * Main class. Initializes the application and supports MBean.
  *
- * @author Stéfan Georgesco
+ * @author Stefan Georgesco
  * @version 1.0
  */
 @SuppressWarnings("deprecation")

@@ -7,7 +7,7 @@ import fr.sgo.controller.RMIService;
  * 
  * Stores correspondent name & RMI info
  *
- * @author Stéfan Georgesco
+ * @author Stefan Georgesco
  * @version 1.0
  */
 public class CorrespondentServiceInfo

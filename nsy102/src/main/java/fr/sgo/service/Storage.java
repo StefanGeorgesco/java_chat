@@ -9,10 +9,11 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 
 /**
- * Class Storage.
- * save and resore objects.
+ * Class Storage
+ * 
+ * saves and restores serialized objects
  *
- * @author Stéfan Georgesco
+ * @author Stefan Georgesco
  * @version 1.0
  */
 public class Storage {

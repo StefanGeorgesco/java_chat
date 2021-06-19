@@ -34,6 +34,14 @@ import fr.sgo.entity.RemoteGroupChat;
 import fr.sgo.model.CorrespondentManager;
 import fr.sgo.view.InformationView;
 
+/**
+ * Class MessagingService
+ * 
+ * Manages JMS API for the application
+ *
+ * @author Stefan Georgesco
+ * @version 1.0
+ */
 public class MessagingService {
 	private static MessagingService instance = null;
 	private static final String factoryName = "JmsTopicConnectionFactory";

@@ -11,6 +11,14 @@ import fr.sgo.service.CorrespondentServiceLocator;
 import fr.sgo.view.InformationView;
 import fr.sgo.view.MainView;
 
+/**
+ * Class CorrespondentController
+ * 
+ * Controls correspondents operations
+ *
+ * @author Stefan Georgesco
+ * @version 1.0
+ */
 public class CorrespondentController {
 	private static CorrespondentController instance = null;
 

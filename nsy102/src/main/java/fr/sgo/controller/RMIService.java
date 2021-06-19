@@ -8,8 +8,10 @@ import fr.sgo.service.ProfileInfo;
 
 /**
  * Interface RMIService
+ * 
+ * Defines RMI interface for RMIController class
  *
- * @author Stéfan Georgesco
+ * @author Stefan Georgesco
  * @version 1.0
  */
 public interface RMIService extends Remote {

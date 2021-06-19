@@ -7,6 +7,14 @@ import java.util.TreeSet;
 
 import fr.sgo.service.ProfileInfo;
 
+/**
+ * Abstract class GroupChat
+ * 
+ * Represents a generic group chat
+ *
+ * @author Stefan Georgesco
+ * @version 1.0
+ */
 public abstract class GroupChat extends Chat {
 
 	/**

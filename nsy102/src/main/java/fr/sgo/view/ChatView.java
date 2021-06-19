@@ -36,6 +36,14 @@ import fr.sgo.entity.Message;
 import fr.sgo.entity.RemoteGroupChat;
 import fr.sgo.service.ProfileInfo;
 
+/**
+ * Class ChatView
+ * 
+ * Detailed view of a chat
+ *
+ * @author Stefan Georgesco
+ * @version 1.0
+ */
 @SuppressWarnings("deprecation")
 public class ChatView extends JFrame implements ActionListener, Observer {
 	/**

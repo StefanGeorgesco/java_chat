@@ -5,6 +5,14 @@ import java.util.Date;
 
 import fr.sgo.service.ProfileInfo;
 
+/**
+ * Class OutMessage
+ * 
+ * Represents a message sent to a chat
+ *
+ * @author Stefan Georgesco
+ * @version 1.0
+ */
 public class OutMessage extends Message {
 	/**
 	 * 
