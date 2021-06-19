@@ -60,7 +60,7 @@ public class CorrespondentServiceLocator extends Observable {
 			if (App.T)
 				System.out.println("service ajouté : " + event.getName());
 			ServiceInfo info = event.getDNS().getServiceInfo(event.getType(), event.getName());
-			new ResolvedServiceInfo(event.getName(), info).start();
+			new AddedServiceHandler(event.getName(), info).start();
 		}
 
 		public void serviceRemoved(ServiceEvent event) {
@@ -87,13 +87,13 @@ public class CorrespondentServiceLocator extends Observable {
 		}
 	}
 
-	private class ResolvedServiceInfo extends Thread {
+	private class AddedServiceHandler extends Thread {
 		private String userId;
 		private String userName;
 		private String urlString;
 		private String serviceName;
 
-		public ResolvedServiceInfo(String serviceName, ServiceInfo si) {
+		public AddedServiceHandler(String serviceName, ServiceInfo si) {
 			this.userId = si.getPropertyString("userId");
 			assert this.userId != null; // DEBUG
 			this.userName = si.getPropertyString("userName");
