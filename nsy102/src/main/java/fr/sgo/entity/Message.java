@@ -50,7 +50,6 @@ public abstract class Message implements Comparable<Message>, Serializable {
 						&& ((InMessage) m).getAuthor().getUserId().equals(ProfileInfo.getInstance().getUserId())))
 			res = 0;
 		else {
-			System.out.println("Les messages sont différents");
 			res = -1;
 		}
 		return res;

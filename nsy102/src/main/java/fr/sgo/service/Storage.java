@@ -47,7 +47,7 @@ public class Storage {
 			is.close();
 		} catch (Exception e) {
 			if (App.T)
-				System.out.println("impossible d'ouvrir le fichier " + filename);
+				System.out.println("fichier " + filename + "absent");
 		}
 		return object;
 	}

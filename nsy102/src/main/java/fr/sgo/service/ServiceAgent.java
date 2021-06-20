@@ -44,7 +44,8 @@ public class ServiceAgent {
 			@Override
 			public void run() {
 				try {
-					System.out.println("retrait des services RMI et mDNS...");
+					if (App.T)
+						System.out.println("retrait des services RMI et mDNS...");
 					registry.unbind(serviceName);
 					jmdns.unregisterAllServices();
 					jmdns.close();
@@ -62,7 +63,7 @@ public class ServiceAgent {
 
 	public void publishServices(int delay) {
 		ProfileInfo profileInfo = ProfileInfo.getInstance();
-		
+
 		try {
 			registry = LocateRegistry.createRegistry(profileInfo.getRMIPort());
 			if (App.T)
@@ -85,7 +86,7 @@ public class ServiceAgent {
 			re3.printStackTrace();
 			System.exit(1);
 		}
-		
+
 		MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
 		AppMBean bean = App.getInstance();
 		ObjectName name = null;
@@ -97,7 +98,7 @@ public class ServiceAgent {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		new DNSServicePublisher(delay, profileInfo); // mDNS service
 	}
 

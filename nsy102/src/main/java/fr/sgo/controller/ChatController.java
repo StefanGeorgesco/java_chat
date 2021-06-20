@@ -70,7 +70,7 @@ public class ChatController {
 		final Collection<Correspondent> corrs = new HashSet<Correspondent>(correspondents);
 		if (App.T)
 			System.out.println(
-					"ajout de participants au chat" + ((GroupChat) ch).getName() + " : " + corrs.toString());
+					"ajout de participants au chat " + ((GroupChat) ch).getName() + " : " + corrs.toString());
 		final CorrespondentServiceLocator correspondentServiceLocator = CorrespondentServiceLocator.getInstance();
 		new Thread() {
 			@Override

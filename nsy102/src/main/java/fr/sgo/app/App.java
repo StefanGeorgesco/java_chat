@@ -33,7 +33,7 @@ import fr.sgo.view.MainView;
  */
 @SuppressWarnings("deprecation")
 public class App extends NotificationBroadcasterSupport implements AppMBean, Observer {
-	public static final boolean T = true; //
+	public static final boolean T = false; //
 	public static final boolean JMS_MESSAGE_PERSISTENCE = false; //
 	private static App instance = null;
 	private ProfileInfo profileInfo;
